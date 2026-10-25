@@ -112,6 +112,8 @@ BUILTIN_MODULES = (
     "src.models.tf.gru_qoe",
     "src.models.torch.gpt2",
     "src.models.torch.tinyllama",
+    "src.models.torch.hf_decoder",
+    "src.models.tf.keras_applications",
 )
 
 
@@ -123,6 +125,12 @@ BUILTIN_NAMES = {
     "gru_qoe": "src.models.tf.gru_qoe",
     "gpt2": "src.models.torch.gpt2",
     "tinyllama": "src.models.torch.tinyllama",
+    "hf_decoder": "src.models.torch.hf_decoder",
+    "llama32_1b": "src.models.torch.hf_decoder",
+    "qwen25_05b": "src.models.torch.hf_decoder",
+    "mobilenetv2": "src.models.tf.keras_applications",
+    "efficientnetb0": "src.models.tf.keras_applications",
+    "densenet121": "src.models.tf.keras_applications",
 }
 
 

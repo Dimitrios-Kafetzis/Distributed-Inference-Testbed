@@ -17,7 +17,29 @@ from typing import Any, cast
 import torch
 from torch import nn
 
-from src.models.torch.decoder import DecoderStageAdapter, causal_mask
+from src.models.torch.decoder import FAMILIES, DecoderStageAdapter, causal_mask
+
+
+def _project(linear: nn.Module, x: torch.Tensor, start: int, stop: int) -> torch.Tensor:
+    """Rows ``start:stop`` of a linear projection (one head's slice), bias included."""
+    out = x @ linear.weight[start:stop].T
+    bias = getattr(linear, "bias", None)
+    if bias is not None:
+        out = out + bias[start:stop]
+    return cast(torch.Tensor, out)
+
+
+def rotary_cos_sin(
+    attention: nn.Module, v: torch.Tensor, positions: torch.Tensor, t: int
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """The rotary tables of the layer: Transformers 4.38 and later take the positions,
+    4.36 takes the sequence length."""
+    rotary = attention.rotary_emb
+    try:
+        cos, sin = rotary(v, positions)
+    except TypeError:
+        cos, sin = rotary(v, seq_len=t)
+    return cast(torch.Tensor, cos), cast(torch.Tensor, sin)
 
 
 class HeadUnit(nn.Module):
@@ -26,6 +48,7 @@ class HeadUnit(nn.Module):
     def __init__(self, adapter: DecoderStageAdapter, attention: nn.Module, head: int) -> None:
         super().__init__()
         self.family = adapter.family
+        self.spec = adapter.spec
         self.attention = attention
         self.head = head
         self.num_heads = adapter.num_heads()
@@ -37,20 +60,18 @@ class HeadUnit(nn.Module):
     ) -> torch.Tensor:
         t = normed.shape[1]
         hd, h, kvh = self.head_dim, self.head, self.kv_head
-        if self.family == "gpt2":
-            qkv = self.attention.c_attn(normed)  # [1, T, 3D]
+        if self.spec.fused_qkv:
+            qkv = getattr(self.attention, self.spec.fused_qkv)(normed)  # [1, T, 3D]
             d = qkv.shape[-1] // 3
             q = qkv[..., h * hd : (h + 1) * hd]
             k = qkv[..., d + h * hd : d + (h + 1) * hd]
             v = qkv[..., 2 * d + h * hd : 2 * d + (h + 1) * hd]
         else:
-            wq = self.attention.q_proj.weight[h * hd : (h + 1) * hd]
-            wk = self.attention.k_proj.weight[kvh * hd : (kvh + 1) * hd]
-            wv = self.attention.v_proj.weight[kvh * hd : (kvh + 1) * hd]
-            q = normed @ wq.T
-            k = normed @ wk.T
-            v = normed @ wv.T
-            cos, sin = self.attention.rotary_emb(v, seq_len=t)
+            q = _project(self.attention.q_proj, normed, h * hd, (h + 1) * hd)
+            k = _project(self.attention.k_proj, normed, kvh * hd, (kvh + 1) * hd)
+            v = _project(self.attention.v_proj, normed, kvh * hd, (kvh + 1) * hd)
+        if self.spec.rotary:
+            cos, sin = rotary_cos_sin(self.attention, v, positions, t)
             from transformers.models.llama.modeling_llama import apply_rotary_pos_emb
 
             q, k = apply_rotary_pos_emb(q[:, None], k[:, None], cos, sin, positions)
@@ -67,12 +88,11 @@ class ProjectionUnit(nn.Module):
         super().__init__()
         self.family = family
         self.attention = attention
+        self.out_proj = FAMILIES[family].out_proj
 
     def forward(self, head_outputs: list[torch.Tensor]) -> torch.Tensor:
         context = torch.cat(head_outputs, dim=-1)
-        if self.family == "gpt2":
-            return cast(torch.Tensor, self.attention.c_proj(context))
-        return cast(torch.Tensor, self.attention.o_proj(context))
+        return cast(torch.Tensor, getattr(self.attention, self.out_proj)(context))
 
 
 class FfnUnit(nn.Module):

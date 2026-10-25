@@ -14,6 +14,26 @@
     "runtime": { "type": "string", "default": "testbed", "description": "a registered runtime: testbed (default), headsplit, or a plug-in; its settings go in the block of the same name" },
     "model": { "type": "string", "minLength": 1 },
     "model_args": { "type": "object", "description": "adapter parameters, validated against the model's parameter schema (for example num_classes, seq_len)" },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "what the devices feed to the model; paths are on the device, relative to its data directory",
+      "properties": {
+        "source": { "enum": ["synthetic", "numpy_file", "image_file", "image_folder", "text_prompt"], "default": "synthetic" },
+        "path": { "type": ["string", "null"], "description": "file (numpy_file, image_file) or directory (image_folder)" },
+        "index": { "type": "integer", "minimum": 0, "default": 0, "description": "image_folder: which image of the sorted listing" },
+        "text": { "type": ["string", "null"], "description": "text_prompt: the prompt" },
+        "tokenizer": { "type": ["string", "null"], "description": "text_prompt: tokeniser checkpoint (directory or name)" }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "partition_equivalence": { "type": "boolean", "default": false, "description": "after profiling, every device compares each partition point with the unpartitioned model; a deviation above tolerance aborts the run" },
+        "tolerance": { "type": "number", "exclusiveMinimum": 0, "default": 0.0001, "description": "maximum relative deviation" }
+      }
+    },
     "devices": {
       "anyOf": [
         { "type": "null" },

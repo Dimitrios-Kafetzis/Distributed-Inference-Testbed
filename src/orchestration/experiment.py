@@ -312,6 +312,23 @@ def model_args_option(ctx: ExperimentContext) -> list[str]:
     return ["--model-args", json.dumps(args, sort_keys=True)] if args else []
 
 
+def with_device_env(command: str, env: str) -> str:
+    """Prefix a ``cd <dir> && <interpreter> ...`` command's interpreter with variables."""
+    head, sep, tail = command.partition(" && ")
+    return f"{head} && {env} {tail}" if sep else f"{env} {command}"
+
+
+def input_option(ctx: ExperimentContext) -> list[str]:
+    """``--input-source JSON`` when the scenario names a source other than synthetic."""
+    spec = ctx.scenario.get("input") or {}
+    if spec.get("source", "synthetic") == "synthetic":
+        return []
+    return [
+        "--input-source",
+        json.dumps({k: v for k, v in spec.items() if v is not None}, sort_keys=True),
+    ]
+
+
 def remote_list(ctx: ExperimentContext, node: Node, pattern: str) -> list[str]:
     outcome = ctx.executor.run_on_node(node, f"ls -1 {pattern} 2>/dev/null || true", check=False)
     return [line.strip() for line in outcome.stdout.splitlines() if line.strip()]
@@ -561,12 +578,41 @@ def profile_with_testbed(ctx: ExperimentContext) -> None:
             "--start-at",
             f"{ctx.t0:.6f}",
             *model_args_option(ctx),
+            *input_option(ctx),
         ]
         return (
             f"cd {shlex.quote(dp.code_dir)} && {env} bash {shlex.quote(script)} {shlex.join(args)}"
         )
 
     ctx.executor.run_on_nodes(ctx.devices, "", per_node_command=profile_command, timeout=None)
+    checks = scenario.get("checks") or {}
+    if checks.get("partition_equivalence"):
+
+        def verify_command(node: Node) -> str:
+            dp = ctx.device_paths(node)
+            env = f"TESTBED_ED_DATA_DIR={shlex.quote(dp.data_dir)}"
+            command = dp.module(
+                "src.models.inference",
+                "verify",
+                "--model",
+                model,
+                "--weights",
+                f"{dp.models_dir}/{model}.npz",
+                "--seed",
+                seed,
+                "--tolerance",
+                f"{checks.get('tolerance', 1e-4):g}",
+                "--output",
+                f"{dp.results_dir}/verification.json",
+                "--node-id",
+                node.id,
+                *model_args_option(ctx),
+                *input_option(ctx),
+            )
+            return with_device_env(command, env)
+
+        ctx.emit("partition equivalence check on every device")
+        ctx.executor.run_on_nodes(ctx.devices, "", per_node_command=verify_command, timeout=None)
     edge_cfg = scenario.get("edge_server", {})
     if edge_cfg.get("profile_capacity", True):
         weights = ctx.config.bs_models_path / f"{model}.npz"
@@ -698,10 +744,15 @@ def run_partitioned_inference(ctx: ExperimentContext, inference: dict[str, Any])
             "--node-id",
             node.id,
             *model_args_option(ctx),
+            *input_option(ctx),
         ]
         for s in points:
             args += ["--s", s]
-        return dp.module("src.inference.client", *args)
+        # The input source resolves relative paths against the device's data directory.
+        return with_device_env(
+            dp.module("src.inference.client", *args),
+            f"TESTBED_ED_DATA_DIR={shlex.quote(dp.data_dir)}",
+        )
 
     try:
         ctx.executor.run_on_nodes(ctx.devices, "", per_node_command=client_command, timeout=None)
@@ -770,6 +821,7 @@ def stage_collect(ctx: ExperimentContext) -> None:
                     "power.json": ctx.paths.power,
                     "latency.json": ctx.paths.latency,
                     "load.json": ctx.paths.root / "load",
+                    "verification.json": ctx.paths.root / "verification",
                 }.get(name, ctx.paths.root / "other")
             collection.collect(
                 ctx.executor,

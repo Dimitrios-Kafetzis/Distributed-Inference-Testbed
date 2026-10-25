@@ -155,6 +155,11 @@ class FunctionalCutAdapter(_WeightsMixin):
     def define_model(self) -> Any:
         raise NotImplementedError
 
+    def select_cuts(self, model: Any) -> Sequence[str]:
+        """The cut layers of a freshly built model; ``cuts`` by default, computed from
+        the graph by adapters that find their cuts automatically."""
+        return self.cuts
+
     def _ensure_built(self) -> None:
         if self._model is None:
             self.build(0)
@@ -164,6 +169,7 @@ class FunctionalCutAdapter(_WeightsMixin):
         self._model = self.define_model()
         self._submodels = {}
         self._model(tf.zeros((1, *self.input_shape), dtype=tf.float32), training=False)
+        self.cuts = tuple(self.select_cuts(self._model))
         cut_index = {name: i for i, name in enumerate(self.cuts)}
         counts = [OpCount(0, 0) for _ in self.cuts]
         current = 0

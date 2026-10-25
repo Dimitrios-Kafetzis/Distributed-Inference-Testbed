@@ -1,4 +1,4 @@
 # Edge device, LLM experiments (aarch64).
 -r base.in
 torch==2.1.2
-transformers==4.36.2
+transformers==4.46.3

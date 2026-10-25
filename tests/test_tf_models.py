@@ -110,3 +110,43 @@ def test_resnet50_cuts_and_equivalence() -> None:
     for s in (1, 3, 5):
         cut = resnet.run_stages(x, 1, s)
         np.testing.assert_allclose(resnet.run_stages(cut, s + 1, 6), full, rtol=1e-4, atol=1e-5)
+
+
+@pytest.mark.parametrize("name", ["mobilenetv2", "efficientnetb0", "densenet121"])
+def test_keras_applications_cut_automatically_and_partition_equivalence(name: str) -> None:
+    from src.models.tf.keras_applications import find_single_tensor_cuts
+
+    adapter = registry.get(name, input_size=64, max_stages=6)
+    adapter.build(seed=0)
+    stages = adapter.stages
+    assert 2 <= len(stages) <= 6
+    assert stages[-1].output_shape == (1000,) and stages[-1].name == "predictions"
+    # Every stage boundary is a single-tensor cut of the functional graph.
+    candidates = find_single_tensor_cuts(adapter._model)
+    assert all(s.name in candidates for s in stages)
+    assert len(candidates) > 6  # thinning was needed
+    assert sum(s.macs for s in stages) > 0
+    x = adapter.make_input(1)
+    full = adapter.run_stages(x, 1, len(stages))
+    for s in range(1, len(stages)):
+        cut = adapter.run_stages(x, 1, s)
+        assert cut.shape[1:] == stages[s - 1].output_shape
+        np.testing.assert_allclose(
+            adapter.run_stages(cut, s + 1, len(stages)), full, rtol=1e-4, atol=1e-5
+        )
+
+
+def test_keras_app_by_class_name_and_parameter_schema() -> None:
+    from src.models.tf.keras_applications import KerasApplicationsAdapter, thin_cuts
+
+    schema = registry.parameter_schema("keras_app")
+    assert {"application", "num_classes", "input_size", "max_stages"} <= set(schema["properties"])
+    adapter = registry.get(
+        "keras_app", application="MobileNetV2", input_size=32, num_classes=10, max_stages=3
+    )
+    assert isinstance(adapter, KerasApplicationsAdapter)
+    adapter.build(seed=2)
+    assert len(adapter.stages) == 3 and adapter.stages[-1].output_shape == (10,)
+    assert thin_cuts(adapter._model, adapter.candidate_cuts, 100) == adapter.candidate_cuts
+    with pytest.raises(ValueError, match="has no"):
+        registry.get("keras_app", application="NoSuchNet").build(0)

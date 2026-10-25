@@ -31,10 +31,30 @@ LLAMA_TINY = {
 }
 
 
-@pytest.fixture(scope="module", params=["gpt2", "tinyllama"])
+TINY_LLAMA_LIKE = {
+    "num_hidden_layers": 2,
+    "num_attention_heads": 4,
+    "num_key_value_heads": 2,
+    "hidden_size": 32,
+    "intermediate_size": 48,
+    "vocab_size": 101,
+    "max_position_embeddings": 64,
+}
+# Registered name -> (keyword arguments); every row of the family table is covered.
+TINY_MODELS: dict[str, dict[str, object]] = {
+    "gpt2": {"config": GPT2_TINY},
+    "tinyllama": {"config": LLAMA_TINY},
+    "llama32_1b": {"config": TINY_LLAMA_LIKE},
+    "qwen25_05b": {"config": TINY_LLAMA_LIKE},
+    "mistral": {"config": {"model_type": "mistral", **TINY_LLAMA_LIKE}},
+    "gemma": {"config": {"model_type": "gemma", "head_dim": 8, **TINY_LLAMA_LIKE}},
+}
+
+
+@pytest.fixture(scope="module", params=list(TINY_MODELS))
 def adapter(request: pytest.FixtureRequest) -> DecoderStageAdapter:
-    config = GPT2_TINY if request.param == "gpt2" else LLAMA_TINY
-    built = registry.get(request.param, seq_len=8, config=config)
+    name = "hf_decoder" if request.param in ("mistral", "gemma") else request.param
+    built = registry.get(name, seq_len=8, **TINY_MODELS[request.param])
     assert isinstance(built, DecoderStageAdapter)
     built.build(seed=1)
     return built
@@ -88,9 +108,18 @@ def test_weights_round_trip(adapter: DecoderStageAdapter, tmp_path: Path) -> Non
     x = adapter.make_input(2)
     expected = adapter.run_stages(x, 1, 4)
     adapter.save_weights(tmp_path / "w.npz")
-    other = registry.get(
-        adapter.name, seq_len=8, config=GPT2_TINY if adapter.family == "gpt2" else LLAMA_TINY
-    )
+    # A second adapter of the same configuration: the generic adapter needs the
+    # configuration mapping (model_type included), the named ones carry theirs.
+    if adapter.name == "hf_decoder":
+        key = next(
+            k
+            for k in ("mistral", "gemma")
+            if TINY_MODELS[k]["config"]["model_type"] == adapter.family  # type: ignore[index]
+        )
+    else:
+        key = adapter.name
+    kwargs = TINY_MODELS[key]
+    other = registry.get(adapter.name, seq_len=8, **kwargs)
     other.build(seed=9)
     assert not np.allclose(other.run_stages(x, 1, 4), expected)
     other.load_weights(tmp_path / "w.npz")
@@ -130,3 +159,23 @@ def test_default_configurations_are_the_thesis_models() -> None:
     )
     assert TINYLLAMA_1_1B["num_hidden_layers"] == 22 and TINYLLAMA_1_1B["num_attention_heads"] == 32
     assert TINYLLAMA_1_1B["hidden_size"] == 2048
+
+
+def test_family_table_and_named_models() -> None:
+    from src.models.torch.decoder import FAMILIES, MODEL_TYPE_TO_FAMILY
+    from src.models.torch.hf_decoder import LLAMA_3_2_1B, QWEN2_5_0_5B, HFDecoderAdapter
+
+    assert set(FAMILIES) == {"gpt2", "llama", "mistral", "qwen2", "gemma"}
+    assert MODEL_TYPE_TO_FAMILY["qwen2"] == "qwen2" and FAMILIES["gemma"].embed_scale
+    assert LLAMA_3_2_1B["num_hidden_layers"] == 16 and LLAMA_3_2_1B["num_key_value_heads"] == 8
+    assert QWEN2_5_0_5B["num_hidden_layers"] == 24 and QWEN2_5_0_5B["hidden_size"] == 896
+    generic = registry.get(
+        "hf_decoder", seq_len=4, config={"model_type": "qwen2", **TINY_LLAMA_LIKE}
+    )
+    assert isinstance(generic, HFDecoderAdapter)
+    generic.build(0)
+    assert generic.family == "qwen2" and len(generic.stages) == 4
+    with pytest.raises(ValueError, match="checkpoint or a config"):
+        registry.get("hf_decoder").build(0)
+    with pytest.raises(ValueError, match="family table"):
+        registry.get("hf_decoder", config={"model_type": "bert", "vocab_size": 10}).build(0)

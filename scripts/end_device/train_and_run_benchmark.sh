@@ -12,6 +12,7 @@
 #   --run-id ID --node-id ID --repetitions N --warmup N --seed N --image PATH
 #   --start-at T0 | --origin-wall T --origin-perf NS   (start signal, from the orchestrator)
 #   --model-args JSON   adapter parameters (the scenario's model_args)
+#   --input-source JSON input source (the scenario's input block)
 #
 # train mode prepares the model weights with the given seed and generates the
 # test input image on the device; benchmark mode invokes src/models/inference.py
@@ -44,6 +45,7 @@ SEED=0
 IMAGE="$DATA_DIR/test_image_${MODEL_NAME}.png"
 ORIGIN=()
 MODEL_ARGS=()
+INPUT_ARGS=()
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --run-id) RUN_ID=$2; shift 2 ;;
@@ -56,6 +58,7 @@ while [ "$#" -gt 0 ]; do
         --origin-perf) ORIGIN+=(--origin-perf "$2"); shift 2 ;;
         --start-at) ORIGIN+=(--start-at "$2"); shift 2 ;;
         --model-args) MODEL_ARGS=(--model-args "$2"); shift 2 ;;
+        --input-source) INPUT_ARGS=(--input-source "$2"); shift 2 ;;
         --tag) shift 2 ;;
         *) echo "error: unknown option $1" >&2; exit 1 ;;
     esac
@@ -81,7 +84,7 @@ run_benchmarking() {
     "$PYTHON" -m src.models.inference benchmark --model "$MODEL_NAME" --weights "$WEIGHTS" \
         --image "$IMAGE" --output-dir "$OUTPUT_DIR" --run-id "$RUN_ID" --node-id "$NODE_ID" \
         --repetitions "$REPETITIONS" --warmup "$WARMUP" --seed "$SEED" "${ORIGIN[@]}" \
-        "${MODEL_ARGS[@]}"
+        "${MODEL_ARGS[@]}" "${INPUT_ARGS[@]}"
     echo "Benchmarking completed. Results in $OUTPUT_DIR"
 }
 

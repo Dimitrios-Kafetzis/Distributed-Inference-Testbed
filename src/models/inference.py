@@ -10,7 +10,10 @@ Modes:
 * ``partial``: run stages 1..s on an input and write the intermediate tensor
   (the cut) to a file, serialised with its shape and dtype;
 * ``complete``: read an intermediate tensor and run stages s+1..S;
-* ``capacity``: report the device's average FLOP/s over the stages.
+* ``capacity``: report the device's average FLOP/s over the stages;
+* ``verify``: run every partition point and compare with the unpartitioned
+  model (maximum deviation, top-1 agreement, accuracy when the input has a
+  label); a deviation above ``--tolerance`` exits with status 1.
 
 Usage::
 
@@ -38,7 +41,8 @@ import numpy as np
 from src.benchmarking.benchmark_results import Origin
 from src.common.seeds import seed_everything
 from src.common.start_signal import origin_from_arguments
-from src.models import registry
+from src.models import inputs, registry
+from src.models.inputs import InputSample
 from src.models.profiler import capacity_flops_per_second, profile_once, warm_up
 from src.models.registry import Array, ModelAdapter, deserialize_array, serialize_array
 
@@ -82,6 +86,25 @@ def load_input(adapter: ModelAdapter, image: Path | None, seed: int) -> Array:
     return load_image(image, adapter.input_shape)
 
 
+def load_sample(adapter: ModelAdapter, args: argparse.Namespace) -> InputSample:
+    """The input of a command: ``--input-source`` (a JSON object, the scenario's ``input``
+    block) when given, else ``--image`` or the seeded synthetic input."""
+    spec = getattr(args, "input_source", None)
+    if spec:
+        data_dir = os.environ.get("TESTBED_ED_DATA_DIR")
+        return inputs.load_sample(
+            json.loads(spec), adapter, args.seed, Path(data_dir) if data_dir else None
+        )
+    image = getattr(args, "image", None)
+    array = load_input(adapter, image, args.seed)
+    description = (
+        {"source": "image_file", "path": str(image)}
+        if image is not None and image.exists()
+        else {"source": "synthetic", "seed": args.seed}
+    )
+    return InputSample(array, None, description)
+
+
 def origin_from_args(args: argparse.Namespace) -> Origin:
     """The run origin: given explicitly, or captured when the start signal T0 is reached."""
     return origin_from_arguments(args)
@@ -110,7 +133,8 @@ def cmd_benchmark(args: argparse.Namespace) -> list[Path]:
     seed_everything(args.seed)
     threads = apply_thread_count()
     adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
-    x = load_input(adapter, args.image, args.seed)
+    sample = load_sample(adapter, args)
+    x = sample.array
     hostname = socket.gethostname()
     import psutil
 
@@ -134,6 +158,7 @@ def cmd_benchmark(args: argparse.Namespace) -> list[Path]:
         )
         record.metadata["threads"] = threads
         record.metadata["flops_per_second"] = capacity_flops_per_second(record)
+        record.metadata["input"] = sample.description
         path = args.output_dir / f"benchmark_{args.run_id}_rep{repetition}.json"
         record.save(path)
         written.append(path)
@@ -149,7 +174,7 @@ def cmd_partial(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
     apply_thread_count()
     adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
-    x = load_input(adapter, args.image, args.seed)
+    x = load_sample(adapter, args).array
     started = time.perf_counter_ns()
     cut = adapter.run_stages(x, 1, args.s) if args.s > 0 else x
     elapsed_ns = time.perf_counter_ns() - started
@@ -195,7 +220,7 @@ def cmd_capacity(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
     apply_thread_count()
     adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
-    x = load_input(adapter, args.image, args.seed)
+    x = load_sample(adapter, args).array
     warm_up(adapter, x, args.warmup)
     rates = []
     for repetition in range(args.repetitions):
@@ -222,6 +247,73 @@ def cmd_capacity(args: argparse.Namespace) -> None:
     )
 
 
+def verify_partition(
+    adapter: ModelAdapter, x: Array, label: int | None, tolerance: float
+) -> dict[str, Any]:
+    """Every partition point against the unpartitioned model on the same input."""
+    stages = len(adapter.stages)
+    full = adapter.run_stages(x, 1, stages)
+    scale = float(np.max(np.abs(full))) or 1.0
+    flat_full = full.reshape(full.shape[0], -1)
+    points = []
+    worst = 0.0
+    for s in range(0, stages + 1):
+        cut = adapter.run_stages(x, 1, s) if s > 0 else x
+        out = adapter.run_stages(cut, s + 1, stages) if s < stages else cut
+        max_abs = float(np.max(np.abs(out.astype(np.float64) - full.astype(np.float64))))
+        max_rel = max_abs / scale
+        worst = max(worst, max_rel)
+        flat = out.reshape(out.shape[0], -1)
+        points.append(
+            {
+                "s": s,
+                "max_abs_deviation": max_abs,
+                "max_rel_deviation": max_rel,
+                "argmax_equal": bool(np.array_equal(flat.argmax(axis=1), flat_full.argmax(axis=1))),
+            }
+        )
+    prediction = (
+        int(flat_full[0].argmax()) if flat_full.ndim == 2 and flat_full.shape[1] > 1 else None
+    )
+    return {
+        "model": adapter.name,
+        "stages": stages,
+        "tolerance": tolerance,
+        "max_rel_deviation": worst,
+        "ok": worst <= tolerance and all(p["argmax_equal"] for p in points),
+        "partition_points": points,
+        "top1": {
+            "prediction": prediction,
+            "label": label,
+            "correct": (prediction == label)
+            if label is not None and prediction is not None
+            else None,
+        },
+    }
+
+
+def cmd_verify(args: argparse.Namespace) -> None:
+    seed_everything(args.seed)
+    apply_thread_count()
+    adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
+    sample = load_sample(adapter, args)
+    result = verify_partition(adapter, sample.array, sample.label, args.tolerance)
+    result["input"] = sample.description
+    result["node_id"] = args.node_id
+    text = json.dumps(result, indent=2)
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(text + "\n", encoding="utf-8")
+    print(text)
+    if not result["ok"]:
+        print(
+            f"partition equivalence failed: maximum relative deviation "
+            f"{result['max_rel_deviation']:.3g} > {args.tolerance:g}",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Device-side inference: prepare, benchmark, partial, complete."
@@ -241,6 +333,12 @@ def build_parser() -> argparse.ArgumentParser:
             "--model-args",
             default=None,
             help="JSON object of adapter parameters (the scenario's model_args)",
+        )
+        p.add_argument(
+            "--input-source",
+            default=None,
+            help="JSON object: the input source (the scenario's input block); paths are "
+            "relative to TESTBED_ED_DATA_DIR",
         )
         p.add_argument("--tag", help="process tag (ignored; present for pkill -f)")
 
@@ -280,6 +378,13 @@ def build_parser() -> argparse.ArgumentParser:
     capacity.add_argument("--node-id", default="edge_server")
     capacity.add_argument("--repetitions", type=int, default=3)
     capacity.add_argument("--warmup", type=int, default=1)
+
+    verify = sub.add_parser("verify")
+    common(verify)
+    verify.add_argument("--image", type=Path, default=None)
+    verify.add_argument("--tolerance", type=float, default=1e-4, help="maximum relative deviation")
+    verify.add_argument("--output", type=Path, default=None)
+    verify.add_argument("--node-id", default=socket.gethostname())
     return parser
 
 
@@ -291,6 +396,7 @@ def main(argv: list[str] | None = None) -> None:
         "partial": cmd_partial,
         "complete": cmd_complete,
         "capacity": cmd_capacity,
+        "verify": cmd_verify,
     }[args.mode](args)
 
 

@@ -9,9 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
 
 from src.benchmarking import benchmark_results as br
+from src.benchmarking import result_aggregation
 from src.common.runs import RunJournal
 from src.orchestration import experiment, local_mode
 from src.orchestration import scenario as sc
@@ -259,3 +261,41 @@ def test_run_full_benchmarking_script_in_local_mode(local_root: Path, tmp_path: 
     assert (run_root / "final_latencies_averages.json").exists()
     summary = json.loads((run_root / "summary.json").read_text())
     assert summary["status"] == "completed"
+
+
+def test_input_source_and_partition_check_in_local_mode(local_root: Path) -> None:
+    """A numpy input on the devices and the partition-equivalence check: both reach the
+    device tools, the verification file is collected, and a deviation aborts the run."""
+    _config, topology = local_mode.create_local_testbed(local_root, devices=2)
+    for node in topology.end_devices():
+        data_dir = Path(node.workdir or ".") / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        np.save(data_dir / "sample.npy", np.full(2048, 0.5, dtype=np.float32))
+    overrides: dict[str, Any] = {
+        "repetitions": 1,
+        "inference": {"enabled": True, "partition_points": [0, 2], "repetitions": 1},
+        "input": {"source": "numpy_file", "path": "sample.npy"},
+        "checks": {"partition_equivalence": True, "tolerance": 1e-4},
+        "monitoring": {"enabled": False},
+        "load": {},
+        "network": {},
+        "heterogeneity": {},
+        "optimisation": {"enabled": False},
+    }
+    ctx = make_context(local_root, overrides, run_id="inputrun")
+    summary = run_pipeline(ctx)
+    assert summary["status"] == "completed", summary
+    verification = sorted((ctx.paths.root / "verification").glob("*_verification.json"))
+    assert len(verification) == 2
+    report = json.loads(verification[0].read_text())
+    assert report["ok"] is True and report["input"]["source"] == "numpy_file"
+    assert report["input"]["path"].endswith("data/sample.npy")
+    # The profiling records (the client's phase records carry no stages and no input).
+    records = [
+        r
+        for r in result_aggregation.load_records(ctx.paths.raw)
+        if isinstance(r, br.BenchmarkResults) and r.stages
+    ]
+    assert records and all(r.metadata["input"]["source"] == "numpy_file" for r in records)
+    log = (ctx.paths.root / "logs" / "merged.log").read_text()
+    assert "partition equivalence check" in log and "--input" in log

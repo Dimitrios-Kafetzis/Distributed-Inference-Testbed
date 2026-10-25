@@ -342,7 +342,7 @@ def test_build_mirror_plan(tmp_path: Path, example_nodes: None) -> None:
     assert result.returncode == 0, result.stderr
     plan = normalise(result.stdout, tmp_path)
     compare_golden("plan_build_mirror.txt", plan)
-    assert plan.count("pip download") == 5  # four lock files and HeadSplit
+    assert plan.count("pip download") == 6  # four lock files, HeadSplit aarch64 and x86_64
     assert "--platform manylinux_2_28_aarch64" in plan and "--require-hashes" in plan
     assert "apt-get install --download-only --reinstall" in plan
     assert "git clone --quiet --bare https://github.com/Dimitrios-Kafetzis/headsplit.git" in plan

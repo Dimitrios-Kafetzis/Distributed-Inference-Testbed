@@ -1,0 +1,51 @@
+# Model catalogue: copy to <bs_models_dir>/models.yaml and edit.
+#
+# One entry per model: the registered adapter name, the kind of weights, the file or
+# directory under bs_models_dir, the source and the licence.
+#   npz             weights prepared on the testbed with a seed (python -m src.models.weights fetch)
+#   keras_imagenet  the ImageNet weights of a tf.keras.applications model, saved as .npz
+#   hf_checkpoint   a Hugging Face checkpoint directory (safetensors, config, tokenizer)
+# `python -m src.models.weights fetch --all --allow-upstream` obtains every entry;
+# `verify` checks the SHA256SUMS; `build_mirror.sh models` copies the directory into
+# the mirror. Devices receive the directory at provisioning and through NNPM.
+models:
+  - name: alexnet
+    kind: npz
+    path: alexnet.npz
+    seed: 42
+    source: "weights prepared on the testbed with seed 42 (no training data)"
+    licence: "synthetic weights, no licence applies"
+  - name: vgg16
+    kind: npz
+    path: vgg16.npz
+    seed: 42
+    source: "weights prepared on the testbed with seed 42"
+    licence: "synthetic weights, no licence applies"
+  - name: mobilenetv2
+    kind: keras_imagenet
+    path: mobilenetv2.npz
+    source: "tf.keras.applications.MobileNetV2(weights='imagenet')"
+    licence: "Apache-2.0 (Keras applications weights)"
+  - name: efficientnetb0
+    kind: keras_imagenet
+    path: efficientnetb0.npz
+    source: "tf.keras.applications.EfficientNetB0(weights='imagenet')"
+    licence: "Apache-2.0 (Keras applications weights)"
+  - name: tinyllama
+    kind: hf_checkpoint
+    path: TinyLlama__TinyLlama-1.1B-Chat-v1.0
+    repo_id: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+    source: "https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    licence: "Apache-2.0"
+  - name: qwen25_05b
+    kind: hf_checkpoint
+    path: Qwen__Qwen2.5-0.5B
+    repo_id: Qwen/Qwen2.5-0.5B
+    source: "https://huggingface.co/Qwen/Qwen2.5-0.5B"
+    licence: "Apache-2.0"
+  - name: llama32_1b
+    kind: hf_checkpoint
+    path: meta-llama__Llama-3.2-1B
+    repo_id: meta-llama/Llama-3.2-1B
+    source: "https://huggingface.co/meta-llama/Llama-3.2-1B (gated: accept the licence and log in with huggingface-cli first)"
+    licence: "Llama 3.2 Community License"

@@ -141,6 +141,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--weights", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--model-args", default=None, help="JSON object of adapter parameters")
+    parser.add_argument("--input-source", default=None, help="JSON object: the input source")
     parser.add_argument("--server", required=True, help="host:port")
     parser.add_argument(
         "--s", type=int, required=True, action="append", help="partition point (repeatable)"
@@ -157,14 +158,14 @@ def main(argv: list[str] | None = None) -> None:
 
     from src.common.seeds import seed_everything
     from src.models import registry
-    from src.models.inference import apply_thread_count, load_adapter, load_input
+    from src.models.inference import apply_thread_count, load_adapter, load_sample
 
     seed_everything(args.seed)
     apply_thread_count()
     adapter = load_adapter(
         args.model, args.weights, args.seed, **registry.parse_model_args(args.model_args)
     )
-    x = load_input(adapter, args.image, args.seed)
+    x = load_sample(adapter, args).array
     host, port = args.server.rsplit(":", 1)
     origin = (
         Origin(args.origin_wall, args.origin_perf)

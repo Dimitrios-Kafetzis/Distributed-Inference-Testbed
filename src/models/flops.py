@@ -114,4 +114,13 @@ def keras_layer_count(
         return OpCount(0, math.prod(int(d) for d in input_shape))
     if cls == "GRU":
         return gru_count(int(input_shape[-1]), config["units"], int(input_shape[0]))
+    elements = math.prod(int(d) for d in output_shape)
+    if cls == "BatchNormalization":
+        # Inference: one scale and one shift per element (folded parameters).
+        return OpCount(0, 2 * elements)
+    if cls in ("Add", "Multiply", "Subtract", "Average", "Maximum"):
+        return OpCount(0, elements)
+    if cls in ("Activation", "ReLU", "LeakyReLU", "PReLU", "ELU", "Softmax", "Rescaling"):
+        return OpCount(0, elements)
+    # Reshape, Flatten, ZeroPadding2D, Dropout, Normalization, Concatenate, Lambda: no work.
     return ZERO

@@ -76,10 +76,7 @@ def block_modules(
     assert adapter.model is not None
     layers = headwise_layers(adapter)
     modules: dict[str, nn.Module] = {}
-    if adapter.family == "gpt2":
-        modules["embed"] = adapter.model.transformer.wte
-    else:
-        modules["embed"] = adapter.model.model.embed_tokens
+    modules["embed"] = adapter.embed_module()
     for index, layer in enumerate(layers, start=1):
         for head, unit in enumerate(layer.heads):
             modules[f"layer{index}.head{head}"] = unit

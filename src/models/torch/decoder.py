@@ -6,10 +6,17 @@ last stage produces the logits [1, T, V]. Operation counts per stage are
 computed analytically from the configuration for T tokens. Weights come from
 a Hugging Face checkpoint directory (the local mirror) or, for tests and dry
 runs, from a small random configuration.
+
+Model families differ only in attribute names and a few structural facts
+(fused or separate query, key and value projections; rotary or learned
+positions; gated or plain feed-forward block; scaled embeddings). The
+:data:`FAMILIES` table holds these per family, so that one adapter covers
+GPT-2, Llama, Mistral, Qwen2 and Gemma, and a new family is one more row.
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
@@ -19,7 +26,85 @@ from torch import nn
 
 from src.models.registry import Array, StageInfo, deserialize_array, serialize_array
 
-FAMILIES = ("gpt2", "llama")
+
+@dataclass(frozen=True)
+class FamilySpec:
+    """Where a family keeps its blocks and what its configuration keys are called."""
+
+    model_type: str
+    layers: str  # attribute path of the decoder layer list
+    attention: str  # attribute of the attention module inside a layer
+    mlp: str
+    attention_norm: str
+    ffn_norm: str
+    embed_tokens: str
+    final_norm: str
+    cfg_layers: str
+    cfg_hidden: str
+    cfg_heads: str
+    cfg_inner: str
+    cfg_kv_heads: str | None = None  # None: as many key-value heads as heads
+    embed_positions: str | None = None  # learned positions (GPT-2)
+    fused_qkv: str | None = None  # one projection for q, k and v (GPT-2's c_attn)
+    out_proj: str = "o_proj"
+    gated_ffn: bool = True  # gate, up and down projections (3 matrix products)
+    rotary: bool = True
+    embed_scale: bool = False  # embeddings multiplied by sqrt(hidden size) (Gemma)
+
+
+def _llama_like(model_type: str, **overrides: Any) -> FamilySpec:
+    return FamilySpec(
+        model_type=model_type,
+        layers="model.layers",
+        attention="self_attn",
+        mlp="mlp",
+        attention_norm="input_layernorm",
+        ffn_norm="post_attention_layernorm",
+        embed_tokens="model.embed_tokens",
+        final_norm="model.norm",
+        cfg_layers="num_hidden_layers",
+        cfg_hidden="hidden_size",
+        cfg_heads="num_attention_heads",
+        cfg_inner="intermediate_size",
+        cfg_kv_heads="num_key_value_heads",
+        **overrides,
+    )
+
+
+FAMILIES: dict[str, FamilySpec] = {
+    "gpt2": FamilySpec(
+        model_type="gpt2",
+        layers="transformer.h",
+        attention="attn",
+        mlp="mlp",
+        attention_norm="ln_1",
+        ffn_norm="ln_2",
+        embed_tokens="transformer.wte",
+        embed_positions="transformer.wpe",
+        final_norm="transformer.ln_f",
+        cfg_layers="n_layer",
+        cfg_hidden="n_embd",
+        cfg_heads="n_head",
+        cfg_inner="n_inner",
+        fused_qkv="c_attn",
+        out_proj="c_proj",
+        gated_ffn=False,
+        rotary=False,
+    ),
+    "llama": _llama_like("llama"),
+    "mistral": _llama_like("mistral"),
+    "qwen2": _llama_like("qwen2"),
+    "gemma": _llama_like("gemma", embed_scale=True),
+}
+MODEL_TYPE_TO_FAMILY = {spec.model_type: name for name, spec in FAMILIES.items()}
+
+
+def resolve(root: Any, path: str) -> Any:
+    """``resolve(model, "transformer.h")`` -> ``model.transformer.h``."""
+    node = root
+    for part in path.split("."):
+        node = getattr(node, part)
+    return node
 
 
 def causal_mask(seq_len: int, dtype: torch.dtype = torch.float32) -> torch.Tensor:
@@ -60,6 +145,15 @@ class DecoderStageAdapter:
 
     # --- construction --------------------------------------------------------------------------
 
+    @property
+    def spec(self) -> FamilySpec:
+        try:
+            return FAMILIES[self.family]
+        except KeyError as exc:
+            raise ValueError(
+                f"unknown model family {self.family!r}; known: {sorted(FAMILIES)}"
+            ) from exc
+
     def hf_config(self) -> Any:
         raise NotImplementedError
 
@@ -82,7 +176,7 @@ class DecoderStageAdapter:
         if self.model is None:
             self.build(0)
 
-    # --- structure (family-specific) ---------------------------------------------------------
+    # --- structure (from the family table) ----------------------------------------------------
 
     @property
     def cfg(self) -> Any:
@@ -91,47 +185,46 @@ class DecoderStageAdapter:
         return self.model.config
 
     def num_layers(self) -> int:
-        return int(self.cfg.n_layer if self.family == "gpt2" else self.cfg.num_hidden_layers)
+        return int(getattr(self.cfg, self.spec.cfg_layers))
 
     def hidden_size(self) -> int:
-        return int(self.cfg.n_embd if self.family == "gpt2" else self.cfg.hidden_size)
+        return int(getattr(self.cfg, self.spec.cfg_hidden))
 
     def num_heads(self) -> int:
-        return int(self.cfg.n_head if self.family == "gpt2" else self.cfg.num_attention_heads)
+        return int(getattr(self.cfg, self.spec.cfg_heads))
 
     def num_kv_heads(self) -> int:
-        if self.family == "gpt2":
+        key = self.spec.cfg_kv_heads
+        if key is None:
             return self.num_heads()
-        return int(getattr(self.cfg, "num_key_value_heads", self.num_heads()))
+        return int(getattr(self.cfg, key, None) or self.num_heads())
 
     def intermediate_size(self) -> int:
-        if self.family == "gpt2":
-            inner = getattr(self.cfg, "n_inner", None)
-            return int(inner or 4 * self.hidden_size())
-        return int(self.cfg.intermediate_size)
+        inner = getattr(self.cfg, self.spec.cfg_inner, None)
+        return int(inner or 4 * self.hidden_size())
 
     def vocab_size(self) -> int:
         return int(self.cfg.vocab_size)
 
     def layers(self) -> list[nn.Module]:
         assert self.model is not None
-        if self.family == "gpt2":
-            return list(self.model.transformer.h)
-        return list(self.model.model.layers)
+        return list(resolve(self.model, self.spec.layers))
 
     def attention_module(self, layer: nn.Module) -> nn.Module:
-        return cast(nn.Module, layer.attn if self.family == "gpt2" else layer.self_attn)
+        return cast(nn.Module, getattr(layer, self.spec.attention))
 
     def mlp_module(self, layer: nn.Module) -> nn.Module:
-        return cast(nn.Module, layer.mlp)
+        return cast(nn.Module, getattr(layer, self.spec.mlp))
 
     def attention_norm(self, layer: nn.Module) -> nn.Module:
-        return cast(nn.Module, layer.ln_1 if self.family == "gpt2" else layer.input_layernorm)
+        return cast(nn.Module, getattr(layer, self.spec.attention_norm))
 
     def ffn_norm(self, layer: nn.Module) -> nn.Module:
-        return cast(
-            nn.Module, layer.ln_2 if self.family == "gpt2" else layer.post_attention_layernorm
-        )
+        return cast(nn.Module, getattr(layer, self.spec.ffn_norm))
+
+    def embed_module(self) -> nn.Module:
+        assert self.model is not None
+        return cast(nn.Module, resolve(self.model, self.spec.embed_tokens))
 
     # --- operation counts ----------------------------------------------------------------------
 
@@ -143,7 +236,7 @@ class DecoderStageAdapter:
         heads = t * d * d + 2 * t * d * (kv * head_dim) + 2 * h * t * t * head_dim
         projection = t * d * d
         inner = self.intermediate_size()
-        ffn = 2 * t * d * inner if self.family == "gpt2" else 3 * t * d * inner
+        ffn = 3 * t * d * inner if self.spec.gated_ffn else 2 * t * d * inner
         return heads, projection, ffn
 
     @property
@@ -179,28 +272,26 @@ class DecoderStageAdapter:
 
     def embed(self, ids: torch.Tensor) -> torch.Tensor:
         assert self.model is not None
-        if self.family == "gpt2":
+        embedded = self.embed_module()(ids)
+        if self.spec.embed_positions:
             positions = torch.arange(ids.shape[1])[None, :]
-            embedded = self.model.transformer.wte(ids) + self.model.transformer.wpe(positions)
-        else:
-            embedded = self.model.model.embed_tokens(ids)
+            embedded = embedded + resolve(self.model, self.spec.embed_positions)(positions)
+        if self.spec.embed_scale:
+            embedded = embedded * torch.tensor(self.hidden_size() ** 0.5, dtype=embedded.dtype)
         return cast(torch.Tensor, embedded)
 
     def run_layer(self, hidden: torch.Tensor, layer: nn.Module) -> torch.Tensor:
-        if self.family == "gpt2":
+        if not self.spec.rotary:
             return cast(torch.Tensor, layer(hidden)[0])
         t = hidden.shape[1]
         positions = torch.arange(t)[None, :]
         out = layer(hidden, attention_mask=causal_mask(t, hidden.dtype), position_ids=positions)
-        return cast(torch.Tensor, out[0])
+        return cast(torch.Tensor, out[0] if isinstance(out, tuple) else out)
 
     def head(self, hidden: torch.Tensor) -> torch.Tensor:
         assert self.model is not None
-        if self.family == "gpt2":
-            logits = self.model.lm_head(self.model.transformer.ln_f(hidden))
-        else:
-            logits = self.model.lm_head(self.model.model.norm(hidden))
-        return cast(torch.Tensor, logits)
+        normed = resolve(self.model, self.spec.final_norm)(hidden)
+        return cast(torch.Tensor, self.model.lm_head(normed))
 
     @torch.no_grad()
     def run_stages(self, x: Array, start: int, stop: int) -> Array:

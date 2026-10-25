@@ -5,14 +5,17 @@
 #   apt <node-id>     Debian packages for the devices, fetched through one reference
 #                     device (the archives are not reachable from an x86_64 host)
 #   headsplit         bare clone of HeadSplit at headsplit_commit plus its wheels
+#                     (aarch64 for the devices, x86_64 for the profile step on the edge server)
+#   models            every entry of the model catalogue (bs_models_dir/models.yaml) fetched,
+#                     checksummed and copied into mirror/models/
 #   manifest          MANIFEST.json with the SHA-256 of every file
-#   all <node-id>     the four steps above
+#   all <node-id>     the five steps above
 #
-# Usage: build_mirror.sh <wheels|apt NODE|headsplit|manifest|all NODE> [--dry-run]
+# Usage: build_mirror.sh <wheels|apt NODE|headsplit|models|manifest|all NODE> [--dry-run]
 #
 # This is the only provisioning script that contacts upstream sources (PyPI, the
-# PyTorch index, the Debian and Raspberry Pi archives, the HeadSplit repository).
-# Every other script installs from the mirror.
+# PyTorch index, the Debian and Raspberry Pi archives, the HeadSplit repository,
+# the Keras and Hugging Face weight servers). Every other script installs from the mirror.
 #
 set -euo pipefail
 # shellcheck source-path=SCRIPTDIR
@@ -83,7 +86,20 @@ headsplit() {
     run bash -c "git --git-dir=$bare show $HEADSPLIT_COMMIT:requirements.txt > $reqs"
     run "$PYTHON" -m pip download "${PIP_COMMON[@]}" "${PLATFORMS_ARM[@]}" \
         --extra-index-url "$TORCH_CPU_INDEX" -d "$MIRROR_DIR/wheels/aarch64-headsplit" -r "$reqs"
+    run mkdir -p "$MIRROR_DIR/wheels/x86_64-headsplit"
+    run "$PYTHON" -m pip download "${PIP_COMMON[@]}" "${PLATFORMS_X86[@]}" \
+        --extra-index-url "$TORCH_CPU_INDEX" -d "$MIRROR_DIR/wheels/x86_64-headsplit" -r "$reqs"
     [ "$DRY_RUN" = 1 ] || rm -f "$reqs"
+}
+
+models() {
+    if [ ! -f "$BS_MODELS_DIR/models.yaml" ]; then
+        log "no $BS_MODELS_DIR/models.yaml: copy examples/models.yaml there and edit it"
+        return 0
+    fi
+    run "$PYTHON" -m src.models.weights fetch --all --allow-upstream --models-dir "$BS_MODELS_DIR"
+    run mkdir -p "$MIRROR_DIR/models"
+    run rsync -a --delete "$BS_MODELS_DIR/" "$MIRROR_DIR/models/"
 }
 
 manifest() {
@@ -94,11 +110,13 @@ case "$COMMAND" in
     wheels) wheels ;;
     apt) apt_packages ;;
     headsplit) headsplit ;;
+    models) models ;;
     manifest) manifest ;;
     all)
         wheels
         apt_packages
         headsplit
+        models
         manifest
         ;;
     *) die "unknown command $COMMAND" ;;
