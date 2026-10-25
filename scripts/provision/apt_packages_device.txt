@@ -1,0 +1,13 @@
+# Debian packages installed on every edge device (Raspberry Pi OS Bookworm, 64-bit).
+# One package per line; lines starting with # are ignored. build_mirror.sh downloads
+# exactly these (with their dependencies) into the mirror.
+python3
+python3-venv
+python3-pip
+chrony
+iproute2
+iperf3
+rsync
+git
+network-manager
+i2c-tools

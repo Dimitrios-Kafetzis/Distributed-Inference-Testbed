@@ -1,0 +1,15 @@
+[connection]
+id=testbed-mgmt
+type=ethernet
+interface-name=${MGMT_INTERFACE}
+autoconnect=true
+
+[ipv4]
+method=manual
+address1=${DEVICE_MGMT_IP}/${MGMT_PREFIX_BITS}
+dns=${EDGE_MGMT_IP};
+dns-search=${DOMAIN};
+never-default=true
+
+[ipv6]
+method=disabled

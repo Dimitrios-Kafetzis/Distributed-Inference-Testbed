@@ -1,0 +1,14 @@
+[Unit]
+Description=Testbed: address of the access-point interface
+Before=hostapd.service dnsmasq.service
+After=sys-subsystem-net-devices-wlan1.device
+Wants=sys-subsystem-net-devices-wlan1.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ip link set wlan1 up
+ExecStart=/usr/sbin/ip address replace 192.168.0.1/24 dev wlan1
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[connection]
+id=testbed-mgmt
+type=ethernet
+interface-name=eth0
+autoconnect=true
+
+[ipv4]
+method=manual
+address1=10.0.0.11/24
+dns=10.0.0.1;
+dns-search=testbed;
+never-default=true
+
+[ipv6]
+method=disabled

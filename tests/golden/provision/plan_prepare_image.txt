@@ -1,0 +1,2 @@
+install -m 644 <RENDERED>/boot/firmware/custom.toml <TMP>/boot/custom.toml
+touch <TMP>/boot/ssh

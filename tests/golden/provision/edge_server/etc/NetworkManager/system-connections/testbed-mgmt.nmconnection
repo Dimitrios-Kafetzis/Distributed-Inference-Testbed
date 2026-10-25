@@ -1,0 +1,13 @@
+[connection]
+id=testbed-mgmt
+type=ethernet
+interface-name=eth0
+autoconnect=true
+
+[ipv4]
+method=manual
+address1=10.0.0.1/24
+never-default=true
+
+[ipv6]
+method=disabled

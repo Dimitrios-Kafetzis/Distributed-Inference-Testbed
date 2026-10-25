@@ -1,0 +1,24 @@
+# Testbed access point: isolated 5 GHz IEEE 802.11ac network on the USB adapter.
+# Rendered from config.yaml by src/provisioning/render.py; do not edit in place.
+interface=${AP_INTERFACE}
+driver=nl80211
+ssid=${AP_SSID}
+country_code=${AP_COUNTRY}
+ieee80211d=1
+ieee80211h=1
+hw_mode=a
+channel=${AP_CHANNEL}
+ieee80211n=1
+ieee80211ac=1
+wmm_enabled=1
+ht_capab=${AP_HT40}[SHORT-GI-20][SHORT-GI-40]
+vht_capab=[SHORT-GI-80]
+vht_oper_chwidth=1
+vht_oper_centr_freq_seg0_idx=${AP_VHT_CENTRE}
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+wpa_passphrase=${AP_PASSPHRASE}
+ignore_broadcast_ssid=0
+# No bridging and no routing: the data plane carries testbed traffic only.

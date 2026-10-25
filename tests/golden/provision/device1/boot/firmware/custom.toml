@@ -1,0 +1,28 @@
+# Raspberry Pi OS (Bookworm, 64-bit) first-boot configuration, read once by
+# raspberrypi-sys-mods from the boot partition and deleted afterwards.
+# Rendered from config.yaml and nodes.json by src/provisioning/render.py.
+config_version = 1
+
+[system]
+hostname = "device1"
+
+[user]
+name = "pi"
+password = "!"
+password_encrypted = true
+
+[ssh]
+enabled = true
+password_authentication = false
+authorized_keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE edge" ]
+
+[wlan]
+ssid = "testbed"
+password = "synthetic-passphrase"
+password_encrypted = false
+hidden = false
+country = "GR"
+
+[locale]
+keymap = "us"
+timezone = "UTC"

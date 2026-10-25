@@ -1,0 +1,3 @@
+# Testbed devices install Debian packages from the local mirror only. The upstream
+# lists are moved to /etc/apt/sources.upstream.disabled/ by provision_device.sh.
+deb [trusted=yes] http://10.0.0.1:8080/apt ./

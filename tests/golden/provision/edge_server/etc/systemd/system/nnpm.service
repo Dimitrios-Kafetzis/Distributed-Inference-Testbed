@@ -1,0 +1,15 @@
+[Unit]
+Description=Neural Network Architecture Partitioning (NNPM) manager
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=edge
+WorkingDirectory=/opt/testbed
+Environment=TESTBED_CONFIG=/opt/testbed/config.yaml
+ExecStart=/opt/testbed/.venv/bin/python -m gui.app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

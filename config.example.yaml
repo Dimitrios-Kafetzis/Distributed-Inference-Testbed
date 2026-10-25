@@ -25,9 +25,9 @@ ssh_trust_new_hosts: false
 # --- Networks ----------------------------------------------------------------
 # Common prefix of the wireless data-plane addresses (nodes.json gives the rest).
 base_ip_prefix: "192.168.0."
-# Prefix of the Ethernet management addresses. null means: same network as the
-# data plane (single-network set-up).
-management_ip_prefix: null
+# Prefix of the Ethernet management addresses (nodes.example.json uses 10.0.0.x).
+# null means: same network as the data plane (single-network set-up).
+management_ip_prefix: "10.0.0."
 # Interface on the devices that carries the data plane (latency measurement,
 # traffic shaping, inference traffic).
 network_interface: wlan0
@@ -88,3 +88,27 @@ headsplit_commit: null
 # Directory on the devices; null means <ed_root>/headsplit.
 headsplit_dir: null
 headsplit_master_port: 29500
+
+# --- Provisioning (scripts/provision/) ------------------------------------------
+# Wired interface of the edge server on the management network (DHCP and DNS for
+# the devices are served on it and on the access point).
+bs_management_interface: eth0
+# USB WiFi adapter of the edge server that hosts the isolated 5 GHz access point.
+ap_interface: wlan1
+ap_ssid: testbed
+# 5 GHz channel (802.11ac, 80 MHz). 36 is the first channel of the lower band.
+ap_channel: 36
+# Regulatory domain, ISO 3166-1 alpha-2.
+ap_country: GR
+# Environment variable holding the WPA2 passphrase (never written to this file).
+ap_passphrase_env: TESTBED_AP_PASSPHRASE
+# Versioned package mirror on the edge server (wheelhouse, apt packages, HeadSplit).
+mirror_dir: "./mirror"
+mirror_port: 8080
+# URL the devices use for the mirror. null means http://<edge server management
+# address>:<mirror_port>.
+mirror_url: null
+# Public key installed on the devices at first boot. null means ~/.ssh/id_ed25519.pub.
+ssh_public_key_path: null
+# Time zone written to the devices (timestamps are recorded in UTC regardless).
+device_timezone: UTC

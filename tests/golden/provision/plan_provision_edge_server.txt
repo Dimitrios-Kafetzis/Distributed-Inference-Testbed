@@ -1,0 +1,25 @@
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends hostapd dnsmasq chrony dpkg-dev rsync iperf3 git rfkill network-manager python3.11 python3.11-venv openssh-client
+mkdir -p <TMP>/home/.ssh
+ssh-keygen -q -t ed25519 -N '' -f <TMP>/home/.ssh/id_ed25519 -C 'testbed edge server'
+sudo install -D -m 600 <RENDERED>/etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf
+sudo install -D -m 644 <RENDERED>/etc/dnsmasq.d/testbed.conf /etc/dnsmasq.d/testbed.conf
+sudo install -D -m 644 <RENDERED>/etc/testbed-hosts /etc/testbed-hosts
+sudo install -D -m 644 <RENDERED>/etc/chrony/conf.d/testbed.conf /etc/chrony/conf.d/testbed.conf
+sudo install -D -m 644 <RENDERED>/etc/NetworkManager/conf.d/testbed-unmanaged.conf /etc/NetworkManager/conf.d/testbed-unmanaged.conf
+sudo install -D -m 600 <RENDERED>/etc/NetworkManager/system-connections/testbed-mgmt.nmconnection /etc/NetworkManager/system-connections/testbed-mgmt.nmconnection
+sudo install -D -m 644 <RENDERED>/etc/systemd/system/testbed-ap-address.service /etc/systemd/system/testbed-ap-address.service
+sudo install -D -m 644 <RENDERED>/etc/systemd/system/testbed-mirror.service /etc/systemd/system/testbed-mirror.service
+sudo install -D -m 644 <RENDERED>/etc/systemd/system/nnpm.service /etc/systemd/system/nnpm.service
+sudo sed -i 's|^#\?DAEMON_CONF=.*|DAEMON_CONF="/etc/hostapd/hostapd.conf"|' /etc/default/hostapd
+sudo rfkill unblock wlan
+sudo systemctl unmask hostapd
+sudo systemctl daemon-reload
+sudo nmcli connection reload
+sudo systemctl enable --now testbed-ap-address hostapd dnsmasq chrony
+mkdir -p /opt/testbed/mirror/wheels/x86_64 /opt/testbed/mirror/wheels/aarch64 /opt/testbed/mirror/apt /opt/testbed/mirror/src
+sudo systemctl enable --now testbed-mirror
+python3.11 -m venv <REPO>/.venv
+<REPO>/.venv/bin/pip install --require-hashes -r <REPO>/requirements/edge_server.lock
+mkdir -p /opt/testbed/results /opt/testbed/models
+sudo systemctl enable --now nnpm

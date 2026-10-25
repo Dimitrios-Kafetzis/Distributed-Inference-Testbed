@@ -1,0 +1,13 @@
+[connection]
+id=testbed-mgmt
+type=ethernet
+interface-name=${BS_MGMT_INTERFACE}
+autoconnect=true
+
+[ipv4]
+method=manual
+address1=${EDGE_MGMT_IP}/${MGMT_PREFIX_BITS}
+never-default=true
+
+[ipv6]
+method=disabled

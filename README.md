@@ -19,7 +19,7 @@ This repository is under construction; the sections below are filled in as the c
 | Partition optimisation: Chapter 4 delay model (RR, SJF), greedy, exhaustive and trend-based search, `delay_optimizer.py` (`src/partitioning/`) | done |
 | Orchestration: scenarios (versioned, replayable), the experiment pipeline with journal-driven teardown, coordinated start, local mode, `run_full_benchmarking.sh` (`src/orchestration/`) | done |
 | NNPM web application: Leaflet map with reachability probes, click-to-add nodes, per-pair links, Create Scenario, Benchmarking and Optimise dialogs, live terminal, results browser (`gui/`) | done |
-| Provisioning (`scripts/provision/`) | planned |
+| Provisioning: first-boot image, edge server (access point, DHCP and DNS, NTP server, mirror service, NNPM service), devices over SSH from the mirror, versioned package mirror with manifest (`scripts/provision/`) | done (dry run; hardware checklist pending) |
 
 ## Quick start (development, no hardware)
 

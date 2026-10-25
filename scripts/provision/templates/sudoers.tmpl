@@ -1,0 +1,6 @@
+# Testbed: the device-side commands that need root, and nothing else.
+# tc (traffic shaping) and the heterogeneity module (cpufreq and cgroup writes) are
+# started over SSH by the edge server for the duration of an experiment.
+${SSH_USERNAME} ALL=(root) NOPASSWD: /usr/sbin/tc
+${SSH_USERNAME} ALL=(root) NOPASSWD: ${ED_VENV_DIR}/bin/python -m src.testbed.heterogeneity *
+Defaults:${SSH_USERNAME} !requiretty

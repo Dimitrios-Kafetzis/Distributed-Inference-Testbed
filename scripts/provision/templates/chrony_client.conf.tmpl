@@ -1,0 +1,4 @@
+# Testbed NTP client: the edge server is the only time source. Polling every 4 to
+# 16 s keeps the offset in the sub-millisecond range over the wired management network.
+server ${NTP_SERVER} iburst minpoll 2 maxpoll 4 prefer
+makestep 1.0 3

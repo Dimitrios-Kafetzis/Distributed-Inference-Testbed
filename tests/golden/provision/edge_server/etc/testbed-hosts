@@ -1,0 +1,7 @@
+# Testbed names, served by dnsmasq (addn-hosts). Rendered from nodes.json.
+10.0.0.1 edge-server edge-server.testbed
+10.0.0.11 device1 device1.testbed
+10.0.0.12 device2 device2.testbed
+10.0.0.13 device3 device3.testbed
+10.0.0.14 device4 device4.testbed
+10.0.0.15 device5 device5.testbed

@@ -1,0 +1,27 @@
+# Testbed DHCP and DNS on the access point and the management interface.
+# No upstream resolver and no default route are handed out: both networks are isolated.
+# Rendered from config.yaml and nodes.json by src/provisioning/render.py.
+interface=${AP_INTERFACE}
+interface=${BS_MGMT_INTERFACE}
+bind-interfaces
+domain-needed
+bogus-priv
+no-resolv
+no-poll
+no-hosts
+addn-hosts=/etc/testbed-hosts
+local=/${DOMAIN}/
+domain=${DOMAIN}
+expand-hosts
+# Pools for devices that are not provisioned yet (and for a laptop on the switch).
+dhcp-range=${AP_INTERFACE},${DATA_DHCP_RANGE},12h
+dhcp-range=${BS_MGMT_INTERFACE},${MGMT_DHCP_RANGE},12h
+dhcp-option=${AP_INTERFACE},option:router
+dhcp-option=${BS_MGMT_INTERFACE},option:router
+dhcp-option=option:dns-server,${EDGE_MGMT_IP}
+dhcp-option=option:ntp-server,${NTP_SERVER}
+dhcp-authoritative
+# Management reservations by hostname (the hostname is set by custom.toml at first boot),
+# so a freshly flashed device is reachable under its nodes.json address before it is
+# provisioned. Provisioning then installs static addresses on both interfaces.
+${DHCP_HOSTS}

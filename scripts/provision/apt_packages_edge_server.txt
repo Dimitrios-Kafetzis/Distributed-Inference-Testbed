@@ -1,0 +1,13 @@
+# Debian packages installed on the edge server (Ubuntu 22.04 LTS).
+hostapd
+dnsmasq
+chrony
+dpkg-dev
+rsync
+iperf3
+git
+rfkill
+network-manager
+python3.11
+python3.11-venv
+openssh-client

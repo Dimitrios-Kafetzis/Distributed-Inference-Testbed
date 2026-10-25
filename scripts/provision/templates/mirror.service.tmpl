@@ -1,0 +1,14 @@
+[Unit]
+Description=Testbed package mirror (wheels, apt packages, HeadSplit) over HTTP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=${BS_USER}
+WorkingDirectory=${MIRROR_DIR}
+ExecStart=/usr/bin/python3 -m http.server ${MIRROR_PORT} --bind ${EDGE_MGMT_IP} --directory ${MIRROR_DIR}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

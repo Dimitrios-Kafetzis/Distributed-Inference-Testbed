@@ -66,9 +66,14 @@ def test_every_key_has_an_env_override(tmp_path: Path) -> None:
     """Every schema key can be overridden by TESTBED_<KEY>, with type coercion."""
     schema = config_module.load_schema()
     samples: dict[str, tuple[str, object]] = {}
+    pattern_samples = {"ap_country": "DE", "mirror_url": "http://mirror.example:8080"}
     for key, prop in schema["properties"].items():
         types = prop["type"] if isinstance(prop["type"], list) else [prop["type"]]
-        if "boolean" in types:
+        if "enum" in prop:
+            samples[key] = (str(prop["enum"][0]), prop["enum"][0])
+        elif key in pattern_samples:
+            samples[key] = (pattern_samples[key], pattern_samples[key])
+        elif "boolean" in types:
             samples[key] = ("true", True)
         elif "integer" in types:
             samples[key] = ("4242", 4242)

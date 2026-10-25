@@ -1,0 +1,14 @@
+[Unit]
+Description=Testbed: address of the access-point interface
+Before=hostapd.service dnsmasq.service
+After=sys-subsystem-net-devices-${AP_INTERFACE}.device
+Wants=sys-subsystem-net-devices-${AP_INTERFACE}.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ip link set ${AP_INTERFACE} up
+ExecStart=/usr/sbin/ip address replace ${EDGE_DATA_IP}/${DATA_PREFIX_BITS} dev ${AP_INTERFACE}
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

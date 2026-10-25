@@ -42,6 +42,18 @@
     "headsplit_repo_url": { "type": "string" },
     "headsplit_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$" },
     "headsplit_dir": { "type": ["string", "null"] },
-    "headsplit_master_port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+    "headsplit_master_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+
+    "bs_management_interface": { "type": "string", "minLength": 1 },
+    "ap_interface": { "type": "string", "minLength": 1 },
+    "ap_ssid": { "type": "string", "minLength": 1, "maxLength": 32 },
+    "ap_channel": { "type": "integer", "enum": [36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 149, 153, 157, 161] },
+    "ap_country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "ap_passphrase_env": { "type": ["string", "null"] },
+    "mirror_dir": { "type": "string", "minLength": 1 },
+    "mirror_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+    "mirror_url": { "type": ["string", "null"], "pattern": "^https?://" },
+    "ssh_public_key_path": { "type": ["string", "null"] },
+    "device_timezone": { "type": "string", "minLength": 1 }
   }
 }

@@ -11,6 +11,7 @@ truth for the topology.
 from __future__ import annotations
 
 import json
+import os
 import re
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
@@ -24,6 +25,15 @@ from src.config import REPO_ROOT
 
 SCHEMA_PATH = REPO_ROOT / "docs" / "schemas" / "nodes.schema.json"
 DEFAULT_NODES_PATH = REPO_ROOT / "nodes.json"
+# Like TESTBED_CONFIG for config.yaml: another topology file for tools and scripts.
+NODES_PATH_ENV = "TESTBED_NODES"
+
+
+def default_nodes_path() -> Path:
+    override = os.environ.get(NODES_PATH_ENV)
+    return Path(override) if override else DEFAULT_NODES_PATH
+
+
 EDGE_SERVER_ROLE = "Base Station"
 END_DEVICE_ROLE = "End Device"
 
@@ -189,7 +199,7 @@ def parse_topology(data: dict[str, Any]) -> Topology:
 
 
 def load_topology(path: str | Path | None = None) -> Topology:
-    nodes_path = Path(path) if path is not None else DEFAULT_NODES_PATH
+    nodes_path = Path(path) if path is not None else default_nodes_path()
     if not nodes_path.exists():
         raise NodesError(f"topology file not found: {nodes_path} (copy nodes.example.json)")
     with nodes_path.open(encoding="utf-8") as fh:
@@ -201,7 +211,7 @@ def load_topology(path: str | Path | None = None) -> Topology:
 
 def save_topology(topology: Topology, path: str | Path | None = None) -> None:
     """Validate and write atomically."""
-    nodes_path = Path(path) if path is not None else DEFAULT_NODES_PATH
+    nodes_path = Path(path) if path is not None else default_nodes_path()
     data = topology.to_dict()
     _validate(data)
     write_json_atomic(nodes_path, data)

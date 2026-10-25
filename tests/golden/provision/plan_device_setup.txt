@@ -1,0 +1,28 @@
+sudo hostnamectl set-hostname device1
+sudo mkdir -p <TMP>/root/etc/apt/sources.upstream.disabled
+sudo mv <TMP>/root/etc/apt/sources.list <TMP>/root/etc/apt/sources.upstream.disabled/
+sudo mv <TMP>/root/etc/apt/sources.list.d/raspi.list <TMP>/root/etc/apt/sources.upstream.disabled/
+sudo install -D -m 644 <TMP>/rendered/etc/apt/sources.list.d/testbed-mirror.list <TMP>/root/etc/apt/sources.list.d/testbed-mirror.list
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends python3 python3-venv python3-pip chrony iproute2 iperf3 rsync git network-manager i2c-tools
+sudo sed -i 's/^\(pool\|server\) /# \1 /' <TMP>/root/etc/chrony/chrony.conf
+sudo install -D -m 644 <TMP>/rendered/etc/chrony/conf.d/testbed.conf <TMP>/root/etc/chrony/conf.d/testbed.conf
+sudo systemctl restart chrony
+sudo visudo -cf <TMP>/rendered/etc/sudoers.d/testbed
+sudo install -D -m 440 <TMP>/rendered/etc/sudoers.d/testbed <TMP>/root/etc/sudoers.d/testbed
+sudo install -D -m 644 <TMP>/rendered/etc/pip.conf <TMP>/root/etc/pip.conf
+python3 -m venv /home/pi/testbed/venv
+/home/pi/testbed/venv/bin/pip install --no-index --find-links http://10.0.0.1:8080/wheels/aarch64/ --require-hashes -r <REPO>/requirements/edge_device.lock
+git clone --quiet http://10.0.0.1:8080/src/headsplit.git /home/pi/testbed/headsplit
+git -C /home/pi/testbed/headsplit fetch --quiet
+git -C /home/pi/testbed/headsplit checkout --quiet abc1234
+python3 -m venv /home/pi/testbed/headsplit/.venv
+/home/pi/testbed/headsplit/.venv/bin/pip install --no-index --find-links http://10.0.0.1:8080/wheels/aarch64-headsplit/ -r /home/pi/testbed/headsplit/requirements.txt
+bash -c 'cd <REPO> && /home/pi/testbed/venv/bin/python -c '\''import src.config'\'''
+chronyc tracking
+uname -m
+sudo install -D -m 600 <TMP>/rendered/etc/NetworkManager/system-connections/testbed-mgmt.nmconnection <TMP>/root/etc/NetworkManager/system-connections/testbed-mgmt.nmconnection
+sudo install -D -m 600 <TMP>/rendered/etc/NetworkManager/system-connections/testbed-wlan.nmconnection <TMP>/root/etc/NetworkManager/system-connections/testbed-wlan.nmconnection
+sudo nmcli connection reload
+sudo nmcli connection up testbed-wlan
+sudo nmcli connection up testbed-mgmt

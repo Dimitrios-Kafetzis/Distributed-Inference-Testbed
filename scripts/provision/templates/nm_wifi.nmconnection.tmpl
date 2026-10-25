@@ -1,0 +1,24 @@
+[connection]
+id=testbed-wlan
+type=wifi
+interface-name=${DATA_INTERFACE}
+autoconnect=true
+autoconnect-priority=10
+
+[wifi]
+mode=infrastructure
+ssid=${AP_SSID}
+# Power saving off: it adds tens of milliseconds of wake-up latency to the data plane.
+powersave=2
+
+[wifi-security]
+key-mgmt=wpa-psk
+psk=${AP_PASSPHRASE}
+
+[ipv4]
+method=manual
+address1=${DEVICE_DATA_IP}/${DATA_PREFIX_BITS}
+never-default=true
+
+[ipv6]
+method=disabled

@@ -66,6 +66,17 @@ DEFAULTS: dict[str, Any] = {
     "headsplit_commit": None,
     "headsplit_dir": None,
     "headsplit_master_port": 29500,
+    "bs_management_interface": "eth0",
+    "ap_interface": "wlan1",
+    "ap_ssid": "testbed",
+    "ap_channel": 36,
+    "ap_country": "GR",
+    "ap_passphrase_env": "TESTBED_AP_PASSPHRASE",
+    "mirror_dir": "./mirror",
+    "mirror_port": 8080,
+    "mirror_url": None,
+    "ssh_public_key_path": None,
+    "device_timezone": "UTC",
 }
 
 
@@ -108,6 +119,17 @@ class Config:
     headsplit_commit: str | None
     headsplit_dir: str | None
     headsplit_master_port: int
+    bs_management_interface: str
+    ap_interface: str
+    ap_ssid: str
+    ap_channel: int
+    ap_country: str
+    ap_passphrase_env: str | None
+    mirror_dir: str
+    mirror_port: int
+    mirror_url: str | None
+    ssh_public_key_path: str | None
+    device_timezone: str
     # Directory that config.yaml was loaded from (or the repository root).
     config_dir: Path
 
@@ -166,6 +188,10 @@ class Config:
     @property
     def management_prefix(self) -> str:
         return self.management_ip_prefix or self.base_ip_prefix
+
+    @property
+    def mirror_path(self) -> Path:
+        return self._bs_path(self.mirror_dir)
 
     def env_overrides(self) -> dict[str, str]:
         """The configuration as TESTBED_* environment variables, for device-side scripts."""
