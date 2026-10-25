@@ -6,4 +6,6 @@ Software vendored in this repository, with its licence:
 |---|---|---|---|
 | Leaflet | 1.9.4 | `gui/static/vendor/leaflet-1.9.4/` | BSD-2-Clause, see `gui/static/vendor/leaflet-1.9.4/LICENSE` |
 
+The screenshot `docs/images/nnpm_local_mode.png` shows map tiles rendered from OpenStreetMap data, © OpenStreetMap contributors, available under the Open Database Licence (https://www.openstreetmap.org/copyright). At run time NNPM fetches tiles from the server named by `map_tiles_url`, or draws a plain grid when `map_offline` is set.
+
 Python and Debian packages are not vendored; they are installed from the lock files in `requirements/` (or from the local mirror built from them) under their own licences. The HeadSplit runtime is an external repository that provisioning installs on the devices at a pinned commit; it is not part of this repository.

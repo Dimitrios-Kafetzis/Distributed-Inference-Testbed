@@ -1,0 +1,51 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. Please remove addresses, host names and credentials you do not want to publish.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Local mode (no hardware)
+        - Physical testbed
+        - Provisioning scripts
+        - NNPM web application
+        - Test suite or continuous integration
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario
+      description: The scenario file (YAML or JSON) that was run, if applicable.
+      render: yaml
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and metadata
+      description: The relevant part of `results/<run id>/logs/merged.log`, and `metadata.json` or `summary.json` where applicable.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The release or commit (`git describe --tags --always`).
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system and Python version of the machine that showed the problem.

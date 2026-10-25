@@ -4,12 +4,32 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "distributed-inference-testbed"
-version = "1.0.0.dev0"
-description = "Experimental testbed for partitioned AI inference across Raspberry Pi edge devices and an edge server, orchestrated by the NNPM web application."
+version = "1.0.0"
+description = "Experimental testbed for partitioned inference of deep neural networks and large language models across Raspberry Pi edge devices and an edge server, orchestrated by the NNPM web application."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Dimitrios Kafetzis", email = "dimitrioskafetzis@gmail.com" }]
 requires-python = ">=3.11"
+keywords = [
+    "edge computing",
+    "distributed inference",
+    "model partitioning",
+    "deep neural networks",
+    "large language models",
+    "Raspberry Pi",
+    "testbed",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: System :: Networking",
+]
 # Minimum versions, as documented in the thesis software table (Appendix B).
 # Exact versions are pinned in requirements/*.lock.
 dependencies = [
@@ -59,6 +79,9 @@ testbed-optimise = "src.partitioning.delay_optimizer:main"
 
 [project.urls]
 Repository = "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed"
+Documentation = "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/tree/main/docs"
+Changelog = "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/blob/main/CHANGELOG.md"
+Issues = "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/issues"
 
 [tool.setuptools]
 packages = { find = { include = ["src*", "gui*"] } }
