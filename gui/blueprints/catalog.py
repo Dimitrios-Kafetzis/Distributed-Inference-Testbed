@@ -36,6 +36,7 @@ def catalog() -> dict[str, Any]:
             continue
     return {
         "models": registry.names(),
+        "model_parameters": registry.parameter_schemas(),
         "runtimes": runtimes.describe(),
         "default_runtime": runtimes.DEFAULT_RUNTIME,
         "algorithms": algorithms.names(),

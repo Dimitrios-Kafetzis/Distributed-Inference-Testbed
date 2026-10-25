@@ -250,6 +250,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--model", required=True)
     parser.add_argument("--weights", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--model-args", default=None, help="JSON object of adapter parameters")
     parser.add_argument("--policy", default="SJF", choices=["RR", "SJF", "rr", "sjf"])
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
@@ -260,10 +261,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--tag", help="process tag (ignored; present for pkill -f)")
     args = parser.parse_args(argv)
 
+    from src.models import registry
     from src.models.inference import apply_thread_count, load_adapter
 
     apply_thread_count()
-    adapter = load_adapter(args.model, args.weights, args.seed)
+    adapter = load_adapter(
+        args.model, args.weights, args.seed, **registry.parse_model_args(args.model_args)
+    )
     adapter.run_stages(adapter.make_input(0), 1, len(adapter.stages))  # warm up
     server = InferenceServer(
         adapter, args.policy, args.host, args.port, [n for n in args.nodes.split(",") if n]

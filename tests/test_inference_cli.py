@@ -192,3 +192,38 @@ def test_train_and_run_benchmark_script_both_mode(tmp_path: Path) -> None:
         cwd=REPO,
     )
     assert bad_mode.returncode == 1 and "invalid mode" in bad_mode.stderr
+
+
+def test_model_args_reach_the_adapter(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    inference.main(
+        [
+            "capacity",
+            "--model",
+            "fake",
+            "--model-args",
+            '{"input_elements": 16, "time_scale": 0}',
+            "--repetitions",
+            "1",
+            "--warmup",
+            "0",
+        ]
+    )
+    printed = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert printed["model"] == "fake" and printed["flops_per_second"] > 0
+    out = tmp_path / "cut.npy"
+    inference.main(
+        [
+            "partial",
+            "--model",
+            "fake",
+            "--model-args",
+            '{"input_elements": 16, "time_scale": 0}',
+            "--s",
+            "1",
+            "--output",
+            str(out),
+        ]
+    )
+    assert deserialize_array(out.read_bytes()).shape == (1, 1024)
+    with pytest.raises(ValueError, match="JSON object"):
+        inference.main(["capacity", "--model", "fake", "--model-args", "[]"])

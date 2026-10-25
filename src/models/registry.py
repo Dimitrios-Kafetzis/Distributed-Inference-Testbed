@@ -9,7 +9,9 @@ delay model has per-stage FLOP-time pairs and transmitted data sizes.
 Adapters register under a name. Third-party adapters can be added without
 changing the package: list their modules in the environment variable
 ``TESTBED_MODEL_MODULES`` (comma-separated) or expose them through the
-``testbed.models`` entry-point group.
+``testbed.models`` entry-point group. An adapter class may carry
+``PARAMETERS``, a JSON Schema of its constructor arguments: a scenario passes
+them as ``model_args`` and NNPM renders them as form fields.
 """
 
 from __future__ import annotations
@@ -175,6 +177,62 @@ def get(name: str, **kwargs: Any) -> ModelAdapter:
 def iter_registered() -> Iterator[tuple[str, Factory]]:
     _load_plugins()
     yield from sorted(_REGISTRY.items())
+
+
+def parameter_schema(name: str) -> dict[str, Any]:
+    """The JSON Schema of the adapter's constructor arguments (``PARAMETERS`` on the
+    adapter class), or ``{}`` when the adapter takes none. A scenario's ``model_args``
+    block is validated against it and NNPM renders a form from it."""
+    if name not in _REGISTRY and name in BUILTIN_NAMES:
+        _load_module(BUILTIN_NAMES[name])
+    if name not in _REGISTRY:
+        _load_plugins()
+    factory = _REGISTRY.get(name)
+    schema = getattr(factory, "PARAMETERS", None)
+    return dict(schema) if isinstance(schema, dict) else {}
+
+
+def parameter_schemas() -> dict[str, dict[str, Any]]:
+    """``{model name: parameter schema}`` for every registered model with parameters."""
+    out = {}
+    for name, factory in iter_registered():
+        schema = getattr(factory, "PARAMETERS", None)
+        if isinstance(schema, dict) and schema.get("properties"):
+            out[name] = dict(schema)
+    return out
+
+
+def validate_model_args(name: str, args: dict[str, Any] | None) -> dict[str, Any]:
+    """Check ``args`` against the adapter's parameter schema; unknown keys are refused
+    even for adapters without a schema (the factory would reject them later, on the
+    device, where the error is hard to see)."""
+    import jsonschema
+
+    args = dict(args or {})
+    if not args:
+        return args
+    schema = parameter_schema(name)
+    if not schema:
+        raise ValueError(f"model {name!r} takes no model_args (given: {sorted(args)})")
+    schema = {"additionalProperties": False, **schema}
+    try:
+        jsonschema.validate(args, schema)
+    except jsonschema.ValidationError as exc:
+        location = "/".join(str(p) for p in exc.absolute_path) or "<root>"
+        raise ValueError(f"model_args for {name!r} invalid at {location}: {exc.message}") from exc
+    return args
+
+
+def parse_model_args(text: str | None) -> dict[str, Any]:
+    """The ``--model-args`` command-line value: a JSON object, or empty."""
+    import json
+
+    if not text or not text.strip():
+        return {}
+    value = json.loads(text)
+    if not isinstance(value, dict):
+        raise ValueError("--model-args must be a JSON object")
+    return value
 
 
 def reset_for_tests() -> None:

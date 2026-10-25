@@ -306,6 +306,12 @@ def load_arguments(load: dict[str, Any]) -> list[str]:
     return args
 
 
+def model_args_option(ctx: ExperimentContext) -> list[str]:
+    """``--model-args JSON`` for the device and edge-server tools when the scenario has them."""
+    args = ctx.scenario.get("model_args") or {}
+    return ["--model-args", json.dumps(args, sort_keys=True)] if args else []
+
+
 def remote_list(ctx: ExperimentContext, node: Node, pattern: str) -> list[str]:
     outcome = ctx.executor.run_on_node(node, f"ls -1 {pattern} 2>/dev/null || true", check=False)
     return [line.strip() for line in outcome.stdout.splitlines() if line.strip()]
@@ -554,6 +560,7 @@ def profile_with_testbed(ctx: ExperimentContext) -> None:
             seed,
             "--start-at",
             f"{ctx.t0:.6f}",
+            *model_args_option(ctx),
         ]
         return (
             f"cd {shlex.quote(dp.code_dir)} && {env} bash {shlex.quote(script)} {shlex.join(args)}"
@@ -575,6 +582,7 @@ def profile_with_testbed(ctx: ExperimentContext) -> None:
             str(weights),
             "--seed",
             seed,
+            *model_args_option(ctx),
         ]
         cap = [
             sys.executable,
@@ -591,6 +599,7 @@ def profile_with_testbed(ctx: ExperimentContext) -> None:
             "edge_server",
             "--repetitions",
             "2",
+            *model_args_option(ctx),
         ]
         ctx.emit(f"edge server: {shlex.join(cap)}")
         if not ctx.plan_only:
@@ -630,6 +639,7 @@ def run_partitioned_inference(ctx: ExperimentContext, inference: dict[str, Any])
         str(port),
         "--nodes",
         ",".join(d.id for d in ctx.devices),
+        *model_args_option(ctx),
     ]
     if not ctx.plan_only:
         subprocess.run(
@@ -644,6 +654,7 @@ def run_partitioned_inference(ctx: ExperimentContext, inference: dict[str, Any])
                 str(weights),
                 "--seed",
                 seed,
+                *model_args_option(ctx),
             ],
             check=True,
             capture_output=True,
@@ -686,6 +697,7 @@ def run_partitioned_inference(ctx: ExperimentContext, inference: dict[str, Any])
             ctx.run_id,
             "--node-id",
             node.id,
+            *model_args_option(ctx),
         ]
         for s in points:
             args += ["--s", s]
@@ -1051,6 +1063,13 @@ def build_context(
         raise ExperimentError(
             f"unknown runtime {runtime_name!r}; registered: {', '.join(runtimes.names())}"
         )
+    if scenario.get("model_args"):
+        from src.models import registry
+
+        try:
+            registry.validate_model_args(scenario["model"], scenario["model_args"])
+        except (ValueError, KeyError) as exc:
+            raise ExperimentError(str(exc)) from exc
     paths = RunPaths(results_dir or config.bs_results_path, run_id)
     if plan_only:
         transport: Any = FakeTransport(

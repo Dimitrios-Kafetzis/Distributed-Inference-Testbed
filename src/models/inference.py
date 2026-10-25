@@ -52,6 +52,11 @@ def load_adapter(name: str, weights: Path | None, seed: int, **kwargs: Any) -> M
     return adapter
 
 
+def model_args(args: argparse.Namespace) -> dict[str, Any]:
+    """The adapter parameters given as ``--model-args`` (a JSON object)."""
+    return registry.parse_model_args(getattr(args, "model_args", None))
+
+
 def apply_thread_count() -> int | None:
     value = os.environ.get("TESTBED_THREADS")
     if not value:
@@ -84,7 +89,7 @@ def origin_from_args(args: argparse.Namespace) -> Origin:
 
 def cmd_prepare(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
-    adapter = load_adapter(args.model, None, args.seed)
+    adapter = load_adapter(args.model, None, args.seed, **model_args(args))
     if args.weights:
         if args.weights.exists() and not args.force:
             print(f"weights present: {args.weights}", file=sys.stderr)
@@ -104,7 +109,7 @@ def cmd_prepare(args: argparse.Namespace) -> None:
 def cmd_benchmark(args: argparse.Namespace) -> list[Path]:
     seed_everything(args.seed)
     threads = apply_thread_count()
-    adapter = load_adapter(args.model, args.weights, args.seed)
+    adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
     x = load_input(adapter, args.image, args.seed)
     hostname = socket.gethostname()
     import psutil
@@ -143,7 +148,7 @@ def cmd_benchmark(args: argparse.Namespace) -> list[Path]:
 def cmd_partial(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
     apply_thread_count()
-    adapter = load_adapter(args.model, args.weights, args.seed)
+    adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
     x = load_input(adapter, args.image, args.seed)
     started = time.perf_counter_ns()
     cut = adapter.run_stages(x, 1, args.s) if args.s > 0 else x
@@ -165,7 +170,7 @@ def cmd_partial(args: argparse.Namespace) -> None:
 def cmd_complete(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
     apply_thread_count()
-    adapter = load_adapter(args.model, args.weights, args.seed)
+    adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
     cut = deserialize_array(args.input.read_bytes())
     stages = len(adapter.stages)
     started = time.perf_counter_ns()
@@ -189,7 +194,7 @@ def cmd_complete(args: argparse.Namespace) -> None:
 def cmd_capacity(args: argparse.Namespace) -> None:
     seed_everything(args.seed)
     apply_thread_count()
-    adapter = load_adapter(args.model, args.weights, args.seed)
+    adapter = load_adapter(args.model, args.weights, args.seed, **model_args(args))
     x = load_input(adapter, args.image, args.seed)
     warm_up(adapter, x, args.warmup)
     rates = []
@@ -232,6 +237,11 @@ def build_parser() -> argparse.ArgumentParser:
             help="weights file (.npz); built from --seed when absent",
         )
         p.add_argument("--seed", type=int, default=0)
+        p.add_argument(
+            "--model-args",
+            default=None,
+            help="JSON object of adapter parameters (the scenario's model_args)",
+        )
         p.add_argument("--tag", help="process tag (ignored; present for pkill -f)")
 
     prep = sub.add_parser("prepare")

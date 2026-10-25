@@ -35,6 +35,21 @@ class DecoderStageAdapter:
     name = "decoder"
     framework = "torch"
     family = "gpt2"
+    PARAMETERS = {
+        "type": "object",
+        "properties": {
+            "seq_len": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 32,
+                "description": "prompt length in tokens (the prefill the stages run)",
+            },
+            "config": {
+                "type": "object",
+                "description": "Hugging Face configuration overrides (a smaller model for tests)",
+            },
+        },
+    }
 
     def __init__(self, seq_len: int = 32, config: dict[str, Any] | None = None) -> None:
         self.seq_len = seq_len

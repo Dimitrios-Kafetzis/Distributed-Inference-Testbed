@@ -57,3 +57,22 @@ def test_fake_adapter_partition_equivalence_and_weights(tmp_path: Path) -> None:
         adapter.run_stages(x, 0, 5)
     with pytest.raises(RuntimeError):
         FakeStagesAdapter().run_stages(x, 1, 1)
+
+
+def test_parameter_schemas_and_model_args_validation() -> None:
+    schema = registry.parameter_schema("fake")
+    assert set(schema["properties"]) == {"input_elements", "time_scale"}
+    assert registry.parameter_schema("no-such-model") == {}
+    assert "fake" in registry.parameter_schemas()
+    assert registry.validate_model_args("fake", {"input_elements": 16}) == {"input_elements": 16}
+    assert registry.validate_model_args("fake", None) == {}
+    with pytest.raises(ValueError, match="invalid at input_elements"):
+        registry.validate_model_args("fake", {"input_elements": 0})
+    with pytest.raises(ValueError, match="invalid at <root>"):
+        registry.validate_model_args("fake", {"unknown": 1})
+    assert registry.parse_model_args(None) == {} and registry.parse_model_args(" ") == {}
+    assert registry.parse_model_args('{"time_scale": 0}') == {"time_scale": 0}
+    with pytest.raises(ValueError, match="JSON object"):
+        registry.parse_model_args("[1, 2]")
+    built = registry.get("fake", **registry.parse_model_args('{"input_elements": 16}'))
+    assert built.input_shape == (16,)

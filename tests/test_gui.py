@@ -261,6 +261,7 @@ def test_stop_aborts_a_run_and_tears_down(client: FlaskClient, state: AppState) 
 def test_catalog(client: FlaskClient) -> None:
     catalog = client.get("/api/catalog").get_json()
     assert "fake" in catalog["models"] and "greedy" in catalog["algorithms"]
+    assert "input_elements" in catalog["model_parameters"]["fake"]["properties"]
     assert catalog["regimes"]["heavy"] == {"cpu": [60.0, 80.0], "memory": [50.0, 60.0]}
     assert any(e["name"] == "baseline" for e in catalog["examples"])
 

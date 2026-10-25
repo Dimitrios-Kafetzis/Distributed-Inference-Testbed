@@ -28,6 +28,23 @@ DEFAULT_STAGES = [
 class FakeStagesAdapter:
     name = "fake"
     framework = "fake"
+    PARAMETERS = {
+        "type": "object",
+        "properties": {
+            "input_elements": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 2048,
+                "description": "size of the synthetic input vector",
+            },
+            "time_scale": {
+                "type": "number",
+                "minimum": 0,
+                "default": 1.0,
+                "description": "multiplier of every stage's configured sleep time",
+            },
+        },
+    }
 
     def __init__(
         self,

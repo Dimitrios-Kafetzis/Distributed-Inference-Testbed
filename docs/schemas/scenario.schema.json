@@ -13,6 +13,7 @@
     "pipeline": { "enum": ["experiment", "benchmarking"], "default": "experiment" },
     "runtime": { "type": "string", "default": "testbed", "description": "a registered runtime: testbed (default), headsplit, or a plug-in; its settings go in the block of the same name" },
     "model": { "type": "string", "minLength": 1 },
+    "model_args": { "type": "object", "description": "adapter parameters, validated against the model's parameter schema (for example num_classes, seq_len)" },
     "devices": {
       "anyOf": [
         { "type": "null" },

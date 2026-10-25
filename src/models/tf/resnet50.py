@@ -20,6 +20,17 @@ from src.models.tf.keras_stages import FunctionalCutAdapter
 class ResNet50Adapter(FunctionalCutAdapter):
     name = "resnet50"
     input_shape: tuple[int, ...] = (224, 224, 3)
+    PARAMETERS = {
+        "type": "object",
+        "properties": {
+            "num_classes": {
+                "type": "integer",
+                "minimum": 2,
+                "default": 1000,
+                "description": "size of the classifier output",
+            }
+        },
+    }
     cuts = (
         "pool1_pool",
         "conv2_block3_out",

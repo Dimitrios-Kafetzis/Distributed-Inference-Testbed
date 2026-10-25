@@ -188,6 +188,21 @@ def test_plan_is_deterministic_for_a_scenario_version(local_root: Path) -> None:
     second = plan(make_context(local_root, run_id="planrun", plan_only=True))
     assert first == second
     text = "\n".join(first)
+    assert "--model-args" not in text  # no model_args in the scenario: nothing is passed
+    with_args = plan(
+        make_context(
+            local_root,
+            {"model_args": {"input_elements": 64, "time_scale": 0.5}},
+            run_id="planargs",
+            plan_only=True,
+        )
+    )
+    args_text = "\n".join(with_args)
+    # The device profiler, the edge-server capacity tool, the inference service and the
+    # client all receive the same model arguments.
+    assert args_text.count("--model-args") >= 4 and "input_elements" in args_text
+    with pytest.raises(experiment.ExperimentError, match="model_args"):
+        make_context(local_root, {"model_args": {"bogus": 1}}, run_id="badargs", plan_only=True)
     assert (
         "train_and_run_benchmark.sh" in text
         and "latency_injector" in text

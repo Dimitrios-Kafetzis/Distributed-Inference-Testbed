@@ -29,6 +29,17 @@ def _block(name: str, filters: int, convs: int) -> list[Any]:
 class VGG16Adapter(SequentialStageAdapter):
     name = "vgg16"
     input_shape: tuple[int, ...] = (224, 224, 3)
+    PARAMETERS = {
+        "type": "object",
+        "properties": {
+            "num_classes": {
+                "type": "integer",
+                "minimum": 2,
+                "default": 1000,
+                "description": "size of the classifier output",
+            }
+        },
+    }
 
     def __init__(self, num_classes: int = 1000) -> None:
         super().__init__()
