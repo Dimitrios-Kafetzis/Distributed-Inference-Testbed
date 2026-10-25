@@ -38,6 +38,9 @@ def seed_everything(seed: int) -> dict[str, bool]:
         torch.use_deterministic_algorithms(True, warn_only=True)
     seeded["torch"] = torch is not None
 
+    # This may be the first TensorFlow import of the process: same defaults as src/models/tf.
+    os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
+    os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
     tensorflow = _optional("tensorflow")
     if tensorflow is not None:
         tensorflow.random.set_seed(seed)

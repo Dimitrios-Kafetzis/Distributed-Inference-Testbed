@@ -19,7 +19,7 @@ from typing import Any
 
 import numpy as np
 
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")  # see src/models/tf/__init__.py
 os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")  # CPU only
 
 import tensorflow as tf
