@@ -83,8 +83,9 @@ map_offline: false
 
 # --- HeadSplit, optional external LLM runtime -----------------------------------
 headsplit_repo_url: "https://github.com/Dimitrios-Kafetzis/headsplit.git"
-# Commit that provisioning installs on the devices. null disables HeadSplit.
-headsplit_commit: null
+# Commit that provisioning installs on the devices (HeadSplit v0.1.0, the first
+# release with JSON results and a coordinated start). null disables HeadSplit.
+headsplit_commit: "4864a22e5bdc2c712ffe071d7f7dba0c3656fb33"
 # Directory on the devices; null means <ed_root>/headsplit.
 headsplit_dir: null
 headsplit_master_port: 29500

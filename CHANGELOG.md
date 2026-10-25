@@ -2,7 +2,9 @@
 
 All notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-10-25
+
+Extensions beyond the thesis: runtime plug-ins with HeadSplit managed from NNPM, generic model adapters, a model catalogue, input sources and a partition check. The thesis requirements keep their status; the hardware checklist gains a section for these extensions.
 
 ### Added
 
@@ -45,5 +47,5 @@ First release of the testbed described in Chapter 3 and Appendix B of the author
 - Provisioning: first-boot image, edge server (access point, DHCP and DNS, NTP, mirror and NNPM services), devices over SSH from a versioned package mirror.
 - Documentation: architecture, installation, setup guide, NNPM user guide, scenario and results references, module reference, HeadSplit integration, hardware validation checklist.
 
-[Unreleased]: https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/compare/v1.0.0...HEAD
+[1.1.0]: https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/releases/tag/v1.0.0

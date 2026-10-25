@@ -347,7 +347,10 @@ def test_build_mirror_plan(tmp_path: Path, example_nodes: None) -> None:
     assert "apt-get install --download-only --reinstall" in plan
     assert "git clone --quiet --bare https://github.com/Dimitrios-Kafetzis/headsplit.git" in plan
     assert "src.provisioning.mirror manifest" in plan
-    skipped = run_script(tmp_path, "build_mirror.sh", "headsplit")
+    # The example configuration pins HeadSplit v0.1.0; null disables the step.
+    skipped = run_script(
+        tmp_path, "build_mirror.sh", "headsplit", env_extra={"TESTBED_HEADSPLIT_COMMIT": "null"}
+    )
     assert skipped.returncode == 0 and "not mirrored" in skipped.stderr
 
 

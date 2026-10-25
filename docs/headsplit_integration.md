@@ -10,7 +10,7 @@ In `config.yaml`:
 
 ```yaml
 headsplit_repo_url: "https://github.com/Dimitrios-Kafetzis/headsplit.git"
-headsplit_commit: <commit SHA>     # null disables HeadSplit
+headsplit_commit: "4864a22e5bdc2c712ffe071d7f7dba0c3656fb33"   # HeadSplit v0.1.0; null disables HeadSplit
 headsplit_dir: null                # directory on the devices; null means <ed_root>/headsplit
 headsplit_master_port: 29500
 ```
