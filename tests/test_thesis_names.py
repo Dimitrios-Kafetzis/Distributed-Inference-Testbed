@@ -25,11 +25,11 @@ FILES = [
     pytest.param("src/config.py", id="src/config.py"),
     pytest.param("src/network/ssh_executor.py", marks=wp(3)),
     pytest.param("src/network/latency_measurement.py", marks=wp(2)),
-    pytest.param("src/network/node_statistics.py", marks=wp(1)),
+    pytest.param("src/network/node_statistics.py"),
     pytest.param("src/network/power_measurement.py", marks=wp(2)),
-    pytest.param("src/benchmarking/benchmark_results.py", marks=wp(1)),
-    pytest.param("src/benchmarking/result_aggregation.py", marks=wp(1)),
-    pytest.param("src/benchmarking/partition_calculator.py", marks=wp(1)),
+    pytest.param("src/benchmarking/benchmark_results.py"),
+    pytest.param("src/benchmarking/result_aggregation.py"),
+    pytest.param("src/benchmarking/partition_calculator.py"),
     pytest.param("src/partitioning/delay_optimizer.py", marks=wp(6)),
     pytest.param("src/testbed/load_generator.py", marks=wp(2)),
     pytest.param("src/testbed/latency_injector.py", marks=wp(2)),
@@ -49,7 +49,7 @@ def test_thesis_file_exists(relative: str) -> None:
 
 SYMBOLS = [
     pytest.param("src.config", "load_config", id="src.config.load_config"),
-    pytest.param("src.benchmarking.benchmark_results", "BenchmarkResults", marks=wp(1)),
+    pytest.param("src.benchmarking.benchmark_results", "BenchmarkResults"),
     pytest.param("gui.app", "calculate_distance", marks=wp(9)),
     pytest.param("gui.app", "calculate_latency", marks=wp(9)),
 ]

@@ -11,7 +11,7 @@ This repository is under construction; the sections below are filled in as the c
 | Component | State |
 |---|---|
 | Configuration (`config.yaml`, `nodes.json`, `src/config.py`) | done |
-| Measurement records and post-processing (`src/benchmarking/`) | planned |
+| Measurement records and post-processing (`src/benchmarking/`, `src/network/node_statistics.py`) | done |
 | Device-side tools (`src/testbed/`, `src/network/`) | planned |
 | SSH dispatch and collection (`src/network/ssh_executor.py`) | planned |
 | Models and profiling (`src/models/`) | planned |
