@@ -280,9 +280,10 @@ def run_script(
 
 
 def normalise(plan: str, tmp_path: Path) -> str:
+    # The interpreter first: on a runner it lives inside the repository (.venv).
+    plan = plan.replace(sys.executable, "<PYTHON>")
     plan = plan.replace(str(tmp_path), "<TMP>").replace(str(REPO), "<REPO>")
-    plan = re.sub(r"/tmp/tmp\.[A-Za-z0-9]+", "<RENDERED>", plan)
-    return plan.replace(sys.executable, "<PYTHON>")
+    return re.sub(r"/tmp/tmp\.[A-Za-z0-9]+", "<RENDERED>", plan)
 
 
 @pytest.fixture
