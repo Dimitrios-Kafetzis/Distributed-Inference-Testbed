@@ -24,14 +24,15 @@ sudo apt-get install -y python3.11 python3.11-venv git rsync iperf3
 git clone https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed.git
 cd Distributed-Inference-Testbed
 python3.11 -m venv .venv
-.venv/bin/pip install --require-hashes -r requirements/edge_server.lock
+.venv/bin/pip install --require-hashes -r requirements/edge_server.lock \
+    --extra-index-url https://download.pytorch.org/whl/cpu   # the CPU build of PyTorch lives there
 cp config.example.yaml config.yaml      # then edit
 cp nodes.example.json nodes.json        # then edit, or manage through NNPM
 .venv/bin/python -m src.config          # shows the effective configuration
 .venv/bin/python -m gui.app             # NNPM on nnpm_host:nnpm_port
 ```
 
-`requirements/edge_server.lock` contains TensorFlow and PyTorch (CPU builds): the edge server profiles its own capacity and runs the partitioned-inference service, so it needs the same frameworks as the devices. With a package mirror in place, add `--no-index --find-links mirror/wheels/x86_64` to the `pip install` line.
+`requirements/edge_server.lock` contains TensorFlow and PyTorch (CPU builds): the edge server profiles its own capacity and runs the partitioned-inference service, so it needs the same frameworks as the devices. The x86_64 CPU build of PyTorch (`torch==2.1.2+cpu`) is published on the PyTorch index, not on PyPI, hence the `--extra-index-url` (with `uv`, add `--index-strategy unsafe-best-match`). With a package mirror in place, replace it with `--no-index --find-links mirror/wheels/x86_64`.
 
 ## Edge devices
 

@@ -9,6 +9,6 @@ The `.in` files list direct dependencies with the minimum versions documented in
 | `edge_device_llm.lock` | edge device, LLM experiments (PyTorch, Transformers) | aarch64, Python 3.11 |
 | `dev.lock` | development and continuous integration | x86_64, Python 3.11 |
 
-Regenerate with `scripts/lock_requirements.sh` (uses `uv pip compile --generate-hashes`). Install with `uv pip install --require-hashes -r requirements/<role>.lock` or `pip install --require-hashes -r ...`.
+Regenerate with `scripts/lock_requirements.sh` (uses `uv pip compile --generate-hashes`). Install with `uv pip install --require-hashes -r requirements/<role>.lock` or `pip install --require-hashes -r ...`. The edge-server lock pins the x86_64 CPU build of PyTorch (`torch==2.1.2+cpu`), which is on the PyTorch index: add `--extra-index-url https://download.pytorch.org/whl/cpu` (and, with `uv`, `--index-strategy unsafe-best-match`), or install from the local mirror with `--no-index --find-links`.
 
 The optional INA260 power-monitor packages (`power.in`) depend on the Raspberry Pi platform (`adafruit-blinka`) and are installed on the devices only; they are listed without a lock file because their platform wheels cannot be resolved off the device.
