@@ -243,7 +243,9 @@ def test_example_catalogue_loads_and_names_registered_models(tmp_path: Path) -> 
 
     (tmp_path / weights.CATALOGUE_NAME).write_text((REPO / "examples" / "models.yaml").read_text())
     entries = weights.load_catalogue(tmp_path)
-    names = registry.names()
+    # Built-in names rather than the loaded adapters: without TensorFlow or PyTorch
+    # installed (the development lock), those adapters are not registered.
+    names = set(registry.BUILTIN_NAMES) | set(registry.names())
     assert all(e.name in names for e in entries), [e.name for e in entries if e.name not in names]
     assert all(e.licence for e in entries)
     assert all(e.repo_id for e in entries if e.kind == "hf_checkpoint")
