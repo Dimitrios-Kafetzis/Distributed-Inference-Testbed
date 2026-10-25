@@ -14,7 +14,7 @@ This repository is under construction; the sections below are filled in as the c
 | Measurement records and post-processing (`src/benchmarking/`, `src/network/node_statistics.py`) | done |
 | Device-side tools: load generator, tc-netem shaping, heterogeneity, resource monitor, power, latency and throughput (`src/testbed/`, `src/network/`) | done |
 | SSH dispatch, result collection and run metadata (`src/network/ssh_executor.py`, `transfer_files.sh`, `src/common/metadata.py`) | done |
-| Models and per-layer profiling: AlexNet (11 stages), VGG-16, ResNet-50, GRU predictor, fake model (`src/models/`, `train_and_run_benchmark.sh`) | done (TensorFlow); LLM adapters planned |
+| Models and per-layer profiling: AlexNet (11 stages), VGG-16, ResNet-50, GRU predictor, fake model (TensorFlow); GPT-2 and TinyLlama at layer granularity with per-head, projection and FFN block timing through forward hooks (PyTorch); HeadSplit as an optional external runtime (`src/models/`, `train_and_run_benchmark.sh`, `src/orchestration/headsplit_runtime.py`) | done |
 | Partitioned inference service: edge-server RR/SJF service, device client, per-phase timing (`src/inference/`) | done |
 | Partition optimisation: Chapter 4 delay model (RR, SJF), greedy, exhaustive and trend-based search, `delay_optimizer.py` (`src/partitioning/`) | done |
 | Orchestration: scenarios (versioned, replayable), the experiment pipeline with journal-driven teardown, coordinated start, local mode, `run_full_benchmarking.sh` (`src/orchestration/`) | done |

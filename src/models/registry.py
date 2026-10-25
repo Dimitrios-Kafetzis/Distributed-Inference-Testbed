@@ -108,6 +108,8 @@ BUILTIN_MODULES = (
     "src.models.tf.vgg16",
     "src.models.tf.resnet50",
     "src.models.tf.gru_qoe",
+    "src.models.torch.gpt2",
+    "src.models.torch.tinyllama",
 )
 
 
@@ -117,6 +119,8 @@ BUILTIN_NAMES = {
     "vgg16": "src.models.tf.vgg16",
     "resnet50": "src.models.tf.resnet50",
     "gru_qoe": "src.models.tf.gru_qoe",
+    "gpt2": "src.models.torch.gpt2",
+    "tinyllama": "src.models.torch.tinyllama",
 }
 
 
@@ -124,7 +128,7 @@ def _load_module(module_name: str) -> None:
     try:
         module = importlib.import_module(module_name)
     except ImportError:
-        # TensorFlow is optional on this node (for example an LLM-only device).
+        # TensorFlow or PyTorch may be absent on this node (DNN-only or LLM-only device).
         return
     for name, factory in getattr(module, "ADAPTERS", {}).items():
         register(name, factory)

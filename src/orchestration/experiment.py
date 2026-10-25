@@ -768,6 +768,10 @@ def stage_aggregate(ctx: ExperimentContext) -> None:
     all_records = result_aggregation.load_records(ctx.paths.raw)
     benchmarks = [r for r in all_records if isinstance(r, BenchmarkResults)]
     if not any(r.stages for r in benchmarks):
+        if ctx.scenario.get("runtime") == "headsplit":
+            ctx.emit("external runtime: no per-layer profile to aggregate")
+            ctx.paths.link_latest()
+            return
         raise ExperimentError("no benchmark records were collected")
     totals = result_aggregation.aggregate(benchmarks)
     write_json_atomic(ctx.paths.total_averages, totals)
@@ -795,7 +799,7 @@ def stage_aggregate(ctx: ExperimentContext) -> None:
 
 def stage_optimise(ctx: ExperimentContext) -> None:
     opt = ctx.scenario.get("optimisation", {})
-    if not opt.get("enabled", True) or ctx.plan_only:
+    if not opt.get("enabled", True) or ctx.plan_only or not ctx.paths.total_averages.exists():
         return
     max_points = json.loads(ctx.paths.max_partition_points.read_text(encoding="utf-8"))
     totals = json.loads(ctx.paths.total_averages.read_text(encoding="utf-8"))

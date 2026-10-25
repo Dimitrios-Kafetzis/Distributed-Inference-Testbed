@@ -9,6 +9,7 @@ continuous integration and how NNPM can be demonstrated without hardware.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -66,7 +67,9 @@ def create_local_testbed(
         )
     (root / "nodes" / "edge-server").mkdir(parents=True, exist_ok=True)
     topology = Topology(nodes, comment="local mode (synthetic)")
+    # TESTBED_* variables of the process still apply; the local-mode paths override them.
     environ = {
+        **os.environ,
         "TESTBED_BS_ROOT": str(root),
         "TESTBED_BS_RESULTS_DIR": str(root / "results"),
         "TESTBED_BS_MODELS_DIR": str(root / "models"),

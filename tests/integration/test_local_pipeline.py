@@ -177,7 +177,9 @@ def test_scenario_without_devices_is_refused(local_root: Path) -> None:
     ctx2 = make_context(
         local_root, {"runtime": "headsplit", "inference": {"enabled": False}}, run_id="hs"
     )
-    with pytest.raises(NotImplementedError):
+    from src.orchestration.headsplit_runtime import HeadSplitError
+
+    with pytest.raises(HeadSplitError, match="must name nodes"):
         run_pipeline(ctx2)
 
 

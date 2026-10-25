@@ -52,4 +52,10 @@ Everything in this repository is tested without hardware: with fake command runn
 - [ ] Interrupt a run with Ctrl-C during profiling, then run `scripts/base_station/clean_devices.sh`. Expected: no `testbed-` process, no netem queue and no `testbed-` cgroup remains on any device.
 - [ ] NTP guard: stop chrony on one device and start a run. Expected: the preflight refuses the run with the offending node named.
 
+## LLM profiling and HeadSplit (A-02, D-04, I-03, I-04)
+
+- [ ] Device with the LLM environment and a TinyLlama checkpoint in the mirror: `python -m src.models.torch.hooks --model tinyllama --weights <checkpoint dir> --seq-len 256 --repetitions 3 --output /tmp/blocks.json`. Expected: per layer, FFN time about nine times the projection and the attention heads a few milliseconds each (Chapter 5, Table small-real-blocks gives 2.4-6.7 ms per head, 27-64 ms projection, 0.23-0.62 s FFN at 1.8 GHz and four threads); `TESTBED_THREADS=1` roughly doubles them.
+- [ ] Device: `scripts/end_device/train_and_run_benchmark.sh both <models dir> gpt2 /tmp/r --repetitions 2` with `TESTBED_MODEL_WEIGHTS` pointing at a GPT-2 checkpoint directory (or random weights): per-layer stage times and the logits stage are recorded; `python -m src.inference.client --model gpt2 ...` against the edge-server service moves the hidden-state cut (T x 768 floats) over the wireless link.
+- [ ] HeadSplit: provision the devices with `headsplit_commit` set; on the controller device run `scripts/profile_offline.py` once (needs the calibration data) to produce `artifacts/profile.json`; then `scripts/base_station/run_experiment.sh examples/scenarios/ch6_rtt_sweep.yaml`. Expected: one run per added RTT value, `results/<run id>/headsplit/results.json` with the layer_based, head_only and headsplit totals, and the monitor and power traces of every worker. Compare the slopes with Chapter 6 (0.15 s and 1.1 s per millisecond of added RTT).
+
 (Items are added with every work package.)

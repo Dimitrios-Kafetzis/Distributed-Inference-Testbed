@@ -94,6 +94,15 @@
         "model": { "type": "string" },
         "tokens": { "type": "integer", "minimum": 1, "default": 50 },
         "prompt_length": { "type": "integer", "minimum": 1, "default": 256 },
+        "mode": { "enum": ["headsplit", "head_only", "layer_based", "all"], "default": "headsplit" },
+        "profile": { "type": "string", "default": "artifacts/profile.json", "description": "speculation-accuracy profile (profile_offline.py) relative to the HeadSplit directory" },
+        "prompt": { "type": ["string", "null"] },
+        "worker_memory_bytes": { "type": "integer", "minimum": 1, "default": 3221225472 },
+        "epsilon": { "type": "number", "exclusiveMinimum": 0, "default": 0.05 },
+        "alpha_min": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.70 },
+        "memory_replace_threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.85 },
+        "rtt_margin": { "type": "number", "minimum": 1, "default": 1.15 },
+        "timeout_s": { "type": "number", "exclusiveMinimum": 0, "default": 3600 },
         "extra_args": { "type": "array", "items": { "type": "string" } }
       }
     },
