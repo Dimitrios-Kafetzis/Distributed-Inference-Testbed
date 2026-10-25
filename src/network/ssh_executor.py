@@ -238,7 +238,12 @@ def make_transport(
     config: Config, topology: Topology, *, local: bool = False, password: str | None = None
 ) -> Transport:
     if local or all(n.transport == "local" for n in topology.end_devices()):
-        return LocalTransport({n.id: Path(n.workdir) for n in topology.nodes if n.workdir})
+        from src.config import REPO_ROOT
+
+        return LocalTransport(
+            {n.id: Path(n.workdir) for n in topology.nodes if n.workdir},
+            base_env={"PYTHONPATH": str(REPO_ROOT)},
+        )
     return ParamikoTransport(config, password=password)
 
 

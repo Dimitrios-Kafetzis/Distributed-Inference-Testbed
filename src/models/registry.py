@@ -111,16 +111,29 @@ BUILTIN_MODULES = (
 )
 
 
+BUILTIN_NAMES = {
+    "fake": "src.models.fake",
+    "alexnet": "src.models.tf.alexnet",
+    "vgg16": "src.models.tf.vgg16",
+    "resnet50": "src.models.tf.resnet50",
+    "gru_qoe": "src.models.tf.gru_qoe",
+}
+
+
+def _load_module(module_name: str) -> None:
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError:
+        # TensorFlow is optional on this node (for example an LLM-only device).
+        return
+    for name, factory in getattr(module, "ADAPTERS", {}).items():
+        register(name, factory)
+
+
 def _load_builtin() -> None:
     """Register the built-in adapters from each module's ``ADAPTERS`` table."""
     for module_name in BUILTIN_MODULES:
-        try:
-            module = importlib.import_module(module_name)
-        except ImportError:
-            # TensorFlow is optional on this node (for example an LLM-only device).
-            continue
-        for name, factory in getattr(module, "ADAPTERS", {}).items():
-            register(name, factory)
+        _load_module(module_name)
 
 
 def _load_plugins() -> None:
@@ -142,7 +155,12 @@ def names() -> list[str]:
 
 
 def get(name: str, **kwargs: Any) -> ModelAdapter:
-    _load_plugins()
+    """The adapter registered under ``name``; built-in modules are imported on demand,
+    so asking for the fake model does not import TensorFlow."""
+    if name not in _REGISTRY and name in BUILTIN_NAMES:
+        _load_module(BUILTIN_NAMES[name])
+    if name not in _REGISTRY:
+        _load_plugins()
     try:
         factory = _REGISTRY[name]
     except KeyError as exc:

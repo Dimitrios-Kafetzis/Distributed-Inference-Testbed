@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/docs/schemas/scenario.schema.json",
+  "title": "Experiment scenario",
+  "description": "All parameters of an experiment (network conditions, compute load, model, partition strategy) in one object that NNPM versions and replays.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "model"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+    "description": { "type": "string" },
+    "pipeline": { "enum": ["experiment", "benchmarking"], "default": "experiment" },
+    "runtime": { "enum": ["testbed", "headsplit"], "default": "testbed" },
+    "model": { "type": "string", "minLength": 1 },
+    "devices": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+      ],
+      "description": "End devices to use; null means every End Device in nodes.json"
+    },
+    "repetitions": { "type": "integer", "minimum": 1, "default": 1 },
+    "warmup": { "type": "integer", "minimum": 0, "default": 1 },
+    "seed": { "type": "integer", "minimum": 0, "default": 0 },
+    "settle_s": { "type": "number", "minimum": 0, "default": 5 },
+    "start_lead_s": { "type": "number", "minimum": 0, "default": 3 },
+    "edge_server": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy": { "enum": ["RR", "SJF"], "default": "SJF" },
+        "nominal_frequency": { "type": "boolean", "default": true },
+        "profile_capacity": { "type": "boolean", "default": true },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 5300 }
+      }
+    },
+    "inference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "partition_points": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "repetitions": { "type": "integer", "minimum": 1, "default": 1 }
+      }
+    },
+    "network": {
+      "type": "object",
+      "description": "Shaping per node id; the key 'default' applies to every selected device",
+      "additionalProperties": { "$ref": "#/$defs/network" }
+    },
+    "load": {
+      "type": "object",
+      "description": "Compute load per node id; the key 'default' applies to every selected device",
+      "additionalProperties": { "$ref": "#/$defs/load" }
+    },
+    "heterogeneity": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/heterogeneity" }
+    },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "interval_s": { "type": "number", "exclusiveMinimum": 0, "default": 1.0 },
+        "power": { "type": "boolean", "default": false },
+        "power_interval_s": { "type": "number", "exclusiveMinimum": 0, "default": 0.5 },
+        "latency_pings": { "type": "integer", "minimum": 1, "default": 10 },
+        "throughput": { "type": "boolean", "default": false },
+        "throughput_duration_s": { "type": "number", "exclusiveMinimum": 0, "default": 5 }
+      }
+    },
+    "optimisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "algorithm": { "type": "string", "default": "greedy" },
+        "objective": { "enum": ["total_delay", "variance"], "default": "total_delay" },
+        "initial_scheme": { "type": ["string", "null"], "description": "JSON list, {node: s} or 'NN%'" },
+        "max_total_delays_ms": { "type": ["object", "array", "null"] },
+        "transmission_mode": { "enum": ["size_over_rate", "rtt_only"], "default": "rtt_only" },
+        "num_solutions": { "type": "integer", "minimum": 1, "default": 5 },
+        "max_time_s": { "type": "number", "exclusiveMinimum": 0, "default": 300 }
+      }
+    },
+    "headsplit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "controller": { "type": "string" },
+        "workers": { "type": "array", "items": { "type": "string" } },
+        "model": { "type": "string" },
+        "tokens": { "type": "integer", "minimum": 1, "default": 50 },
+        "prompt_length": { "type": "integer", "minimum": 1, "default": 256 },
+        "extra_args": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "sweep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "values"],
+      "properties": {
+        "path": { "type": "string", "description": "dotted path of the field to vary, e.g. network.default.added_rtt_ms" },
+        "values": { "type": "array", "minItems": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "delay_ms": { "type": ["number", "null"], "minimum": 0 },
+        "from_map": { "type": "boolean", "default": false, "description": "derive the delay from the marker positions" },
+        "variation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode"],
+          "properties": {
+            "mode": { "enum": ["constant", "uniform", "square"] },
+            "min_ms": { "type": "number", "minimum": 0 },
+            "max_ms": { "type": "number", "minimum": 0 },
+            "period_s": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "jitter_ms": { "type": ["number", "null"], "minimum": 0 },
+        "loss_percent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "rate_mbps": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "added_rtt_ms": { "type": ["number", "null"], "minimum": 0, "description": "extra round-trip time to the edge server (applied as egress delay)" },
+        "background_traffic_mbps": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "destinations": { "type": "array", "items": { "type": "string" }, "description": "node ids for per-destination shaping; empty = all traffic" }
+      }
+    },
+    "load": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["fixed", "continuous", "regime", "processes"], "default": "fixed" },
+        "cpu_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "memory_percent": { "type": "number", "minimum": 0, "maximum": 95 },
+        "cpu_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "memory_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "regime": { "enum": ["light", "moderate", "heavy"] },
+        "processes": { "type": "integer", "minimum": 1 },
+        "cores": { "type": "integer", "minimum": 1, "default": 1 },
+        "cycle_s": { "type": "number", "exclusiveMinimum": 0, "default": 10 },
+        "period_ms": { "type": "number", "exclusiveMinimum": 0, "default": 100 }
+      }
+    },
+    "heterogeneity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_freq_mhz": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "memory_limit_mb": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "threads": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    }
+  }
+}

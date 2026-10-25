@@ -17,7 +17,7 @@ This repository is under construction; the sections below are filled in as the c
 | Models and per-layer profiling: AlexNet (11 stages), VGG-16, ResNet-50, GRU predictor, fake model (`src/models/`, `train_and_run_benchmark.sh`) | done (TensorFlow); LLM adapters planned |
 | Partitioned inference service: edge-server RR/SJF service, device client, per-phase timing (`src/inference/`) | done |
 | Partition optimisation: Chapter 4 delay model (RR, SJF), greedy, exhaustive and trend-based search, `delay_optimizer.py` (`src/partitioning/`) | done |
-| Orchestration and local mode (`src/orchestration/`) | planned |
+| Orchestration: scenarios (versioned, replayable), the experiment pipeline with journal-driven teardown, coordinated start, local mode, `run_full_benchmarking.sh` (`src/orchestration/`) | done |
 | NNPM web application (`gui/`) | planned |
 | Provisioning (`scripts/provision/`) | planned |
 

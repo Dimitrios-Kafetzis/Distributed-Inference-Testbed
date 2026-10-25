@@ -67,13 +67,17 @@ class TaggedProcess:
         It is written to the PID file and printed.
         """
         assignments = " ".join(f"{k}={shlex.quote(v)}" for k, v in sorted((env or {}).items()))
-        prefix = f"{assignments} " if assignments else ""
-        inner = f"{prefix}TESTBED_TAG={self.tag} exec {command}"
+        # The tag and the environment are exported, then the command runs in the wrapper
+        # shell (it may start with "cd ... &&"); the process group covers both.
+        inner = f"export TESTBED_TAG={self.tag} {assignments}; {command}"
+        # The braces keep the directory creation in the foreground and make $! the PID of
+        # the setsid command alone; a background job is not a group leader, so setsid does
+        # not fork and that PID is the new process group id.
         return (
-            f"mkdir -p {shlex.quote(self.run_dir)} && "
+            f"mkdir -p {shlex.quote(self.run_dir)} && {{ "
             f"setsid nohup sh -c {shlex.quote(inner)} "
             f"> {shlex.quote(self.log_file)} 2>&1 < /dev/null & "
-            f"echo $! > {shlex.quote(self.pid_file)} && cat {shlex.quote(self.pid_file)}"
+            f"echo $! > {shlex.quote(self.pid_file)}; }} && cat {shlex.quote(self.pid_file)}"
         )
 
     def stop_command(self, grace_s: float = 2.0) -> str:

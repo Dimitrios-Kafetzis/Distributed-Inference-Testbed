@@ -1,0 +1,22 @@
+# Chapter 6 heterogeneity study: frequency caps and memory limits on workers.
+name: ch6_heterogeneity
+description: HeadSplit with medium heterogeneity (two workers at 1.2 GHz).
+pipeline: experiment
+runtime: headsplit
+model: tinyllama
+devices: [device1, device2, device3, device4, device5]
+repetitions: 10
+seed: 1
+headsplit:
+  controller: device1
+  workers: [device2, device3, device4, device5]
+  model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  tokens: 50
+heterogeneity:
+  device4: {max_freq_mhz: 1200}
+  device5: {max_freq_mhz: 1200}
+monitoring:
+  enabled: true
+  power: true
+optimisation:
+  enabled: false

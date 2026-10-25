@@ -38,7 +38,7 @@ FILES = [
     pytest.param("scripts/end_device/apply_latency.sh"),
     pytest.param("scripts/end_device/train_and_run_benchmark.sh"),
     pytest.param("scripts/end_device/transfer_files.sh"),
-    pytest.param("scripts/base_station/run_full_benchmarking.sh", marks=wp(7)),
+    pytest.param("scripts/base_station/run_full_benchmarking.sh"),
 ]
 
 

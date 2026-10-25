@@ -37,6 +37,7 @@ import numpy as np
 
 from src.benchmarking.benchmark_results import Origin
 from src.common.seeds import seed_everything
+from src.common.start_signal import origin_from_arguments
 from src.models import registry
 from src.models.profiler import capacity_flops_per_second, profile_once, warm_up
 from src.models.registry import Array, ModelAdapter, deserialize_array, serialize_array
@@ -77,9 +78,8 @@ def load_input(adapter: ModelAdapter, image: Path | None, seed: int) -> Array:
 
 
 def origin_from_args(args: argparse.Namespace) -> Origin:
-    if args.origin_wall is not None and args.origin_perf is not None:
-        return Origin(args.origin_wall, args.origin_perf)
-    return Origin(time.time(), time.perf_counter_ns())
+    """The run origin: given explicitly, or captured when the start signal T0 is reached."""
+    return origin_from_arguments(args)
 
 
 def cmd_prepare(args: argparse.Namespace) -> None:
@@ -106,12 +106,12 @@ def cmd_benchmark(args: argparse.Namespace) -> list[Path]:
     threads = apply_thread_count()
     adapter = load_adapter(args.model, args.weights, args.seed)
     x = load_input(adapter, args.image, args.seed)
-    origin = origin_from_args(args)
     hostname = socket.gethostname()
     import psutil
 
     baseline = psutil.Process().memory_info().rss / 2**20
     warm_up(adapter, x, args.warmup)
+    origin = origin_from_args(args)  # waits for the start signal when --start-at is given
     args.output_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for repetition in range(args.repetitions):
@@ -250,6 +250,7 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--sampler-interval", type=float, default=0.005)
     bench.add_argument("--origin-wall", type=float)
     bench.add_argument("--origin-perf", type=int)
+    bench.add_argument("--start-at", type=float, default=None, help="wall-clock T0 to wait for")
 
     partial = sub.add_parser("partial")
     common(partial)

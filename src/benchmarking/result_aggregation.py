@@ -100,7 +100,7 @@ def aggregate(benchmarks: list[BenchmarkResults]) -> dict[str, dict[str, Any]]:
         result[node_id] = {
             "hostname": records[-1].hostname,
             "model": models.pop(),
-            "repetitions": len(records),
+            "repetitions": len([r for r in records if r.stages]),
             "run_ids": sorted({r.run_id for r in records}),
             "stages": {str(k): v for k, v in stages.items()},
             "partition_points": {str(k): v for k, v in points.items()},
@@ -110,11 +110,12 @@ def aggregate(benchmarks: list[BenchmarkResults]) -> dict[str, dict[str, Any]]:
 
 
 def merge_traces(records: list[Record]) -> dict[str, dict[str, Any]]:
-    """One unified record per device and run: timing records plus resource and
-    power samples re-aligned to the wall clock through the shared origin."""
+    """One unified record per device and run (keyed by node id and run id): timing
+    records plus resource and power samples re-aligned to the wall clock through the
+    shared origin; the hostname is kept inside the record."""
     merged: dict[str, dict[str, Any]] = {}
     for record in records:
-        key = f"{record.hostname}__{record.run_id}"
+        key = f"{record.node_id}__{record.run_id}"
         entry = merged.setdefault(
             key,
             {

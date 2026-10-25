@@ -1,0 +1,28 @@
+# Profiling under the Heavy compute regime of Chapter 3 and a shaped link.
+name: heavy_load
+description: AlexNet profiling under heavy background load, 20 ms delay with jitter and 1 % loss.
+pipeline: experiment
+model: alexnet
+devices: null
+repetitions: 3
+warmup: 1
+seed: 7
+settle_s: 10
+load:
+  default:
+    mode: regime
+    regime: heavy
+    cycle_s: 10
+network:
+  default:
+    delay_ms: 20
+    jitter_ms: 5
+    loss_percent: 1.0
+    rate_mbps: 25
+monitoring:
+  enabled: true
+  power: false
+optimisation:
+  enabled: true
+  algorithm: greedy
+  objective: total_delay

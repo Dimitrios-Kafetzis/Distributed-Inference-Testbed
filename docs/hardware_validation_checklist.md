@@ -44,4 +44,12 @@ Everything in this repository is tested without hardware: with fake command runn
 - [ ] Four devices at once with `--s 4` and `--policy SJF`, then `--policy RR`: the per-device `queue_ms` values follow the policy (SJF: ascending offloaded work; RR: interleaved), as in the loopback tests.
 - [ ] Compare the measured `transmission_ms` of the s = 1 cut (1.1 MB) with size / throughput from the iperf3 figure plus the ping RTT.
 
+## Whole pipeline on the testbed (C-01, C-04, C-13, D-10, D-13)
+
+- [ ] Edge server: `scripts/base_station/run_full_benchmarking.sh examples/scenarios/baseline.yaml`. Expected: every device runs `train_and_run_benchmark.sh both`, the three output files appear in `results/<run id>/`, `nodes.json` gains statistics, and `journal.json` shows every entry undone.
+- [ ] Edge server: `scripts/base_station/run_experiment.sh examples/scenarios/heavy_load.yaml`. During the run, on a device: `tc qdisc show dev wlan0` lists the netem (and tbf) queue, `top` shows the load generator and the monitor; after the run both are gone and `tc qdisc show` is back to the default. The monitor trace in `results/<run id>/monitor/` shows the heavy regime's CPU and memory levels.
+- [ ] Start skew (C-04): in `results/<run id>/raw/`, compare the `origin.wall_time_s` of the devices' records. Expected: within the NTP offset (sub-millisecond on the wired management network).
+- [ ] Interrupt a run with Ctrl-C during profiling, then run `scripts/base_station/clean_devices.sh`. Expected: no `testbed-` process, no netem queue and no `testbed-` cgroup remains on any device.
+- [ ] NTP guard: stop chrony on one device and start a run. Expected: the preflight refuses the run with the offending node named.
+
 (Items are added with every work package.)

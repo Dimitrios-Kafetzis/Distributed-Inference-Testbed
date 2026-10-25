@@ -1,0 +1,25 @@
+# Chapter 6 robustness study: added round-trip time of 0..50 ms on the
+# wireless link while the HeadSplit runtime generates 50 tokens.
+name: ch6_rtt_sweep
+description: HeadSplit under added RTT (0, 5, 10, 15, 20, 30, 40, 50 ms), TinyLlama-1.1B, 50 tokens.
+pipeline: experiment
+runtime: headsplit
+model: tinyllama
+devices: [device1, device2, device3, device4, device5]
+repetitions: 10
+seed: 1
+headsplit:
+  controller: device1
+  workers: [device2, device3, device4, device5]
+  model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  tokens: 50
+  prompt_length: 256
+monitoring:
+  enabled: true
+  power: true
+  power_interval_s: 0.2
+optimisation:
+  enabled: false
+sweep:
+  path: network.default.added_rtt_ms
+  values: [0, 5, 10, 15, 20, 30, 40, 50]

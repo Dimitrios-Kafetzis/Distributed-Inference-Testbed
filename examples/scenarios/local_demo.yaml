@@ -1,0 +1,38 @@
+# Local mode demonstration: the fake model on simulated devices, with shaping
+# and load applied in dry-run mode. Runs on any machine:
+#   python -m src.orchestration.experiment run --scenario examples/scenarios/local_demo.yaml --local
+name: local_demo
+description: Fake model, two simulated devices, shaping and load in dry-run mode.
+pipeline: experiment
+model: fake
+devices: null
+repetitions: 2
+warmup: 1
+seed: 3
+settle_s: 0
+start_lead_s: 0.5
+edge_server:
+  policy: SJF
+  nominal_frequency: true
+  profile_capacity: true
+inference:
+  enabled: true
+  partition_points: [0, 2, 5]
+  repetitions: 2
+network:
+  default: {delay_ms: 10, jitter_ms: 2}
+load:
+  default: {mode: fixed, cpu_percent: 20, memory_percent: 5, cycle_s: 1}
+heterogeneity:
+  device2: {max_freq_mhz: 1200, threads: 2}
+monitoring:
+  enabled: true
+  interval_s: 0.2
+  power: true
+  power_interval_s: 0.1
+  latency_pings: 2
+optimisation:
+  enabled: true
+  algorithm: greedy
+  objective: total_delay
+  initial_scheme: "50%"

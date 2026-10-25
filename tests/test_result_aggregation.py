@@ -55,17 +55,17 @@ def test_merge_traces_aligns_on_origin() -> None:
     other = synthetic.resource_trace("device2", seconds=2, device_index=1)
     merged = agg.merge_traces([bench, monitor, power, other])
     assert sorted(merged) == [
-        "device1-host__20261001-120000-synth1",
-        "device2-host__20261001-120000-synth1",
+        "device1__20261001-120000-synth1",
+        "device2__20261001-120000-synth1",
     ]
-    entry = merged["device1-host__20261001-120000-synth1"]
+    entry = merged["device1__20261001-120000-synth1"]
     assert len(entry["benchmarks"]) == 1 and len(entry["resource_samples"]) == 3
     # Monotonic offsets become wall-clock times through the shared origin.
     walls = [s["wall_time_s"] for s in entry["resource_samples"]]
     assert walls == [bench.origin.wall_time_s + t for t in range(3)]
     # Device 2 has a different monotonic counter but the same wall clock.
     walls2 = [
-        s["wall_time_s"] for s in merged["device2-host__20261001-120000-synth1"]["resource_samples"]
+        s["wall_time_s"] for s in merged["device2__20261001-120000-synth1"]["resource_samples"]
     ]
     assert walls2 == [other.origin.wall_time_s, other.origin.wall_time_s + 1]
 

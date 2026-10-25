@@ -1,0 +1,23 @@
+# Baseline: per-layer profiling of AlexNet on every device, no injected load.
+# Values are illustrative (synthetic); copy and edit.
+name: baseline
+description: Per-layer profiling of AlexNet on all devices with no injected load.
+pipeline: benchmarking
+model: alexnet
+devices: null
+repetitions: 3
+warmup: 1
+seed: 42
+edge_server:
+  policy: SJF
+  nominal_frequency: true
+  profile_capacity: true
+monitoring:
+  enabled: true
+  interval_s: 1.0
+  latency_pings: 10
+optimisation:
+  enabled: true
+  algorithm: greedy
+  objective: total_delay
+  initial_scheme: "50%"

@@ -10,7 +10,7 @@
 #   output_dir  where the benchmark JSON files are written
 # Options (after the four arguments):
 #   --run-id ID --node-id ID --repetitions N --warmup N --seed N --image PATH
-#   --origin-wall T --origin-perf NS   (start-signal origin, from the orchestrator)
+#   --start-at T0 | --origin-wall T --origin-perf NS   (start signal, from the orchestrator)
 #
 # train mode prepares the model weights with the given seed and generates the
 # test input image on the device; benchmark mode invokes src/models/inference.py
@@ -52,6 +52,7 @@ while [ "$#" -gt 0 ]; do
         --image) IMAGE=$2; shift 2 ;;
         --origin-wall) ORIGIN+=(--origin-wall "$2"); shift 2 ;;
         --origin-perf) ORIGIN+=(--origin-perf "$2"); shift 2 ;;
+        --start-at) ORIGIN+=(--start-at "$2"); shift 2 ;;
         --tag) shift 2 ;;
         *) echo "error: unknown option $1" >&2; exit 1 ;;
     esac
