@@ -37,7 +37,9 @@ def list_runs() -> dict[str, Any]:
     results_dir = state().results_dir
     runs = []
     if results_dir.exists():
-        for run_dir in sorted((p for p in results_dir.iterdir() if p.is_dir()), reverse=True):
+        # `results/latest` is a symbolic link to the newest run: skip it, or that run appears twice.
+        run_dirs = (p for p in results_dir.iterdir() if p.is_dir() and not p.is_symlink())
+        for run_dir in sorted(run_dirs, reverse=True):
             summary = _summary_from_disk(run_dir)
             record = state().runs.history.get(run_dir.name)
             if record is not None:

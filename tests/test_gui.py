@@ -207,6 +207,8 @@ def test_run_benchmarking_and_optimise_through_the_api(
         and runs["runs"][0]["run_id"] == "api1"
         and runs["runs"][0]["status"] == "completed"
     )
+    # The `latest` link in the results directory must not produce a second entry.
+    assert [run["run_id"] for run in runs["runs"]] == ["api1"]
     assert client.get("/api/runs/api1/files/summary.json").status_code == 200
     assert client.get("/api/runs/api1/files/../../etc/passwd").status_code == 404
     result = client.post(
