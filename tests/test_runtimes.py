@@ -232,7 +232,10 @@ def test_install_action_runs_device_setup_from_the_mirror(tmp_path: Path) -> Non
 
 
 def test_install_needs_a_pinned_commit(tmp_path: Path) -> None:
-    config = load_config(REPO / "config.example.yaml", environ={"TESTBED_BS_ROOT": str(tmp_path)})
+    config = load_config(
+        REPO / "config.example.yaml",
+        environ={"TESTBED_BS_ROOT": str(tmp_path), "TESTBED_HEADSPLIT_COMMIT": "null"},
+    )
     topology = load_topology(REPO / "nodes.example.json")
     session = ActionSession(
         config, topology, Executor(FakeTransport()), runner=FakeRunner(strict=False)
