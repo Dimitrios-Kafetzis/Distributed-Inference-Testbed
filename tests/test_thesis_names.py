@@ -30,7 +30,7 @@ FILES = [
     pytest.param("src/benchmarking/benchmark_results.py"),
     pytest.param("src/benchmarking/result_aggregation.py"),
     pytest.param("src/benchmarking/partition_calculator.py"),
-    pytest.param("src/partitioning/delay_optimizer.py", marks=wp(6)),
+    pytest.param("src/partitioning/delay_optimizer.py"),
     pytest.param("src/testbed/load_generator.py"),
     pytest.param("src/testbed/latency_injector.py"),
     pytest.param("src/models/inference.py"),
