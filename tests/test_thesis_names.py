@@ -33,10 +33,10 @@ FILES = [
     pytest.param("src/partitioning/delay_optimizer.py", marks=wp(6)),
     pytest.param("src/testbed/load_generator.py"),
     pytest.param("src/testbed/latency_injector.py"),
-    pytest.param("src/models/inference.py", marks=wp(4)),
+    pytest.param("src/models/inference.py"),
     pytest.param("gui/app.py", marks=wp(9)),
     pytest.param("scripts/end_device/apply_latency.sh"),
-    pytest.param("scripts/end_device/train_and_run_benchmark.sh", marks=wp(4)),
+    pytest.param("scripts/end_device/train_and_run_benchmark.sh"),
     pytest.param("scripts/end_device/transfer_files.sh"),
     pytest.param("scripts/base_station/run_full_benchmarking.sh", marks=wp(7)),
 ]

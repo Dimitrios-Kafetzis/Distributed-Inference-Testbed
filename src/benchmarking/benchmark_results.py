@@ -163,8 +163,10 @@ class BenchmarkResults(RecordBase):
     def cumulative_from_stages(
         stages: list[StageRecord], input_bytes: int
     ) -> list[PartitionPointRecord]:
-        """Partition points 0..S from per-stage values: cumulative sums, and the bytes
-        transmitted when cutting after stage s (the input itself for s = 0)."""
+        """Partition points 0..S from per-stage values: cumulative latency and CPU are
+        sums, cumulative memory is the largest stage peak up to s (the memory needed
+        to run stages 1..s), and the transmitted bytes are the output of stage s (the
+        input itself for s = 0)."""
         points = [PartitionPointRecord(0, 0, 0.0, 0.0, input_bytes)]
         latency = 0
         cpu = 0.0
@@ -172,7 +174,7 @@ class BenchmarkResults(RecordBase):
         for stage in sorted(stages, key=lambda st: st.index):
             latency += stage.latency_ns
             cpu += stage.cpu_peak_percent
-            memory += stage.memory_peak_mb
+            memory = max(memory, stage.memory_peak_mb)
             points.append(
                 PartitionPointRecord(stage.index, latency, cpu, memory, stage.output_bytes)
             )

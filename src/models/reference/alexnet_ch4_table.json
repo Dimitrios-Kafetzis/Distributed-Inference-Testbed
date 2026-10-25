@@ -1,0 +1,18 @@
+{
+  "_comment": "AlexNet stages as tabulated in Chapter 4 of the thesis (Tables tab:alexnet-stages and tab:alexnet-data-sizes) for a 227x227x3 input. The FLOP column mixes conventions (conv1 is 2 x MACs, the later layers are MACs of the grouped network), so these values are reference data for reproducing the Chapter 4 calibration and toy example, not what src/models/flops.py computes. Output sizes agree with the single-tower, valid-padding AlexNet of src/models/tf/alexnet.py.",
+  "input": {"shape": [227, 227, 3], "elements": 154587, "kilobytes": 604.6},
+  "total_flops_millions": 1055,
+  "stages": [
+    {"s": 1,  "layers": "Conv1 + ReLU", "flops_millions": 211,  "output_shape": [55, 55, 96],  "elements": 290400, "kilobytes": 1134.4},
+    {"s": 2,  "layers": "MaxPool1",     "flops_millions": 0.3,  "output_shape": [27, 27, 96],  "elements": 69984,  "kilobytes": 273.4},
+    {"s": 3,  "layers": "Conv2 + ReLU", "flops_millions": 448,  "output_shape": [27, 27, 256], "elements": 186624, "kilobytes": 729.0},
+    {"s": 4,  "layers": "MaxPool2",     "flops_millions": 0.2,  "output_shape": [13, 13, 256], "elements": 43264,  "kilobytes": 169.0},
+    {"s": 5,  "layers": "Conv3 + ReLU", "flops_millions": 150,  "output_shape": [13, 13, 384], "elements": 64896,  "kilobytes": 253.5},
+    {"s": 6,  "layers": "Conv4 + ReLU", "flops_millions": 112,  "output_shape": [13, 13, 384], "elements": 64896,  "kilobytes": 253.5},
+    {"s": 7,  "layers": "Conv5 + ReLU", "flops_millions": 74.9, "output_shape": [13, 13, 256], "elements": 43264,  "kilobytes": 169.0},
+    {"s": 8,  "layers": "MaxPool3",     "flops_millions": 0.1,  "output_shape": [6, 6, 256],   "elements": 9216,   "kilobytes": 36.0},
+    {"s": 9,  "layers": "FC1",          "flops_millions": 38,   "output_shape": [4096],        "elements": 4096,   "kilobytes": 16.0},
+    {"s": 10, "layers": "FC2",          "flops_millions": 17,   "output_shape": [4096],        "elements": 4096,   "kilobytes": 16.0},
+    {"s": 11, "layers": "FC3",          "flops_millions": 4,    "output_shape": [1000],        "elements": 1000,   "kilobytes": 3.9}
+  ]
+}

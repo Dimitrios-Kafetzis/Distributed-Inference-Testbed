@@ -50,9 +50,7 @@ def test_cumulative_from_stages_is_the_prefix_sum() -> None:
     for s in range(1, 12):
         p = record.partition_point(s)
         assert p.cumulative_latency_ns == sum(st.latency_ns for st in record.stages[:s])
-        assert p.cumulative_memory_mb == pytest.approx(
-            sum(st.memory_peak_mb for st in record.stages[:s])
-        )
+        assert p.cumulative_memory_mb == max(st.memory_peak_mb for st in record.stages[:s])
         assert p.transmitted_bytes == record.stages[s - 1].output_bytes
 
 
