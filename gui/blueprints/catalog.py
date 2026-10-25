@@ -17,6 +17,7 @@ bp = Blueprint("catalog", __name__, url_prefix="/api/catalog")
 @bp.get("")
 def catalog() -> dict[str, Any]:
     from src.models import registry
+    from src.orchestration import runtimes
     from src.partitioning import algorithms
 
     examples = []
@@ -35,6 +36,8 @@ def catalog() -> dict[str, Any]:
             continue
     return {
         "models": registry.names(),
+        "runtimes": runtimes.describe(),
+        "default_runtime": runtimes.DEFAULT_RUNTIME,
         "algorithms": algorithms.names(),
         "policies": ["SJF", "RR"],
         "regimes": {

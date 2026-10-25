@@ -69,6 +69,7 @@ def create_app(state: AppState, *, start_prober: bool = True) -> Flask:
     @app.route("/")
     def index() -> str:
         from src.models import registry
+        from src.orchestration import runtimes
         from src.partitioning import algorithms
 
         return render_template(
@@ -80,6 +81,7 @@ def create_app(state: AppState, *, start_prober: bool = True) -> Flask:
             map_offline=state.config.map_offline,
             local_mode=state.local,
             models=registry.names(),
+            runtimes=runtimes.describe(),
             algorithms=algorithms.names(),
             policies=["SJF", "RR"],
             interface=state.config.network_interface,

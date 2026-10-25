@@ -17,6 +17,7 @@
     <button id="btn-run">Run experiment</button>
     <button id="btn-benchmark">Benchmarking</button>
     <button id="btn-optimise">Optimise</button>
+    <button id="btn-runtimes">Runtimes</button>
     <button id="btn-stop" class="danger">Stop</button>
     <label><input type="checkbox" id="chk-links" checked> Draw links</label>
     <span id="run-indicator" class="indicator idle">idle</span>
@@ -70,13 +71,22 @@
   <form id="form-scenario">
     <div class="grid">
       <label>Name <input name="name" required pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" value="scenario"></label>
-      <label>Model <select name="model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label>
+      <label>Runtime <select name="runtime" id="scenario-runtime">{% for r in runtimes %}<option value="{{ r.name }}" title="{{ r.description }}">{{ r.label }}</option>{% endfor %}</select></label>
+      <label>Model <select name="model" id="scenario-model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label>
       <label>Repetitions <input name="repetitions" type="number" min="1" value="3"></label>
       <label>Warm-up <input name="warmup" type="number" min="0" value="1"></label>
       <label>Seed <input name="seed" type="number" min="0" value="0"></label>
       <label>Edge-server policy <select name="policy">{% for p in policies %}<option>{{ p }}</option>{% endfor %}</select></label>
       <label>Settle (s) <input name="settle_s" type="number" min="0" value="5"></label>
       <label><input type="checkbox" name="inference_enabled"> Partitioned inference at <input name="partition_points" value="0,4,8,11" size="12"></label>
+    </div>
+    <div id="model-args-block"></div>
+    <div id="runtime-block"></div>
+    <h3>Sweep (optional)</h3>
+    <p class="muted">One run per value of a scenario field, for example <code>network.default.added_rtt_ms</code> with <code>0, 5, 10, 20</code>, or <code>edge_server.policy</code> with <code>RR, SJF</code>.</p>
+    <div class="grid">
+      <label>Field path <input name="sweep_path" placeholder="network.default.added_rtt_ms"></label>
+      <label>Values (comma separated) <input name="sweep_values" placeholder="0, 5, 10, 20"></label>
     </div>
     <h3>Per node</h3>
     <p class="muted">The link latency may be typed or derived from the marker positions; it is injected with tc-netem on <code>{{ interface }}</code>. CPU and memory loads are produced by the load generator.</p>
@@ -119,6 +129,20 @@
     <menu><button type="submit">Optimise</button><button type="button" data-close>Close</button></menu>
   </form>
   <div id="optimise-result"></div>
+</dialog>
+
+<dialog id="dlg-runtimes">
+  <h2>Runtimes</h2>
+  <p class="muted">Readiness of the devices for an inference runtime, and the maintenance actions that prepare them. Actions run one at a time, through the same connections as experiments, and log to the terminal.</p>
+  <div class="grid">
+    <label>Runtime <select id="runtimes-select">{% for r in runtimes %}<option value="{{ r.name }}">{{ r.label }}</option>{% endfor %}</select></label>
+    <label>Model (checkpoint to look for) <input id="runtimes-model" placeholder="TinyLlama/TinyLlama-1.1B-Chat-v1.0"></label>
+  </div>
+  <p id="runtimes-description" class="muted"></p>
+  <menu><button type="button" id="btn-runtimes-refresh">Check the devices</button><span id="runtimes-busy" class="muted"></span></menu>
+  <div id="runtimes-status"></div>
+  <div id="runtimes-actions"></div>
+  <menu><button type="button" data-close>Close</button></menu>
 </dialog>
 
 <script>

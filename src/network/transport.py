@@ -15,6 +15,7 @@ and can fetch a file from the node.
 from __future__ import annotations
 
 import select
+import shlex
 import shutil
 import subprocess
 import threading
@@ -74,6 +75,8 @@ class Transport(Protocol):
     ) -> CommandOutcome: ...
 
     def fetch(self, node: Node, remote_path: str, local_path: Path) -> Path: ...
+
+    def put(self, node: Node, local_path: Path, remote_path: str) -> None: ...
 
 
 def _env_prefix(env: Mapping[str, str] | None) -> str:
@@ -225,6 +228,18 @@ class ParamikoTransport:
             client.close()
         return local_path
 
+    def put(self, node: Node, local_path: Path, remote_path: str) -> None:
+        parent = remote_path.rsplit("/", 1)[0] if "/" in remote_path else ""
+        if parent:
+            self.run(node, f"mkdir -p {shlex.quote(parent)}")  # sftp has no mkdir -p
+        client = self._connect(node)
+        try:
+            sftp = client.open_sftp()
+            sftp.put(str(local_path), remote_path)
+            sftp.close()
+        finally:
+            client.close()
+
 
 # --- Local mode --------------------------------------------------------------------------------
 
@@ -340,6 +355,15 @@ class LocalTransport:
         shutil.copyfile(source, local_path)
         return local_path
 
+    def put(self, node: Node, local_path: Path, remote_path: str) -> None:
+        target = Path(remote_path)
+        if not target.is_absolute():
+            target = self.workdir(node) / target
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists() and target.resolve() == Path(local_path).resolve():
+            return  # local mode: the edge server and the node share the directory
+        shutil.copyfile(local_path, target)
+
 
 # --- Fake -----------------------------------------------------------------------------------------
 
@@ -410,3 +434,7 @@ class FakeTransport:
         local_path.parent.mkdir(parents=True, exist_ok=True)
         local_path.write_text(self.files[key], encoding="utf-8")
         return local_path
+
+    def put(self, node: Node, local_path: Path, remote_path: str) -> None:
+        self.calls.append((node.id, f"put {local_path} {remote_path}"))
+        self.files[(node.id, remote_path)] = local_path.read_text(encoding="utf-8")

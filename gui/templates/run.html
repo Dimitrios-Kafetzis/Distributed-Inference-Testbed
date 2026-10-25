@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nnpm.css') }}">
+</head>
+<body class="page">
+<header class="topbar">
+  <h1>Run {{ run.run_id }}</h1>
+  <nav class="actions">
+    <a class="button" href="{{ url_for('index') }}">Back to the map</a>
+    <a class="button" href="{{ url_for('runs.run_detail', run_id=run.run_id) }}">JSON</a>
+    <span class="indicator {{ 'running' if run.status == 'running' else 'idle' }} status-{{ run.status }}">{{ run.status }}</span>
+    {% if local_mode %}<span class="badge">local mode</span>{% endif %}
+  </nav>
+</header>
+
+<main class="page-body">
+  <section class="card">
+    <h2>Scenario</h2>
+    <table class="facts">
+      <tr><th>Name</th><td>{{ run.scenario_name or '?' }}{% if run.scenario_version %} (version {{ run.scenario_version }}){% endif %}</td></tr>
+      <tr><th>Pipeline</th><td>{{ run.pipeline or 'experiment' }}</td></tr>
+      <tr><th>Runtime</th><td>{{ run.runtime or 'testbed' }}</td></tr>
+      <tr><th>Model</th><td>{{ run.model or '?' }}</td></tr>
+      <tr><th>Devices</th><td>{{ run.devices | join(', ') if run.devices else 'every end device' }}</td></tr>
+      {% if run.sweep_origin %}<tr><th>Sweep</th><td>{{ run.sweep_origin.name }}: {{ run.sweep_origin.path }} = {{ run.sweep_origin.value }}</td></tr>{% endif %}
+      {% if run.error %}<tr><th>Error</th><td class="error">{{ run.error }}</td></tr>{% endif %}
+      {% if run.teardown_failures %}<tr><th>Teardown</th><td class="error">{{ run.teardown_failures }} change(s) could not be undone</td></tr>{% endif %}
+    </table>
+  </section>
+
+  {% if outputs %}
+  <section class="card">
+    <h2>Outputs</h2>
+    <table class="facts">
+      {% for key, value in outputs.items() %}
+      <tr><th>{{ key }}</th><td><code>{{ value | tojson if value is not string else value }}</code></td></tr>
+      {% endfor %}
+    </table>
+  </section>
+  {% endif %}
+
+  {% if runtime_results and runtime_results.kind == 'headsplit' %}
+  <section class="card">
+    <h2>HeadSplit results</h2>
+    <p class="muted">{{ runtime_results.model }}, {{ runtime_results.tokens }} tokens, controller {{ runtime_results.controller }}, workers {{ runtime_results.workers | join(', ') }}, {{ runtime_results.repetitions }} repetition(s){% if runtime_results.json_results %}, JSON results{% endif %}.</p>
+    <table class="results">
+      <thead><tr><th>Mode</th><th>Total (ms)</th><th>Prefill (ms)</th><th>Decode (ms/token)</th><th>Payload (MB)</th><th>Speculation accepted</th><th>Re-placements</th><th>Speed-up vs layer-based</th></tr></thead>
+      <tbody>
+      {% for row in runtime_results.modes %}
+      <tr>
+        <td>{{ row.mode }}</td>
+        <td class="num">{{ '%.1f' | format(row.total_ms) if row.total_ms is defined else '' }}</td>
+        <td class="num">{{ '%.1f' | format(row.prefill_ms) if row.prefill_ms is defined else '' }}</td>
+        <td class="num">{{ '%.1f' | format(row.decode_ms_per_token) if row.decode_ms_per_token is defined else '' }}</td>
+        <td class="num">{{ '%.2f' | format(row.payload_mb) if row.payload_mb is defined else '' }}</td>
+        <td class="num">{{ '%.0f %%' | format(row.acceptance * 100) if row.acceptance is defined else '' }}</td>
+        <td class="num">{{ '%.1f' | format(row.replacements) if row.replacements is defined else '' }}</td>
+        <td class="num">{{ '%.2f' | format(row.speedup_vs_layer_based) if row.speedup_vs_layer_based else '' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if siblings | length > 1 %}
+  <section class="card">
+    <h2>Sweep {{ run.sweep_origin.name }}: {{ run.sweep_origin.path }}</h2>
+    <table class="results">
+      <thead><tr><th>Value</th><th>Run</th><th>Status</th><th>Result</th></tr></thead>
+      <tbody>
+      {% for row in siblings %}
+      <tr{% if row.run_id == run.run_id %} class="current"{% endif %}>
+        <td class="num">{{ row.value }}</td>
+        <td><a href="{{ url_for('runs.run_page', run_id=row.run_id) }}">{{ row.run_id }}</a></td>
+        <td class="status-{{ row.status }}">{{ row.status }}</td>
+        <td>
+          {% if row.outputs.headsplit %}{% for mode, ms in row.outputs.headsplit.items() %}{{ mode }} {{ '%.1f' | format(ms) }} ms{% if not loop.last %}, {% endif %}{% endfor %}
+          {% elif row.outputs.optimised_objective %}{{ row.outputs.optimised_objective.objective }} {{ '%.4f' | format(row.outputs.optimised_objective.value) }} at {{ row.outputs.optimised_vector | tojson }}
+          {% else %}<span class="muted">no figure</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Files</h2>
+    {% if output_files %}
+    <p>The three output files of the thesis:</p>
+    <ul class="files">
+      {% for name in output_files %}<li><a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name) }}">{{ name }}</a> (<a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name, download=1) }}">download</a>)</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if other_files %}
+    <ul class="files">
+      {% for name in other_files %}<li><a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name) }}">{{ name }}</a></li>{% endfor %}
+    </ul>
+    {% endif %}
+    <details><summary>Every file ({{ run.files | length if run.files else 0 }})</summary>
+      <ul class="files">
+      {% for name in run.files or [] %}<li><a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name) }}">{{ name }}</a></li>{% endfor %}
+      </ul>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Log (last {{ log_tail | length }} lines)</h2>
+    <pre id="terminal" class="static">{% for line in log_tail %}{{ line }}
+{% endfor %}</pre>
+  </section>
+</main>
+</body>
+</html>

@@ -216,6 +216,10 @@ class Executor:
         self.log(node.id, "fetch", f"{remote_path} -> {local_path}")
         return self.transport.fetch(node, remote_path, local_path)
 
+    def put(self, node: Node, local_path: Path, remote_path: str) -> None:
+        self.log(node.id, "put", f"{local_path} -> {remote_path}")
+        self.transport.put(node, local_path, remote_path)
+
 
 def classify_outcome(outcome: CommandOutcome) -> Failure:
     if outcome.cancelled:

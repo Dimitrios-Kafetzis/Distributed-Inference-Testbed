@@ -44,8 +44,9 @@ def test_parse_controller_output() -> None:
     assert hs.parse_controller_output("nothing here")["modes"] == {}
 
 
-def make_stub(root: Path) -> Path:
-    """A fake HeadSplit checkout: the two scripts print what the real ones print."""
+def make_stub(root: Path, with_json: bool = False) -> Path:
+    """A fake HeadSplit checkout: the scripts print what the real ones print; with
+    ``with_json`` the controller also accepts ``--json`` like HeadSplit v0.1.0."""
     scripts = root / "headsplit" / "scripts"
     scripts.mkdir(parents=True)
     worker = scripts / "run_worker.py"
@@ -61,17 +62,39 @@ def make_stub(root: Path) -> Path:
         "time.sleep(30)\n"
     )
     controller = scripts / "run_controller.py"
+    json_option = "p.add_argument('--json')\n" if with_json else ""
+    json_write = (
+        "if a.json:\n"
+        "    json.dump({'modes': {'headsplit': {'total_ms': 41000.0, 'prefill_ms': 880.0,\n"
+        "        'decode_ms_per_token': 802.4, 'payload_mb': 41.0, 'speculation_accepted': 45,\n"
+        "        'speculation_attempts': 50, 'replacements': 0, 'per_token_ms': [800.0, 804.8]}},\n"
+        "        'speedup_vs_layer_based': {'headsplit': 1.52}, 'rtt_ms': {'worker1': 9.5}},\n"
+        "        open(a.json, 'w'))\n"
+        if with_json
+        else ""
+    )
     controller.write_text(
-        "import argparse, sys\n"
+        "import argparse, json, sys\n"
         "p = argparse.ArgumentParser()\n"
         "for a in ('--config', '--profile', '--master-addr', '--master-port', '--prompt',\n"
         "          '--tokens', '--mode'):\n"
+        "    p.add_argument(a)\n" + json_option + "a = p.parse_args()\n"
+        "assert open(a.config).read().startswith('model_name:'), 'config missing'\n"
+        f"sys.stdout.write({CONTROLLER_OUTPUT!r})\n" + json_write
+    )
+    profile = scripts / "profile_offline.py"
+    profile.write_text(
+        "import argparse, json, os\n"
+        "p = argparse.ArgumentParser()\n"
+        "for a in ('--model', '--chunks', '--chunk-len', '--epsilon', '--out'):\n"
         "    p.add_argument(a)\n"
         "a = p.parse_args()\n"
-        "assert open(a.config).read().startswith('model_name:'), 'config missing'\n"
-        f"sys.stdout.write({CONTROLLER_OUTPUT!r})\n"
+        "os.makedirs(os.path.dirname(a.out), exist_ok=True)\n"
+        "d = {'model': a.model, 'chunks': int(a.chunks), 'alpha': [0.9] * 4}\n"
+        "json.dump(d, open(a.out, 'w'))\n"
+        "print('profiled', a.model)\n"
     )
-    for script in (worker, controller):
+    for script in (worker, controller, profile):
         script.chmod(script.stat().st_mode | stat.S_IEXEC)
     return root / "headsplit"
 
@@ -185,3 +208,81 @@ def test_commands_and_config_text(tmp_path: Path) -> None:
         ["--x"],
     )
     assert "--prompt hello --x" in controller
+
+
+def test_json_results_are_preferred_when_the_controller_supports_them(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    stub = make_stub(tmp_path, with_json=True)
+    root = tmp_path / "testbed"
+    monkeypatch.setenv("TESTBED_HEADSPLIT_DIR", str(stub))
+    config, topology = local_mode.create_local_testbed(root, devices=3)
+    ctx = build_context(
+        headsplit_scenario(repetitions=1),
+        config=config,
+        topology=topology,
+        local=True,
+        run_id="hsjson",
+        nodes_path=root / "nodes.json",
+    )
+    summary = run_pipeline(ctx)
+    assert summary["status"] == "completed"
+    results = json.loads((ctx.paths.root / "headsplit" / "results.json").read_text())
+    assert results["json_results"] is True
+    first = results["repetitions"][0]
+    assert first["modes"]["headsplit"]["total_ms"] == 41000.0  # from the JSON, not the lines
+    assert first["modes"]["headsplit"]["per_token_ms"] == [800.0, 804.8]
+    assert first["rtt_ms"] == {"worker1": 9.5}
+    assert (ctx.paths.root / "headsplit" / "controller_rep0.json").exists()
+    log = (ctx.paths.root / "logs" / "merged.log").read_text()
+    assert "--json" in log
+
+
+def test_checks_and_actions_in_local_mode(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The Runtimes dialog without hardware: every check and action runs against the stub."""
+    from src.common.runner import SubprocessRunner
+    from src.network.ssh_executor import Executor, make_transport
+    from src.orchestration import runtimes
+    from src.orchestration.runtimes import ActionSession
+
+    stub = make_stub(tmp_path)
+    root = tmp_path / "testbed"
+    monkeypatch.setenv("TESTBED_HEADSPLIT_DIR", str(stub))
+    monkeypatch.setenv("TESTBED_HEADSPLIT_COMMIT", "abcdef1")
+    config, topology = local_mode.create_local_testbed(root, devices=2)
+    lines: list[str] = []
+    executor = Executor(make_transport(config, topology, local=True), subscribers=[lines.append])
+    session = ActionSession(
+        config, topology, executor, local=True, runner=SubprocessRunner(), log=lines.append
+    )
+    runtime = runtimes.get_runtime("headsplit")
+    device1 = topology.get("device1")
+    before = {c.name: c.status for c in runtime.check_node(session, device1, {})}
+    assert before == {
+        "checkout": "ok",
+        "environment": "ok",
+        "profile": "warn",
+        "checkpoint": "warn",
+    }
+    # Build the profile with the stub script and copy it to the controller.
+    runtime.perform("profile", {"controller": "device1", "chunks": 2}, session)
+    profile = Path(stub, "artifacts", "profile.json")
+    assert json.loads(profile.read_text())["chunks"] == 2
+    assert any("[edge-server][stdout] profiled" in line for line in lines)
+    # Distribute a checkpoint from bs_models_dir and verify it on the device.
+    source = config.bs_models_path / "TinyLlama__TinyLlama-1.1B-Chat-v1.0"
+    source.mkdir(parents=True)
+    (source / "config.json").write_text("{}\n")
+    import hashlib
+
+    digest = hashlib.sha256(b"{}\n").hexdigest()
+    (source / "SHA256SUMS").write_text(f"{digest}  config.json\n")
+    runtime.perform("checkpoint", {"nodes": ["device1"]}, session)
+    assert (Path(device1.workdir or ".") / "models" / source.name / "config.json").exists()
+    assert any("checksums verified" in line for line in lines)
+    after = {c.name: c.status for c in runtime.check_node(session, device1, {})}
+    assert after["profile"] == "ok" and after["checkpoint"] == "ok"
+    # Install in local mode is a dry run of device_setup.sh: the plan, nothing installed.
+    runtime.perform("install", {"nodes": ["device2"]}, session)
+    assert any("device_setup.sh" in line and "--dry-run" in line for line in lines)
+    assert any("git clone" in line and "headsplit.git" in line for line in lines)

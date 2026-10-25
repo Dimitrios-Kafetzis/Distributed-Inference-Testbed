@@ -316,3 +316,155 @@ def test_a_round_starts_every_period_even_when_a_node_is_slow() -> None:
     prober.probe_round()
     assert prober.snapshot()["nodes"]["device2"]["status"] == "red"
     assert prober.round == 3
+
+
+def test_index_page_lists_the_runtimes_and_the_catalogue_describes_them(
+    client: FlaskClient,
+) -> None:
+    html = client.get("/").get_data(as_text=True)
+    assert 'id="btn-runtimes"' in html and 'id="scenario-runtime"' in html
+    assert 'value="headsplit"' in html and 'value="testbed"' in html
+    catalog = client.get("/api/catalog").get_json()
+    runtimes = {r["name"]: r for r in catalog["runtimes"]}
+    assert catalog["default_runtime"] == "testbed"
+    assert runtimes["headsplit"]["external"] is True
+    assert runtimes["headsplit"]["schema"]["properties"]["controller"]["x-nnpm"] == {
+        "widget": "node"
+    }
+    assert [a["name"] for a in runtimes["headsplit"]["actions"]] == [
+        "install",
+        "profile",
+        "checkpoint",
+    ]
+    assert runtimes["testbed"]["schema"] == {} and runtimes["testbed"]["actions"] == []
+    listing = client.get("/api/runtimes").get_json()
+    assert {r["name"] for r in listing["runtimes"]} == {"headsplit", "testbed"}
+    assert client.get("/api/runtimes/nope/status").status_code == 404
+    assert client.post("/api/runtimes/testbed/actions/nope", json={}).status_code == 404
+
+
+def test_sweep_runs_its_variants_in_sequence_with_a_summary_page(
+    client: FlaskClient, state: AppState
+) -> None:
+    scenario = {
+        "name": "api_sweep",
+        "model": "fake",
+        "repetitions": 1,
+        "warmup": 0,
+        "settle_s": 0,
+        "start_lead_s": 0.2,
+        "monitoring": {"enabled": False},
+        "optimisation": {"enabled": True, "algorithm": "greedy", "initial_scheme": "50%"},
+        "edge_server": {"profile_capacity": True, "nominal_frequency": False},
+        "sweep": {"path": "edge_server.policy", "values": ["RR", "SJF"]},
+    }
+    started = client.post("/api/runs", json={"scenario": scenario})
+    assert started.status_code == 202, started.get_json()
+    first = started.get_json()["run_id"]
+    listing = client.get("/api/runs").get_json()
+    assert listing["busy"] is True and len(listing["runs"]) == 2
+    assert {r["status"] for r in listing["runs"]} <= {"queued", "running"}
+    assert all(r["sweep_origin"]["name"] == "api_sweep" for r in listing["runs"])
+    # Wait for the whole group.
+    deadline = time.monotonic() + 240
+    while time.monotonic() < deadline and client.get("/api/runs").get_json()["busy"]:
+        time.sleep(0.5)
+    runs = client.get("/api/runs").get_json()["runs"]
+    assert [r["status"] for r in runs] == ["completed", "completed"], runs
+    values = sorted(r["sweep_origin"]["value"] for r in runs)
+    assert values == ["RR", "SJF"]
+    second = next(r["run_id"] for r in runs if r["run_id"] != first)
+    detail = client.get(f"/api/runs/{second}").get_json()
+    assert detail["outputs"]["optimised_objective"]["policy"] in ("RR", "SJF")
+    page = client.get(f"/runs/{second}")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert "Sweep api_sweep: edge_server.policy" in html
+    assert html.count('class="status-completed"') >= 2
+    assert "total_averages_of_benchmark_results.json" in html
+    assert "optimised_vector" in html and first in html
+    assert client.get("/runs/nope").status_code == 404
+
+
+def test_headsplit_through_the_api_with_checks_actions_and_results(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tests.integration.test_headsplit_runtime import make_stub
+
+    stub = make_stub(tmp_path, with_json=True)
+    monkeypatch.setenv("TESTBED_HEADSPLIT_DIR", str(stub))
+    monkeypatch.setenv("TESTBED_HEADSPLIT_COMMIT", "abcdef1")
+    runner = FakeRunner(strict=False).on(prefix("ping"), CommandResult(("ping",), 0, PING_OK))
+    config, _ = local_mode.create_local_testbed(tmp_path / "tb", devices=3)
+    st = AppState(
+        config,
+        tmp_path / "tb" / "nodes.json",
+        local=True,
+        results_dir=tmp_path / "tb" / "results",
+        scenario_root=tmp_path / "tb" / "scenarios",
+        probe_runner=runner,
+    )
+    app = gui_app.create_app(st, start_prober=False)
+    app.config["TESTING"] = True
+    client = app.test_client()
+    try:
+        status = client.get("/api/runtimes/headsplit/status").get_json()
+        assert set(status["nodes"]) == {"edge-server", "device1", "device2", "device3"}
+        assert status["nodes"]["edge-server"] == []
+        checks = {c["name"]: c["status"] for c in status["nodes"]["device1"]}
+        assert checks == {
+            "checkout": "ok",
+            "environment": "ok",
+            "profile": "warn",
+            "checkpoint": "warn",
+        }
+        # The profile action runs as a task whose log streams like a run's log.
+        started = client.post(
+            "/api/runtimes/headsplit/actions/profile",
+            json={"controller": "device1", "chunks": 3},
+        )
+        assert started.status_code == 202, started.get_json()
+        task_id = started.get_json()["task_id"]
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline:
+            task = client.get(f"/api/tasks/{task_id}").get_json()
+            if task["status"] != "running":
+                break
+            time.sleep(0.2)
+        assert task["status"] == "completed", task
+        assert any("profiled" in line for line in task["log"])
+        events = client.get(f"/events/tasks/{task_id}?limit=2").get_data(as_text=True)
+        assert "event: log" in events
+        assert json.loads(Path(stub, "artifacts", "profile.json").read_text())["chunks"] == 3
+        status = client.get("/api/runtimes/headsplit/status").get_json()
+        assert {c["name"]: c["status"] for c in status["nodes"]["device1"]}["profile"] == "ok"
+        tasks = client.get("/api/tasks").get_json()
+        assert tasks["busy"] is False and tasks["tasks"][0]["action"] == "profile"
+        # A HeadSplit experiment through the API, then its results on the summary page.
+        scenario = {
+            "name": "api_hs",
+            "runtime": "headsplit",
+            "model": "tinyllama",
+            "repetitions": 1,
+            "settle_s": 0,
+            "edge_server": {"nominal_frequency": False, "profile_capacity": False},
+            "headsplit": {
+                "controller": "device1",
+                "workers": ["device2", "device3"],
+                "mode": "all",
+            },
+            "monitoring": {"enabled": False},
+            "optimisation": {"enabled": False},
+        }
+        run = client.post("/api/runs", json={"scenario": scenario, "run_id": "hsapi"})
+        assert run.status_code == 202, run.get_json()
+        detail = wait_for_run(client, "hsapi")
+        assert detail["status"] == "completed", detail.get("error")
+        assert detail["runtime"] == "headsplit"
+        assert detail["outputs"]["headsplit"]["headsplit"] == 41000.0
+        html = client.get("/runs/hsapi").get_data(as_text=True)
+        assert "HeadSplit results" in html and "layer_based" in html and "JSON results" in html
+        assert "41000.0" in html and "1.52" in html
+    finally:
+        st.runs.wait(timeout=120)
+        st.tasks.wait(timeout=60)

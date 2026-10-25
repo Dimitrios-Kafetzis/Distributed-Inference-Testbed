@@ -33,9 +33,23 @@ class ScenarioError(ValueError):
     pass
 
 
-def load_schema() -> dict[str, Any]:
+def load_file_schema() -> dict[str, Any]:
+    """The schema file as it is on disk."""
     with SCHEMA_PATH.open(encoding="utf-8") as fh:
         schema: dict[str, Any] = json.load(fh)
+    return schema
+
+
+def load_schema() -> dict[str, Any]:
+    """The schema file plus the scenario block of every registered runtime.
+
+    The built-in runtime blocks (``headsplit``) are in the file; a plug-in runtime
+    contributes its block under its own name, so that a scenario can carry it."""
+    from src.orchestration import runtimes
+
+    schema = load_file_schema()
+    for name, block in runtimes.block_schemas().items():
+        schema["properties"].setdefault(name, block)
     return schema
 
 
@@ -122,6 +136,8 @@ def expand_sweep(scenario: dict[str, Any]) -> list[dict[str, Any]]:
         del variant["sweep"]
         set_path(variant, sweep["path"], value)
         variant["name"] = f"{scenario['name']}__{sweep['path'].rsplit('.', 1)[-1]}-{value}"
+        # Which sweep the variant belongs to, so that its runs can be grouped later.
+        variant["sweep_origin"] = {"name": scenario["name"], "path": sweep["path"], "value": value}
         variants.append(validate(variant))
     return variants
 

@@ -7,7 +7,11 @@
   colour.
 * :class:`RunManager`: one experiment at a time, executed in a thread through
   the orchestration pipeline; the merged log is kept in a ring buffer and
-  streamed to subscribers (the terminal panel).
+  streamed to subscribers (the terminal panel). A scenario with a sweep runs
+  its variants one after the other, each as its own run.
+* :class:`TaskManager`: one maintenance action of a runtime at a time (install
+  HeadSplit, build a profile, distribute a checkpoint), never while an
+  experiment runs, with the same log streaming.
 """
 
 from __future__ import annotations
@@ -28,6 +32,7 @@ from src.common.runner import CommandRunner, SubprocessRunner
 from src.config import Config
 from src.orchestration import experiment, local_mode
 from src.orchestration import scenario as scenario_module
+from src.orchestration.runtimes import ActionSession, Runtime
 
 PING_COUNT = 3
 REPLY_RE = re.compile(r"(\d+) packets transmitted, (\d+) (?:packets )?received")
@@ -175,12 +180,13 @@ class Prober:
 class RunRecord:
     run_id: str
     scenario_name: str
-    status: str = "running"  # running | completed | aborted
+    status: str = "running"  # queued | running | completed | aborted
     error: str | None = None
     started_at: float = field(default_factory=time.time)
     finished_at: float | None = None
     summary: dict[str, Any] | None = None
     lines: deque[str] = field(default_factory=lambda: deque(maxlen=5000))
+    sweep_origin: dict[str, Any] | None = None
 
 
 class RunManager:
@@ -195,7 +201,7 @@ class RunManager:
 
     @property
     def busy(self) -> bool:
-        return self.current is not None and self.current.status == "running"
+        return any(r.status in ("running", "queued") for r in self.history.values())
 
     def _publish(self, run_id: str, line: str) -> None:
         record = self.history.get(run_id)
@@ -214,6 +220,31 @@ class RunManager:
         if listener in listeners:
             listeners.remove(listener)
 
+    def _build(
+        self, scenario: dict[str, Any], version: dict[str, Any], run_id: str | None
+    ) -> tuple[experiment.ExperimentContext, RunRecord]:
+        ctx = experiment.build_context(
+            scenario,
+            config=self.state.config,
+            topology=self.state.topology,
+            local=self.state.local,
+            results_dir=self.state.results_dir,
+            run_id=run_id,
+            allow_dirty=self.state.allow_dirty,
+            nodes_path=self.state.nodes_path,
+            scenario_version=version,
+        )
+        record = RunRecord(
+            ctx.run_id, scenario["name"], status="queued", sweep_origin=scenario.get("sweep_origin")
+        )
+        this_id = ctx.run_id
+
+        def forward(line: str) -> None:
+            self._publish(this_id, line)
+
+        ctx.executor.subscribe(forward)
+        return ctx, record
+
     def start(
         self,
         scenario: dict[str, Any],
@@ -222,49 +253,68 @@ class RunManager:
         pipeline: str | None = None,
         run_id: str | None = None,
     ) -> RunRecord:
+        """Start the scenario; a scenario with a sweep queues one run per value and runs
+        them one after the other. The returned record is the first run."""
         with self._lock:
             if self.busy:
                 raise RuntimeError("an experiment is already running")
             if pipeline:
                 scenario = dict(scenario, pipeline=pipeline)
-            ctx = experiment.build_context(
-                scenario,
-                config=self.state.config,
-                topology=self.state.topology,
-                local=self.state.local,
-                results_dir=self.state.results_dir,
-                run_id=run_id,
-                allow_dirty=self.state.allow_dirty,
-                nodes_path=self.state.nodes_path,
-                scenario_version=version,
-            )
-            record = RunRecord(ctx.run_id, scenario["name"])
-            self.history[ctx.run_id] = record
-            self.current = record
-            self._ctx = ctx
-            run_id = ctx.run_id
-
-            def forward(line: str) -> None:
-                self._publish(run_id, line)
-
-            ctx.executor.subscribe(forward)
+            variants = scenario_module.expand_sweep(scenario)
+            group = [
+                self._build(variant, version, run_id if len(variants) == 1 else None)
+                for variant in variants
+            ]
+            for _, record in group:
+                self.history[record.run_id] = record
+            first_ctx, first_record = group[0]
+            first_record.status = "running"
+            self.current = first_record
+            self._ctx = first_ctx
             self._thread = threading.Thread(
-                target=self._run, args=(ctx, record), name=f"run-{ctx.run_id}", daemon=True
+                target=self._run_group, args=(group,), name=f"run-{first_ctx.run_id}", daemon=True
             )
             self._thread.start()
-            return record
+            return first_record
 
-    def _run(self, ctx: experiment.ExperimentContext, record: RunRecord) -> None:
-        try:
-            record.summary = experiment.run_pipeline(ctx)
-            record.status = "completed"
-        except Exception as exc:
-            record.status = "aborted"
-            record.error = str(exc)
-            record.summary = {"run_id": ctx.run_id, "status": "aborted", "error": str(exc)}
-        finally:
-            record.finished_at = time.time()
-            self.state.reload_topology()
+    def _run_group(self, group: list[tuple[experiment.ExperimentContext, RunRecord]]) -> None:
+        for index, (ctx, record) in enumerate(group):
+            if record.status == "aborted":  # stopped while queued
+                continue
+            record.status = "running"
+            record.started_at = time.time()
+            self.current = record
+            self._ctx = ctx
+            if record.sweep_origin:
+                origin = record.sweep_origin
+                self._publish(
+                    ctx.run_id,
+                    f"[nnpm][info] sweep {origin['name']}: run {index + 1}/{len(group)}"
+                    f" ({origin['path']} = {origin['value']})",
+                )
+            try:
+                record.summary = experiment.run_pipeline(ctx)
+                record.status = "completed"
+            except Exception as exc:
+                record.status = "aborted"
+                record.error = str(exc)
+                record.summary = {"run_id": ctx.run_id, "status": "aborted", "error": str(exc)}
+            finally:
+                record.finished_at = time.time()
+                self.state.reload_topology()
+            if ctx.cancel.is_set():
+                # Stop: the queued variants are abandoned, not run.
+                for _, pending in group[index + 1 :]:
+                    if pending.status == "queued":
+                        pending.status = "aborted"
+                        pending.error = "stopped by the user"
+                        pending.finished_at = time.time()
+            # The next run is current before this one is announced as done, so that a
+            # page following the group picks it up without a gap.
+            following = next((r for _, r in group[index + 1 :] if r.status == "queued"), None)
+            if following is not None:
+                following.status = "running"
+                self.current = following
             self._publish(ctx.run_id, f"[nnpm][done] {record.status}")
 
     def stop(self) -> bool:
@@ -274,6 +324,145 @@ class RunManager:
         self._publish(
             self._ctx.run_id, "[nnpm][info] stop requested: the run ends before its next stage"
         )
+        return True
+
+    def wait(self, timeout: float | None = None) -> None:
+        if self._thread is not None:
+            self._thread.join(timeout)
+
+
+@dataclass
+class TaskRecord:
+    """A maintenance action of a runtime (install, profile, checkpoint), run once."""
+
+    task_id: str
+    runtime: str
+    action: str
+    params: dict[str, Any]
+    status: str = "running"  # running | completed | failed | stopped
+    error: str | None = None
+    started_at: float = field(default_factory=time.time)
+    finished_at: float | None = None
+    lines: deque[str] = field(default_factory=lambda: deque(maxlen=5000))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "task_id": self.task_id,
+            "runtime": self.runtime,
+            "action": self.action,
+            "params": self.params,
+            "status": self.status,
+            "error": self.error,
+            "started_at": self.started_at,
+            "finished_at": self.finished_at,
+        }
+
+
+class TaskManager:
+    """One maintenance task at a time, never while an experiment runs; the task's log is
+    streamed to subscribers like a run's log. Device commands go through the same
+    executor and transport as experiments."""
+
+    def __init__(self, state: AppState, runner: CommandRunner | None = None) -> None:
+        self.state = state
+        self.runner = runner or SubprocessRunner()
+        self.current: TaskRecord | None = None
+        self.history: dict[str, TaskRecord] = {}
+        self._cancel: threading.Event | None = None
+        self._thread: threading.Thread | None = None
+        self._listeners: dict[str, list[queue.Queue[str]]] = {}
+        self._lock = threading.Lock()
+
+    @property
+    def busy(self) -> bool:
+        return self.current is not None and self.current.status == "running"
+
+    def _publish(self, task_id: str, line: str) -> None:
+        record = self.history.get(task_id)
+        if record is not None:
+            record.lines.append(line)
+        for listener in list(self._listeners.get(task_id, [])):
+            listener.put(line)
+
+    def subscribe(self, task_id: str) -> queue.Queue[str]:
+        listener: queue.Queue[str] = queue.Queue()
+        self._listeners.setdefault(task_id, []).append(listener)
+        return listener
+
+    def session(self, log: Callable[[str], None]) -> ActionSession:
+        """An action session on the live transport (SSH, or local processes in local mode)."""
+        from src.config import get_ssh_password
+        from src.network.ssh_executor import Executor, make_transport
+
+        config = self.state.config
+        topology = self.state.topology
+        transport = make_transport(
+            config, topology, local=self.state.local, password=get_ssh_password(config)
+        )
+        executor = Executor(transport, subscribers=[log])
+        return ActionSession(
+            config,
+            topology,
+            executor,
+            local=self.state.local,
+            runner=self.runner,
+            log=log,
+            cancel=threading.Event(),
+        )
+
+    def start(self, runtime: Runtime, action: str, params: dict[str, Any]) -> TaskRecord:
+        with self._lock:
+            if self.busy:
+                raise RuntimeError("a task is already running")
+            if self.state.runs.busy:
+                raise RuntimeError("an experiment is running; wait for it to finish")
+            task_id = f"{time.strftime('%Y%m%d-%H%M%S')}-{runtime.name}-{action}"
+            if task_id in self.history:
+                task_id += f"-{len(self.history)}"
+            record = TaskRecord(task_id, runtime.name, action, dict(params))
+            self.history[task_id] = record
+            self.current = record
+
+            def log(line: str) -> None:
+                self._publish(task_id, line)
+
+            session = self.session(log)
+            self._cancel = session.cancel
+            self._thread = threading.Thread(
+                target=self._run,
+                args=(runtime, action, params, session, record),
+                name=f"task-{task_id}",
+                daemon=True,
+            )
+            self._thread.start()
+            return record
+
+    def _run(
+        self,
+        runtime: Runtime,
+        action: str,
+        params: dict[str, Any],
+        session: ActionSession,
+        record: TaskRecord,
+    ) -> None:
+        self._publish(record.task_id, f"[task][info] {runtime.name}: {action} started")
+        try:
+            runtime.perform(action, params, session)
+            record.status = "stopped" if session.cancel.is_set() else "completed"
+        except Exception as exc:
+            record.status = "failed"
+            record.error = str(exc)
+            self._publish(record.task_id, f"[task][error] {exc}")
+        finally:
+            record.finished_at = time.time()
+            self._publish(record.task_id, f"[task][done] {record.status}")
+
+    def stop(self, task_id: str) -> bool:
+        if not self.busy or self.current is None or self.current.task_id != task_id:
+            return False
+        if self._cancel is not None:
+            self._cancel.set()
+        self._publish(task_id, "[task][info] stop requested: the task ends after its current step")
         return True
 
     def wait(self, timeout: float | None = None) -> None:
@@ -292,6 +481,7 @@ class AppState:
         scenario_root: Path | None = None,
         allow_dirty: bool = False,
         probe_runner: CommandRunner | None = None,
+        task_runner: CommandRunner | None = None,
     ) -> None:
         self.config = config
         self.nodes_path = nodes_path
@@ -305,6 +495,7 @@ class AppState:
         self.topology = load_topology(nodes_path)
         self.prober = Prober(lambda: self.topology, config.probe_period_s, probe_runner)
         self.runs = RunManager(self)
+        self.tasks = TaskManager(self, task_runner)
 
     def reload_topology(self) -> Topology:
         with self._topology_lock:

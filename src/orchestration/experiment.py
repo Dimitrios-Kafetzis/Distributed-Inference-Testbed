@@ -61,7 +61,7 @@ from src.config import REPO_ROOT, Config, get_ssh_password, load_config
 from src.network import collection, node_statistics
 from src.network.ssh_executor import Executor, ExperimentAbortedError, make_transport
 from src.network.transport import FakeTransport, LocalTransport
-from src.orchestration import local_mode
+from src.orchestration import local_mode, runtimes
 from src.orchestration import scenario as scenario_module
 from src.orchestration.geo import calculate_distance, calculate_latency
 from src.partitioning import delay_optimizer
@@ -514,11 +514,13 @@ def stage_apply(ctx: ExperimentContext, full: bool = True) -> None:
 
 
 def stage_profile(ctx: ExperimentContext) -> None:
-    if ctx.scenario.get("runtime") == "headsplit":
-        from src.orchestration.headsplit_runtime import run_headsplit
+    """The profile stage belongs to the scenario's runtime (``testbed`` by default)."""
+    runtimes.get_runtime(ctx.scenario.get("runtime", runtimes.DEFAULT_RUNTIME)).run(ctx)
 
-        run_headsplit(ctx)
-        return
+
+def profile_with_testbed(ctx: ExperimentContext) -> None:
+    """The built-in runtime: a start signal, per-layer profiling on every device, the
+    edge server's capacity and, optionally, partitioned inference."""
     scenario = ctx.scenario
     ctx.t0 = 0.0 if ctx.plan_only else ctx.clock.time() + float(scenario.get("start_lead_s", 3))
     ctx.emit(f"start signal T0 = {ctx.t0:.3f}")
@@ -783,8 +785,9 @@ def stage_aggregate(ctx: ExperimentContext) -> None:
     all_records = result_aggregation.load_records(ctx.paths.raw)
     benchmarks = [r for r in all_records if isinstance(r, BenchmarkResults)]
     if not any(r.stages for r in benchmarks):
-        if ctx.scenario.get("runtime") == "headsplit":
-            ctx.emit("external runtime: no per-layer profile to aggregate")
+        runtime = runtimes.get_runtime(ctx.scenario.get("runtime", runtimes.DEFAULT_RUNTIME))
+        if runtime.external:
+            ctx.emit(f"external runtime {runtime.name}: no per-layer profile to aggregate")
             ctx.paths.link_latest()
             return
         raise ExperimentError("no benchmark records were collected")
@@ -867,6 +870,12 @@ def stage_optimise(ctx: ExperimentContext) -> None:
         out_dir, model, result, inputs, log.path or out_dir / "search_log.txt"
     )
     ctx.outputs["optimised_vector"] = result.vector
+    ctx.outputs["optimised_objective"] = {
+        "objective": result.objective,
+        "value": result.value,
+        "algorithm": opt.get("algorithm", "greedy"),
+        "policy": ctx.scenario.get("edge_server", {}).get("policy", "SJF"),
+    }
     ctx.emit(
         f"optimised partition vector {result.vector} "
         f"({result.objective}={result.value:.6f}) -> {path}"
@@ -1037,6 +1046,11 @@ def build_context(
     clock: Clock | None = None,
 ) -> ExperimentContext:
     run_id = run_id or new_run_id()
+    runtime_name = scenario.get("runtime", runtimes.DEFAULT_RUNTIME)
+    if runtime_name not in runtimes.names():
+        raise ExperimentError(
+            f"unknown runtime {runtime_name!r}; registered: {', '.join(runtimes.names())}"
+        )
     paths = RunPaths(results_dir or config.bs_results_path, run_id)
     if plan_only:
         transport: Any = FakeTransport(

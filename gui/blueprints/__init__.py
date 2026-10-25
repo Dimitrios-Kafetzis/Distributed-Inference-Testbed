@@ -4,8 +4,16 @@ from __future__ import annotations
 
 from flask import Blueprint
 
-from gui.blueprints import catalog, optimise, runs, scenarios, status, topology
+from gui.blueprints import catalog, optimise, runs, runtimes, scenarios, status, topology
 
 
 def all_blueprints() -> list[Blueprint]:
-    return [topology.bp, status.bp, scenarios.bp, runs.bp, optimise.bp, catalog.bp]
+    return [
+        topology.bp,
+        status.bp,
+        scenarios.bp,
+        runs.bp,
+        optimise.bp,
+        catalog.bp,
+        runtimes.bp,
+    ]

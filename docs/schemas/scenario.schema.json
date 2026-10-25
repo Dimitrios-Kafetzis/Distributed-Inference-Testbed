@@ -11,7 +11,7 @@
     "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
     "description": { "type": "string" },
     "pipeline": { "enum": ["experiment", "benchmarking"], "default": "experiment" },
-    "runtime": { "enum": ["testbed", "headsplit"], "default": "testbed" },
+    "runtime": { "type": "string", "default": "testbed", "description": "a registered runtime: testbed (default), headsplit, or a plug-in; its settings go in the block of the same name" },
     "model": { "type": "string", "minLength": 1 },
     "devices": {
       "anyOf": [
@@ -89,9 +89,9 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "controller": { "type": "string" },
-        "workers": { "type": "array", "items": { "type": "string" } },
-        "model": { "type": "string" },
+        "controller": { "type": "string", "description": "the device that runs the HeadSplit controller", "x-nnpm": { "widget": "node" } },
+        "workers": { "type": "array", "items": { "type": "string" }, "description": "the devices that run the workers", "x-nnpm": { "widget": "nodes" } },
+        "model": { "type": "string", "default": "TinyLlama/TinyLlama-1.1B-Chat-v1.0", "description": "Hugging Face model name (a checkpoint distributed to the devices, or the Hugging Face cache)" },
         "tokens": { "type": "integer", "minimum": 1, "default": 50 },
         "prompt_length": { "type": "integer", "minimum": 1, "default": 256 },
         "mode": { "enum": ["headsplit", "head_only", "layer_based", "all"], "default": "headsplit" },
@@ -103,8 +103,9 @@
         "memory_replace_threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "default": 0.85 },
         "rtt_margin": { "type": "number", "minimum": 1, "default": 1.15 },
         "timeout_s": { "type": "number", "exclusiveMinimum": 0, "default": 3600 },
-        "extra_args": { "type": "array", "items": { "type": "string" } }
-      }
+        "extra_args": { "type": "array", "items": { "type": "string" }, "x-nnpm": { "widget": "hidden" } }
+      },
+      "required": ["controller", "workers"]
     },
     "sweep": {
       "type": "object",
@@ -113,6 +114,17 @@
       "properties": {
         "path": { "type": "string", "description": "dotted path of the field to vary, e.g. network.default.added_rtt_ms" },
         "values": { "type": "array", "minItems": 1 }
+      }
+    },
+    "sweep_origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "path", "value"],
+      "description": "written by the sweep expansion into each variant: the sweep it came from",
+      "properties": {
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "value": {}
       }
     }
   },
