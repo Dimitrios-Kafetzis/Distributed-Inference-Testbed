@@ -36,6 +36,7 @@ import json
 import shlex
 import subprocess
 import sys
+import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -109,6 +110,8 @@ class ExperimentContext:
     local_processes: dict[str, subprocess.Popen[bytes]] = field(default_factory=dict)
     plan_only: bool = False
     outputs: dict[str, Any] = field(default_factory=dict)
+    # Set by NNPM's Stop button: the pipeline stops before its next stage and tears down.
+    cancel: threading.Event = field(default_factory=threading.Event)
 
     # --- nodes -----------------------------------------------------------------------------------
 
@@ -983,6 +986,8 @@ def run_pipeline(ctx: ExperimentContext) -> dict[str, Any]:
     error: str | None = None
     try:
         for stage in stages:
+            if ctx.cancel.is_set():
+                raise ExperimentError("stopped by the user")
             stage(ctx)
     except (ExperimentAbortedError, ExperimentError, subprocess.CalledProcessError) as exc:
         status = "aborted"

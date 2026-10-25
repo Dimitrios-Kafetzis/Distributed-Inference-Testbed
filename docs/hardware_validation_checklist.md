@@ -58,4 +58,15 @@ Everything in this repository is tested without hardware: with fake command runn
 - [ ] Device: `scripts/end_device/train_and_run_benchmark.sh both <models dir> gpt2 /tmp/r --repetitions 2` with `TESTBED_MODEL_WEIGHTS` pointing at a GPT-2 checkpoint directory (or random weights): per-layer stage times and the logits stage are recorded; `python -m src.inference.client --model gpt2 ...` against the edge-server service moves the hidden-state cut (T x 768 floats) over the wireless link.
 - [ ] HeadSplit: provision the devices with `headsplit_commit` set; on the controller device run `scripts/profile_offline.py` once (needs the calibration data) to produce `artifacts/profile.json`; then `scripts/base_station/run_experiment.sh examples/scenarios/ch6_rtt_sweep.yaml`. Expected: one run per added RTT value, `results/<run id>/headsplit/results.json` with the layer_based, head_only and headsplit totals, and the monitor and power traces of every worker. Compare the slopes with Chapter 6 (0.15 s and 1.1 s per millisecond of added RTT).
 
+## NNPM web application (C-05 to C-10, J-14)
+
+- [ ] Edge server: `nnpm` (or `python -m gui.app`), then open `http://<management address>:<nnpm_port>/` from a laptop on the management network. Expected: the page title reads "Neural Network Architecture Partitioning (NNPM) manager", every node of `nodes.json` has a marker, the edge server included, and the map tiles load from the configured source (or the grid appears with `map_offline: true`).
+- [ ] Power off one device. Expected: its marker turns red within two probe rounds (about 4 s) while the others stay green; power it on again and it turns green once three of three pings succeed.
+- [ ] Enable "Add node by clicking the map", click a position, type an id and the device's addresses, save. Expected: `nodes.json` contains the clicked coordinates; the marker appears at the clicked position; dragging it updates the coordinates in the file.
+- [ ] Click a device marker after a benchmarking run. Expected: the panel shows the last-measured latency, available memory and CPU usage with the time of the measurement.
+- [ ] Create Scenario, "Derive latencies from the map", "Save and run". During the run, on the device: `tc qdisc show dev <interface>` shows `netem delay <derived value>ms`; the panel's ping value is close to the injected one. After the run the queue is gone.
+- [ ] Benchmarking dialog with the default values. Expected: the terminal shows the `[node][stream]` lines of every device as they are produced; the three output files appear under `results/<run id>/`.
+- [ ] Optimise dialog on that run: greedy, SJF, `50%`. Expected: the table and the JSON file under `results/<run id>/optimisation/`.
+- [ ] Press Stop during a run. Expected: the run is reported as aborted, and on every device no `testbed-` process, no netem queue and no `testbed-` cgroup remains.
+
 (Items are added with every work package.)

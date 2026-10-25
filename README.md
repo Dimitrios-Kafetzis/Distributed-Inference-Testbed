@@ -18,7 +18,7 @@ This repository is under construction; the sections below are filled in as the c
 | Partitioned inference service: edge-server RR/SJF service, device client, per-phase timing (`src/inference/`) | done |
 | Partition optimisation: Chapter 4 delay model (RR, SJF), greedy, exhaustive and trend-based search, `delay_optimizer.py` (`src/partitioning/`) | done |
 | Orchestration: scenarios (versioned, replayable), the experiment pipeline with journal-driven teardown, coordinated start, local mode, `run_full_benchmarking.sh` (`src/orchestration/`) | done |
-| NNPM web application (`gui/`) | planned |
+| NNPM web application: Leaflet map with reachability probes, click-to-add nodes, per-pair links, Create Scenario, Benchmarking and Optimise dialogs, live terminal, results browser (`gui/`) | done |
 | Provisioning (`scripts/provision/`) | planned |
 
 ## Quick start (development, no hardware)

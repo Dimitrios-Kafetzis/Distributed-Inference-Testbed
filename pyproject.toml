@@ -78,7 +78,7 @@ ignore = ["RUF012"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-packages = ["src"]  # gui is added when it lands (WP9)
+packages = ["src", "gui"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]

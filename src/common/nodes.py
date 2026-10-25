@@ -157,14 +157,18 @@ def _from_legacy(data: dict[str, Any]) -> dict[str, Any]:
     return {"schema_version": 1, "nodes": nodes}
 
 
-def parse_topology(data: dict[str, Any]) -> Topology:
-    if "nodes" not in data and data and all(isinstance(v, dict) for v in data.values()):
-        data = _from_legacy(data)
+def _validate(data: dict[str, Any]) -> None:
     try:
         jsonschema.validate(data, load_schema())
     except jsonschema.ValidationError as exc:
         location = "/".join(str(p) for p in exc.absolute_path) or "<root>"
         raise NodesError(f"invalid nodes.json at {location}: {exc.message}") from exc
+
+
+def parse_topology(data: dict[str, Any]) -> Topology:
+    if "nodes" not in data and data and all(isinstance(v, dict) for v in data.values()):
+        data = _from_legacy(data)
+    _validate(data)
     nodes = []
     for raw in data["nodes"]:
         stats = raw.get("statistics")
@@ -199,5 +203,5 @@ def save_topology(topology: Topology, path: str | Path | None = None) -> None:
     """Validate and write atomically."""
     nodes_path = Path(path) if path is not None else DEFAULT_NODES_PATH
     data = topology.to_dict()
-    jsonschema.validate(data, load_schema())
+    _validate(data)
     write_json_atomic(nodes_path, data)

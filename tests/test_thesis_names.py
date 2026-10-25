@@ -34,7 +34,7 @@ FILES = [
     pytest.param("src/testbed/load_generator.py"),
     pytest.param("src/testbed/latency_injector.py"),
     pytest.param("src/models/inference.py"),
-    pytest.param("gui/app.py", marks=wp(9)),
+    pytest.param("gui/app.py"),
     pytest.param("scripts/end_device/apply_latency.sh"),
     pytest.param("scripts/end_device/train_and_run_benchmark.sh"),
     pytest.param("scripts/end_device/transfer_files.sh"),
@@ -50,8 +50,8 @@ def test_thesis_file_exists(relative: str) -> None:
 SYMBOLS = [
     pytest.param("src.config", "load_config", id="src.config.load_config"),
     pytest.param("src.benchmarking.benchmark_results", "BenchmarkResults"),
-    pytest.param("gui.app", "calculate_distance", marks=wp(9)),
-    pytest.param("gui.app", "calculate_latency", marks=wp(9)),
+    pytest.param("gui.app", "calculate_distance"),
+    pytest.param("gui.app", "calculate_latency"),
 ]
 
 

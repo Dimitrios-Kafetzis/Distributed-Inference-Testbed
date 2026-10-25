@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet-1.9.4/leaflet.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nnpm.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <h1>{{ title }}</h1>
+  <nav class="actions">
+    <button id="btn-edit-network">Edit network</button>
+    <button id="btn-add-mode" class="toggle" aria-pressed="false">Add node by clicking the map</button>
+    <button id="btn-scenario">Create scenario</button>
+    <button id="btn-run">Run experiment</button>
+    <button id="btn-benchmark">Benchmarking</button>
+    <button id="btn-optimise">Optimise</button>
+    <button id="btn-stop" class="danger">Stop</button>
+    <label><input type="checkbox" id="chk-links" checked> Draw links</label>
+    <span id="run-indicator" class="indicator idle">idle</span>
+    {% if local_mode %}<span class="badge">local mode</span>{% endif %}
+  </nav>
+</header>
+
+<main class="layout">
+  <section id="map-panel">
+    <div id="map" role="application" aria-label="Network map"></div>
+  </section>
+  <aside id="side-panel">
+    <section id="node-panel" class="card">
+      <h2>Node</h2>
+      <div id="node-info"><p class="muted">Click a marker to see its last-measured latency, available memory and CPU usage.</p></div>
+    </section>
+    <section id="runs-panel" class="card">
+      <h2>Runs</h2>
+      <ul id="runs-list" class="runs"></ul>
+    </section>
+  </aside>
+</main>
+
+<section id="terminal-panel" class="card">
+  <div class="terminal-head">
+    <h2>Terminal</h2>
+    <label>Filter <input id="terminal-filter" placeholder="node id" size="12"></label>
+    <button id="btn-clear-terminal">Clear</button>
+  </div>
+  <pre id="terminal" aria-live="polite"></pre>
+</section>
+
+<!-- Dialogs -->
+<dialog id="dlg-network">
+  <h2>Edit network</h2>
+  <table id="network-table"><thead><tr><th>Id</th><th>Role</th><th>Data address</th><th>Management address</th><th></th></tr></thead><tbody></tbody></table>
+  <form id="form-node" class="grid">
+    <input type="hidden" name="original_id">
+    <label>Id <input name="id" required pattern="[A-Za-z0-9][A-Za-z0-9_.-]*"></label>
+    <label>Role <select name="role"><option>End Device</option><option>Base Station</option></select></label>
+    <label>Data address <input name="ip" required></label>
+    <label>Management address <input name="management_ip" placeholder="same as data"></label>
+    <label>Latitude <input name="lat" type="number" step="any" required></label>
+    <label>Longitude <input name="lon" type="number" step="any" required></label>
+    <menu><button type="submit">Save node</button><button type="button" data-close>Close</button></menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-scenario">
+  <h2>Create scenario</h2>
+  <form id="form-scenario">
+    <div class="grid">
+      <label>Name <input name="name" required pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" value="scenario"></label>
+      <label>Model <select name="model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label>
+      <label>Repetitions <input name="repetitions" type="number" min="1" value="3"></label>
+      <label>Warm-up <input name="warmup" type="number" min="0" value="1"></label>
+      <label>Seed <input name="seed" type="number" min="0" value="0"></label>
+      <label>Edge-server policy <select name="policy">{% for p in policies %}<option>{{ p }}</option>{% endfor %}</select></label>
+      <label>Settle (s) <input name="settle_s" type="number" min="0" value="5"></label>
+      <label><input type="checkbox" name="inference_enabled"> Partitioned inference at <input name="partition_points" value="0,4,8,11" size="12"></label>
+    </div>
+    <h3>Per node</h3>
+    <p class="muted">The link latency may be typed or derived from the marker positions; it is injected with tc-netem on <code>{{ interface }}</code>. CPU and memory loads are produced by the load generator.</p>
+    <button type="button" id="btn-derive-latency">Derive latencies from the map</button>
+    <div id="scenario-nodes"></div>
+    <menu><button type="submit">Save scenario</button><button type="button" id="btn-save-and-run">Save and run</button><button type="button" data-close>Close</button></menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-run">
+  <h2>Run experiment</h2>
+  <form id="form-run">
+    <label>Saved scenario <select name="scenario" id="run-scenarios"></select></label>
+    <menu><button type="submit">Run</button><button type="button" data-close>Close</button></menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-benchmark">
+  <h2>Benchmarking</h2>
+  <p class="muted">Runs the full profiling pipeline across all active devices: dispatch, collection, latency measurement, aggregation, partition feasibility.</p>
+  <form id="form-benchmark" class="grid">
+    <label>Model <select name="model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label>
+    <label>Repetitions <input name="repetitions" type="number" min="1" value="3"></label>
+    <label>Warm-up <input name="warmup" type="number" min="0" value="1"></label>
+    <label>Seed <input name="seed" type="number" min="0" value="0"></label>
+    <menu><button type="submit">Run benchmarking</button><button type="button" data-close>Close</button></menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-optimise">
+  <h2>Optimise partition points</h2>
+  <form id="form-optimise" class="grid">
+    <label>Profiling run <select name="run_id" id="optimise-runs"></select></label>
+    <label>Algorithm <select name="algorithm">{% for a in algorithms %}<option>{{ a }}</option>{% endfor %}</select></label>
+    <label>Edge-server scheduling policy <select name="policy">{% for p in policies %}<option>{{ p }}</option>{% endfor %}</select></label>
+    <label>Objective <select name="objective"><option value="total_delay">Minimise total delay</option><option value="variance">Minimise variance</option></select></label>
+    <label>Initial partition <input name="initial_scheme" placeholder="50% or [3,5,8,1] or {&quot;device1&quot;: 3}"></label>
+    <label>Max total delay per device (ms) <input name="max_total_delays_ms" placeholder="[150,150] or {&quot;device1&quot;: 150}"></label>
+    <label>Transmission model <select name="transmission_mode"><option value="rtt_only">round-trip time</option><option value="size_over_rate">size over rate + latency</option></select></label>
+    <menu><button type="submit">Optimise</button><button type="button" data-close>Close</button></menu>
+  </form>
+  <div id="optimise-result"></div>
+</dialog>
+
+<script>
+  window.NNPM_BOOT = {
+    nodes: {{ nodes | tojson }},
+    tilesUrl: {{ map_tiles_url | tojson }},
+    offline: {{ map_offline | tojson }},
+    localMode: {{ local_mode | tojson }},
+    interface: {{ interface | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='vendor/leaflet-1.9.4/leaflet.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/nnpm.js') }}"></script>
+</body>
+</html>

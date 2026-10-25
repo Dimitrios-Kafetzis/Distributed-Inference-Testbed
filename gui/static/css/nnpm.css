@@ -1,0 +1,73 @@
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --ink: #1d2733;
+  --muted: #5b6673;
+  --line: #d9dee5;
+  --accent: #1f4e79;
+  --green: #2e8b57;
+  --red: #c0392b;
+  --amber: #e69f00;
+  --terminal-bg: #101418;
+  --terminal-ink: #9ae69a;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.4 system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+h1 { font-size: 18px; margin: 0; }
+h2 { font-size: 15px; margin: 0 0 8px; }
+h3 { font-size: 14px; margin: 12px 0 4px; }
+.muted { color: var(--muted); }
+code { background: #eef1f4; padding: 0 3px; border-radius: 3px; }
+
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 8px 12px; background: var(--card); border-bottom: 1px solid var(--line); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+button { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; background: #fff; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.danger { color: var(--red); }
+button.toggle[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.indicator { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.indicator.idle { background: #e5e9ee; }
+.indicator.running { background: var(--amber); color: #fff; }
+.badge { padding: 2px 8px; border-radius: 10px; background: #eef1f4; font-size: 12px; }
+
+.layout { display: grid; grid-template-columns: 1fr 320px; gap: 12px; padding: 12px; }
+#map { height: 540px; border: 1px solid var(--line); border-radius: 6px; background: #e9edf1; }
+#map.offline { background-image: linear-gradient(#dfe4ea 1px, transparent 1px), linear-gradient(90deg, #dfe4ea 1px, transparent 1px); background-size: 40px 40px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; }
+#side-panel { display: flex; flex-direction: column; }
+.runs { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow: auto; }
+.runs li { padding: 4px 0; border-bottom: 1px dashed var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.runs .status-completed { color: var(--green); }
+.runs .status-aborted { color: var(--red); }
+.runs .status-running { color: var(--amber); }
+
+#terminal-panel { margin: 0 12px 12px; }
+.terminal-head { display: flex; align-items: center; gap: 12px; }
+#terminal { background: var(--terminal-bg); color: var(--terminal-ink); height: 220px; overflow: auto; padding: 8px; margin: 8px 0 0; font: 12px/1.35 ui-monospace, monospace; white-space: pre-wrap; resize: vertical; }
+#terminal .err { color: #ff8a80; }
+#terminal .info { color: #9ecbff; }
+
+.leaflet-tooltip.status-green { border-color: var(--green); border-width: 2px; }
+.leaflet-tooltip.status-red { border-color: var(--red); border-width: 2px; }
+.leaflet-tooltip.status-unknown { border-color: var(--line); }
+.leaflet-tooltip .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.dot.green { background: var(--green); }
+.dot.red { background: var(--red); }
+.dot.unknown { background: #aab2bd; }
+.marker-edge { filter: hue-rotate(140deg) saturate(1.4); }
+
+dialog { border: 1px solid var(--line); border-radius: 8px; max-width: 920px; width: 90vw; padding: 16px; }
+dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 14px; }
+label { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+label.inline, .grid label.inline { flex-direction: row; align-items: center; gap: 6px; }
+input, select { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; }
+menu { display: flex; gap: 8px; padding: 0; margin: 14px 0 0; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 10px; }
+th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.node-config { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+.node-config h4 { margin: 0 0 6px; font-size: 13px; }
+#optimise-result table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.error { color: var(--red); }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
