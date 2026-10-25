@@ -325,6 +325,10 @@ def test_index_page_lists_the_runtimes_and_the_catalogue_describes_them(
     html = client.get("/").get_data(as_text=True)
     assert 'id="btn-runtimes"' in html and 'id="scenario-runtime"' in html
     assert 'value="headsplit"' in html and 'value="testbed"' in html
+    assert "selected" in html.split('value="testbed"', 1)[1].split(">", 1)[0]  # the default
+    # Flask keeps the schema's field order in JSON responses (the forms follow it).
+    keys = list(client.get("/api/catalog").get_json()["runtimes"][0]["schema"]["properties"])
+    assert keys[:2] == ["controller", "workers"] or keys == []
     catalog = client.get("/api/catalog").get_json()
     runtimes = {r["name"]: r for r in catalog["runtimes"]}
     assert catalog["default_runtime"] == "testbed"

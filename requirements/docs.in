@@ -1,0 +1,5 @@
+# Documentation site and screenshot tooling (development machine, x86_64).
+mkdocs>=1.6
+mkdocs-material>=9.5
+playwright>=1.47
+pillow>=9.0

@@ -93,7 +93,7 @@
   <section class="card">
     <h2>Files</h2>
     {% if output_files %}
-    <p>The three output files of the thesis:</p>
+    <p>The output files of the thesis present in this run:</p>
     <ul class="files">
       {% for name in output_files %}<li><a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name) }}">{{ name }}</a> (<a href="{{ url_for('runs.run_file', run_id=run.run_id, relative=name, download=1) }}">download</a>)</li>{% endfor %}
     </ul>

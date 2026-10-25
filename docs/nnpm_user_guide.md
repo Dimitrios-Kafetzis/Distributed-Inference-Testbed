@@ -1,6 +1,6 @@
 # NNPM user guide
 
-The Neural Network Architecture Partitioning (NNPM) manager is the web application that configures the testbed and runs experiments. It is served from the edge server and used from any browser on the management network.
+The Neural Network Architecture Partitioning (NNPM) manager is the web application that configures the testbed and runs experiments. It is served from the edge server and used from any browser on the management network. This is the reference per screen; the [NNPM tutorial](nnpm_tutorial.md) is the guided tour with screenshots.
 
 ## Starting NNPM
 

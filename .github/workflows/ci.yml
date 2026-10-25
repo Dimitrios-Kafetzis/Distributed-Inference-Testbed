@@ -39,6 +39,21 @@ jobs:
           TESTBED_CONFIG=config.example.yaml TESTBED_NODES=nodes.example.json TESTBED_AP_PASSPHRASE=ci \
             scripts/provision/provision_edge_server.sh --dry-run --allow-upstream > /dev/null
 
+  site:
+    name: Documentation site (build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - name: Install the documentation tooling (locked)
+        run: |
+          uv venv .venv --python 3.11 --clear
+          uv pip install --python .venv/bin/python --require-hashes -r requirements/docs.lock
+      - name: Build (strict)
+        run: .venv/bin/mkdocs build --strict
+
   models:
     name: Real-model tests (slow)
     runs-on: ubuntu-latest

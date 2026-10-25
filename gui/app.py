@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from flask import Flask, Response, render_template, request
+from flask.json.provider import DefaultJSONProvider
 
 from gui import blueprints
 from gui.state import AppState
@@ -58,7 +59,8 @@ def create_app(state: AppState, *, start_prober: bool = True) -> Flask:
         template_folder=str(Path(__file__).parent / "templates"),
         static_folder=str(Path(__file__).parent / "static"),
     )
-    app.config["JSON_SORT_KEYS"] = False
+    if isinstance(app.json, DefaultJSONProvider):
+        app.json.sort_keys = False  # schemas drive the forms: keep their field order
     app.extensions["nnpm"] = state
     auth_env = state.config.nnpm_basic_auth_env
     if auth_env and os.environ.get(auth_env):
@@ -81,7 +83,11 @@ def create_app(state: AppState, *, start_prober: bool = True) -> Flask:
             map_offline=state.config.map_offline,
             local_mode=state.local,
             models=registry.names(),
-            runtimes=runtimes.describe(),
+            runtimes=sorted(
+                runtimes.describe(),
+                key=lambda r: (r["name"] != runtimes.DEFAULT_RUNTIME, r["name"]),
+            ),
+            default_runtime=runtimes.DEFAULT_RUNTIME,
             algorithms=algorithms.names(),
             policies=["SJF", "RR"],
             interface=state.config.network_interface,

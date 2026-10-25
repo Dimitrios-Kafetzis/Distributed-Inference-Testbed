@@ -1,0 +1,103 @@
+site_name: Distributed Inference Testbed
+site_description: >-
+  Experimental testbed for partitioned inference of deep neural networks and large
+  language models across Raspberry Pi edge devices and an edge server, orchestrated by
+  the NNPM web application.
+site_url: https://dimitrios-kafetzis.github.io/Distributed-Inference-Testbed/
+repo_url: https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed
+repo_name: Dimitrios-Kafetzis/Distributed-Inference-Testbed
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2024-2026 Dimitrios Kafetzis. MIT Licence.
+
+docs_dir: docs
+site_dir: site
+strict: true
+exclude_docs: |
+  hooks.py
+  __pycache__/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# docs/hooks.py includes repository files that live outside docs/ (the README, the
+# changelog, the provisioning README) and rewrites their links for the site.
+hooks:
+  - docs/hooks.py
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: installation.md
+      - Setup guide: setup_guide.md
+      - Provisioning scripts: provisioning.md
+      - Pinned dependencies: requirements.md
+  - Using the testbed:
+      - NNPM tutorial: nnpm_tutorial.md
+      - NNPM user guide: nnpm_user_guide.md
+      - Scenario reference: scenario_reference.md
+      - Results format: results_format.md
+      - Sample data: sample_data.md
+  - Architecture and reference:
+      - Architecture: architecture.md
+      - Module reference: module_reference.md
+  - Extending:
+      - Adding a model: adding_a_model.md
+      - Adding a runtime: adding_a_runtime.md
+      - HeadSplit integration: headsplit_integration.md
+  - Validation:
+      - Hardware validation checklist: hardware_validation_checklist.md
+  - Project:
+      - Changelog: changelog.md
+      - Contributing: contributing.md
+      - Security policy: security.md
+      - Third-party notices: third_party_notices.md

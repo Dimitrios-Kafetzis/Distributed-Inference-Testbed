@@ -177,8 +177,11 @@ Every run writes one directory under `results/`, with the scenario version, the 
 
 ## Documentation
 
+The documentation is published as a website at **https://dimitrios-kafetzis.github.io/Distributed-Inference-Testbed/** (built from `docs/` with MkDocs on every push) and lives in the repository:
+
 | Document | Content |
 |---|---|
+| [NNPM tutorial](docs/nnpm_tutorial.md) | a guided tour of every function of the web application, with screenshots taken in local mode |
 | [Architecture](docs/architecture.md) | the three layers, an experiment stage by stage, daemonless operation, local mode |
 | [Installation](docs/installation.md) | installing from the lock files on the edge server, the devices and a development machine; the version table |
 | [Setup guide](docs/setup_guide.md) | hardware and bill of materials, physical layout, networks and addressing, operating systems, access point, NTP, power sensors, mirror, provisioning order |

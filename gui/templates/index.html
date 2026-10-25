@@ -71,7 +71,7 @@
   <form id="form-scenario">
     <div class="grid">
       <label>Name <input name="name" required pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" value="scenario"></label>
-      <label>Runtime <select name="runtime" id="scenario-runtime">{% for r in runtimes %}<option value="{{ r.name }}" title="{{ r.description }}">{{ r.label }}</option>{% endfor %}</select></label>
+      <label>Runtime <select name="runtime" id="scenario-runtime">{% for r in runtimes %}<option value="{{ r.name }}" title="{{ r.description }}"{% if r.name == default_runtime %} selected{% endif %}>{{ r.label }}</option>{% endfor %}</select></label>
       <label>Model <select name="model" id="scenario-model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label>
       <label>Repetitions <input name="repetitions" type="number" min="1" value="3"></label>
       <label>Warm-up <input name="warmup" type="number" min="0" value="1"></label>

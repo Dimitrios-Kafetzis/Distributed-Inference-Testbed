@@ -27,6 +27,8 @@ Run these before opening a pull request. The continuous-integration workflow run
 .venv/bin/pytest -m slow            # when a change touches the model adapters or the profiler
 ```
 
+The documentation site is built with MkDocs from `docs/` (`mkdocs.yml`; `requirements/docs.lock` holds the tooling): `uv pip install --python .venv/bin/python --require-hashes -r requirements/docs.lock && .venv/bin/mkdocs serve` previews it, and `mkdocs build --strict` must pass (it runs in CI). The NNPM screenshots of the tutorial are regenerated with `python scripts/docs/nnpm_screenshots.py --server-python .venv/bin/python` (Playwright, from the same lock, after `python -m playwright install chromium`).
+
 A change to the provisioning scripts or templates usually changes the dry-run command plans; regenerate the golden files with `UPDATE_GOLDEN=1 .venv/bin/pytest tests/test_provisioning.py` and review the diff before committing it.
 
 ## Conventions

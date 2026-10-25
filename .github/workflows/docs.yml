@@ -1,0 +1,49 @@
+name: Documentation site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "README.md"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "SECURITY.md"
+      - "THIRD_PARTY_NOTICES.md"
+      - "scripts/provision/README.md"
+      - "requirements/README.md"
+      - "requirements/docs.lock"
+      - "data/sample/README.md"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: documentation-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and publish to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - name: Install the documentation tooling (locked)
+        run: |
+          uv venv .venv --python 3.11 --clear
+          uv pip install --python .venv/bin/python --require-hashes -r requirements/docs.lock
+      - name: Build
+        run: .venv/bin/mkdocs build --strict
+      - name: Publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          .venv/bin/mkdocs gh-deploy --force --no-history

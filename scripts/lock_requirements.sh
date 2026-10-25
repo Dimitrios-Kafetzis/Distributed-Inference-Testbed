@@ -31,5 +31,6 @@ compile requirements/edge_server.in requirements/edge_server.lock x86_64-manylin
 compile requirements/edge_device.in requirements/edge_device.lock aarch64-manylinux_2_28
 compile requirements/edge_device_llm.in requirements/edge_device_llm.lock aarch64-manylinux_2_28
 compile requirements/dev.in requirements/dev.lock x86_64-manylinux_2_28
+compile requirements/docs.in requirements/docs.lock x86_64-manylinux_2_28
 
 echo "Lock files regenerated."

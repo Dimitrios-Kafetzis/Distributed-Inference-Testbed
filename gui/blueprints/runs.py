@@ -31,7 +31,10 @@ def _summary_from_disk(run_dir: Path) -> dict[str, Any]:
         summary["runtime"] = scenario.get("runtime", runtimes.DEFAULT_RUNTIME)
         summary["model"] = scenario.get("model")
         summary["devices"] = scenario.get("devices")
-        summary["scenario_version"] = scenario.get("_version")
+        version = scenario.get("_version")
+        summary["scenario_version"] = (
+            version.get("version") if isinstance(version, dict) else version
+        )
         summary["sweep_origin"] = scenario.get("sweep_origin")
     summary["files"] = sorted(
         str(p.relative_to(run_dir)) for p in run_dir.rglob("*") if p.is_file()
