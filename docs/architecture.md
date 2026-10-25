@@ -42,11 +42,11 @@ The edge server talks to the devices over the wired management network (SSH, res
 | `src/common/` | infrastructure used everywhere: command runners (real, fake, dry run), clocks, rooted `/sys` access, tagged detached processes, run directories and the run journal, seeds, the coordinated start signal, run metadata, the device probe |
 | `src/network/` | the transport and SSH dispatch layer, result collection, latency, throughput and power measurement, node statistics |
 | `src/testbed/` | device-side control: load generator, tc-netem shaping, background traffic, heterogeneity (cpufreq, cgroups, threads), resource monitor, edge-server frequency policy |
-| `src/models/` | model adapters (TensorFlow: AlexNet, VGG-16, ResNet-50, GRU predictor; PyTorch: GPT-2, TinyLlama; a fake model), analytical operation counts, the profiler, the device-side inference entry point, head-wise LLM decomposition and hook-based profiling |
+| `src/models/` | model adapters (TensorFlow: AlexNet, VGG-16, ResNet-50, GRU predictor, any `tf.keras.applications` classifier with automatic cuts; PyTorch: GPT-2, TinyLlama, Llama 3.2 1B, Qwen2.5 0.5B, any Hugging Face decoder of a known family; a fake model), analytical operation counts, the profiler, the device-side inference entry point with the partition check, input sources, the model catalogue, head-wise LLM decomposition and hook-based profiling |
 | `src/inference/` | the partitioned-inference service of the edge server (RR and SJF scheduling), its wire protocol and the device client with per-phase timing |
 | `src/benchmarking/` | measurement records and their schema, aggregation over repetitions and trace merging, partition feasibility |
 | `src/partitioning/` | the Chapter 4 delay model, the search algorithms (greedy, exhaustive, trend-based) and `delay_optimizer.py` |
-| `src/orchestration/` | scenarios (schema, versions, sweeps), the experiment pipeline, local mode, the map rule, the HeadSplit runtime |
+| `src/orchestration/` | scenarios (schema, versions, sweeps), the experiment pipeline, local mode, the map rule, the runtime plug-ins (`runtimes/`: the testbed runtime and HeadSplit) |
 | `src/provisioning/` | template rendering and the mirror manifest used by the provisioning scripts |
 | `gui/` | the NNPM web application: Flask blueprints, the page, vendored Leaflet |
 | `scripts/base_station/` | `run_full_benchmarking.sh`, `run_experiment.sh`, `clean_devices.sh` |
@@ -66,7 +66,7 @@ A scenario (one JSON object, validated against `docs/schemas/scenario.schema.jso
 |---|---|---|
 | preflight | the run directory is created; `metadata.json` records the scenario, the Git commit, the framework versions, the kernel version and the NTP status of every node, before any change; a node whose NTP offset exceeds `ntp_offset_threshold_ms` stops the run | `src/common/metadata.py`, `src/common/probe.py` |
 | apply | edge-server frequency policy; per-node cpufreq cap, memory cgroup and thread count; tc-netem shaping (constant, uniform or square-wave delay, jitter, loss, rate cap); background traffic; load generators; monitoring agents and power monitors; then a settling time | `src/testbed/` |
-| profile | a start instant T0 is chosen and passed to every device; each device waits for it, captures its time origin and profiles the model layer by layer (`train_and_run_benchmark.sh`); the edge server profiles its own capacity; optionally the devices run partitioned inference against the edge-server service and record the local, transmission and remote phases; a scenario with `runtime: headsplit` runs the HeadSplit controller and workers instead | `src/models/`, `src/inference/`, `src/orchestration/headsplit_runtime.py` |
+| profile | a start instant T0 is chosen and passed to every device; each device waits for it, captures its time origin and profiles the model layer by layer (`train_and_run_benchmark.sh`); the edge server profiles its own capacity; optionally the devices run partitioned inference against the edge-server service and record the local, transmission and remote phases; with `checks.partition_equivalence` every device compares the partition points with the unpartitioned model; the stage belongs to the scenario's runtime, and an external runtime (`runtime: headsplit`) runs its own controller and workers instead | `src/models/`, `src/inference/`, `src/orchestration/runtimes/` |
 | collect | latency and system-metric capture on every device; the result files are copied to the edge server with the device hostname prefixed to each name | `src/network/latency_measurement.py`, `scripts/end_device/transfer_files.sh`, `src/network/collection.py` |
 | aggregate | `final_latencies_averages.json` (node statistics, also written into `nodes.json`), `total_averages_of_benchmark_results.json` (per-device averages over repetitions and the merged traces), `calculated_max_partition_points.json` (feasibility) | `src/network/node_statistics.py`, `src/benchmarking/` |
 | optimise | the partition vector for the scenario's objective under the chosen scheduling policy, written next to the scenario version with the hashes of its inputs | `src/partitioning/delay_optimizer.py` |
@@ -95,4 +95,5 @@ Every component can run without hardware. In local mode (`--local`), each node b
 - [results_format.md](results_format.md): the run directory and the record formats.
 - [module_reference.md](module_reference.md): every module and its command line.
 - [headsplit_integration.md](headsplit_integration.md): the optional HeadSplit runtime.
+- [adding_a_model.md](adding_a_model.md) and [adding_a_runtime.md](adding_a_runtime.md): how the testbed is extended.
 - [hardware_validation_checklist.md](hardware_validation_checklist.md): what must be checked on the physical testbed.

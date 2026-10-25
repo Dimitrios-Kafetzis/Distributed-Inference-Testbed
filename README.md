@@ -40,7 +40,8 @@ The repository implements the testbed described in Chapter 3 ("Experimental Test
 - **The NNPM web application.** The Neural Network Architecture Partitioning (NNPM) manager: an interactive map of the topology with three-ping reachability probes every two seconds, click-to-add and draggable nodes, distance-derived link latencies, dialogs for scenario creation, benchmarking and optimisation, a live merged terminal, a results browser and a stop button that tears down cleanly.
 - **Daemonless and reproducible.** Nothing stays resident on a device beyond the SSH server: every device-side process is started for the duration of an experiment and stopped at its end. Scenarios are versioned and replayable, random seeds are set on every node, dependencies are hash-pinned per role and platform, and provisioning installs from a versioned local package mirror with a verifiable manifest.
 - **Runs without hardware.** A local mode simulates every node on one machine with a fake model, dry-run shaping and a fake `/sys` tree. The whole pipeline, the web application and the provisioning scripts are exercised this way in continuous integration.
-- **Optional LLM runtime.** The author's [HeadSplit](https://github.com/Dimitrios-Kafetzis/headsplit) runtime for head-level partitioning of decoder-only LLMs is supported as an external component at a pinned commit, with the testbed providing provisioning, shaping, load, monitoring and results layout.
+- **Extensible.** Any `tf.keras.applications` classifier and any Hugging Face decoder of a known family (GPT-2, Llama, Mistral, Qwen2, Gemma) run through generic adapters with automatic cut points; model parameters, input sources (files, image folders with labels, prompts) and a partition-equivalence check are scenario fields; a model catalogue with checksums holds the weights. See [docs/adding_a_model.md](docs/adding_a_model.md).
+- **Runtime plug-ins.** An inference runtime is a plug-in with a scenario block, readiness checks, maintenance actions and a results parser, all driven from NNPM. The author's [HeadSplit](https://github.com/Dimitrios-Kafetzis/headsplit) runtime for head-level partitioning of decoder-only LLMs is the first: installed from the mirror at a pinned commit, prepared (profile, checkpoint) and run from the web application under the testbed's shaping, load, monitors and metadata. See [docs/adding_a_runtime.md](docs/adding_a_runtime.md).
 
 ## Architecture
 
@@ -77,12 +78,14 @@ The testbed has three layers. The **NNPM manager** (web application and orchestr
 | AlexNet | TensorFlow | 11 stages (the partition points of Chapter 4) | Chapter 4 |
 | VGG-16, ResNet-50 | TensorFlow | Keras layers and blocks | Chapter 4 |
 | GRU QoE predictor | TensorFlow | recurrent layers | Chapter 4 |
+| MobileNetV2, EfficientNet-B0, DenseNet-121, any `tf.keras.applications` model | TensorFlow | single-tensor cuts of the functional graph, found automatically and thinned to stages of comparable work | extensions |
 | GPT-2 | PyTorch | decoder layers; per-head, projection and feed-forward timing through forward hooks | Chapter 5 |
 | TinyLlama-1.1B | PyTorch | decoder layers; head-wise decomposition | Chapters 5 and 6 |
-| TinyLlama-1.1B on HeadSplit | PyTorch RPC (external) | heads across devices with inter-layer speculation | Chapter 6 |
+| Llama 3.2 1B, Qwen2.5 0.5B, any Hugging Face decoder of the GPT-2, Llama, Mistral, Qwen2 or Gemma family | PyTorch | decoder layers; head-wise decomposition from the family table | extensions |
+| TinyLlama-1.1B on HeadSplit | PyTorch RPC (external runtime) | heads across devices with inter-layer speculation | Chapter 6 |
 | `fake` | none | configurable synthetic stages, for tests and local mode | |
 
-New models are registered through `src/models/registry.py`; new partitioning algorithms through `src/partitioning/algorithms/`.
+New models are registered through `src/models/registry.py` ([docs/adding_a_model.md](docs/adding_a_model.md)); new partitioning algorithms through `src/partitioning/algorithms/`; new runtimes through `src/orchestration/runtimes/` ([docs/adding_a_runtime.md](docs/adding_a_runtime.md)). Weights live in a model catalogue with checksums (`examples/models.yaml`, `python -m src.models.weights`).
 
 ## Getting started
 
@@ -158,11 +161,11 @@ Every run writes one directory under `results/`, with the scenario version, the 
 | [`src/common/`](src/common/) | infrastructure used everywhere: injectable command runners, clocks and `/sys` access, tagged detached processes, run directories and the run journal, seeds, the coordinated start signal, run metadata |
 | [`src/network/`](src/network/) | SSH transport and concurrent dispatch, result collection, latency, throughput and power measurement |
 | [`src/testbed/`](src/testbed/) | device-side control: load generator, tc-netem shaping, background traffic, heterogeneity, resource monitor, edge-server frequency policy |
-| [`src/models/`](src/models/) | model adapters (TensorFlow and PyTorch), analytical operation counts, the per-layer profiler, the device-side inference entry point |
+| [`src/models/`](src/models/) | model adapters (TensorFlow and PyTorch, generic Keras-applications and Hugging Face decoder adapters), analytical operation counts, the per-layer profiler, the device-side inference entry point with the partition check, input sources, the model catalogue |
 | [`src/inference/`](src/inference/) | the partitioned-inference service of the edge server (RR and SJF), its wire protocol and the device client |
 | [`src/benchmarking/`](src/benchmarking/) | measurement records and schema, aggregation over repetitions, trace merging, partition feasibility |
 | [`src/partitioning/`](src/partitioning/) | the delay model, the search algorithms and `delay_optimizer.py` |
-| [`src/orchestration/`](src/orchestration/) | scenarios (schema, versions, sweeps), the experiment pipeline, local mode, the map rule, the HeadSplit runtime |
+| [`src/orchestration/`](src/orchestration/) | scenarios (schema, versions, sweeps), the experiment pipeline, local mode, the map rule, the runtime plug-ins (testbed, HeadSplit) |
 | [`src/provisioning/`](src/provisioning/) | template rendering and the mirror manifest used by the provisioning scripts |
 | [`gui/`](gui/) | the NNPM web application: Flask blueprints, the page, vendored Leaflet |
 | [`scripts/`](scripts/) | `base_station/` (run and clean), `end_device/` (profiling, transfer, shaping), `provision/` (image, edge server, devices, mirror) |
@@ -179,11 +182,12 @@ Every run writes one directory under `results/`, with the scenario version, the 
 | [Architecture](docs/architecture.md) | the three layers, an experiment stage by stage, daemonless operation, local mode |
 | [Installation](docs/installation.md) | installing from the lock files on the edge server, the devices and a development machine; the version table |
 | [Setup guide](docs/setup_guide.md) | hardware and bill of materials, physical layout, networks and addressing, operating systems, access point, NTP, power sensors, mirror, provisioning order |
-| [NNPM user guide](docs/nnpm_user_guide.md) | the web application: map, probes, topology editing, dialogs, runs, terminal, local mode, HTTP interface |
+| [NNPM user guide](docs/nnpm_user_guide.md) | the web application: map, probes, topology editing, dialogs, sweeps, run summary page, Runtimes dialog, terminal, local mode, HTTP interface |
 | [Scenario reference](docs/scenario_reference.md) | every scenario field with its default |
 | [Results format](docs/results_format.md) | the run directory and every record format |
 | [Module reference](docs/module_reference.md) | every module and script with its command line |
-| [HeadSplit integration](docs/headsplit_integration.md) | the optional external LLM runtime |
+| [HeadSplit integration](docs/headsplit_integration.md) | the optional external LLM runtime: configuration, preparation from NNPM, what a run does |
+| [Adding a model](docs/adding_a_model.md), [Adding a runtime](docs/adding_a_runtime.md) | how the testbed is extended: adapters, parameters, weights and inputs; the runtime plug-in interface |
 | [Hardware validation checklist](docs/hardware_validation_checklist.md) | what to verify on the physical testbed, with expected values |
 | [Provisioning](scripts/provision/README.md), [Dependencies](requirements/README.md), [Sample data](data/sample/README.md) | the provisioning scripts, the lock files, the synthetic samples |
 
@@ -191,8 +195,8 @@ Every run writes one directory under `results/`, with the scenario version, the 
 
 | Check | Scope |
 |---|---|
-| `pytest -m "not slow"` | 287 tests: unit tests with fake runners, transports, clocks and `/sys`; golden-file tests of the provisioning command plans; local-mode integration tests of the whole pipeline and the web application |
-| `pytest -m slow` | 11 tests that train and run the real TensorFlow and PyTorch models on the CPU |
+| `pytest -m "not slow"` | 330 tests: unit tests with fake runners, transports, clocks and `/sys`; golden-file tests of the provisioning command plans; local-mode integration tests of the whole pipeline, the web application and the HeadSplit runtime against stub scripts |
+| `pytest -m slow` | 15 tests that build and run the real TensorFlow and PyTorch models on the CPU (the thesis models, the Keras applications, every decoder family) |
 | `ruff check`, `ruff format --check` | formatting and lint |
 | `mypy --strict` | `src/` and `gui/` |
 | `shellcheck -x` | every shell script |
@@ -210,7 +214,7 @@ The [continuous-integration workflow](.github/workflows/ci.yml) runs all of the 
 | Edge server | Ubuntu 22.04 LTS, x86_64 | Ubuntu 22.04 LTS, Python 3.11 |
 | Python | 3.11 | 3.11 |
 | TensorFlow | 2.8.0 (CPU) | 2.15.1 |
-| PyTorch, Transformers | 2.1.2 (CPU), 4.36 | 2.1.2, 4.36.2 |
+| PyTorch, Transformers | 2.1.2 (CPU), 4.36 | 2.1.2, 4.46.3 |
 | Flask, Paramiko | 2.2.0, 2.11 (edge server only) | 3.1.3, 5.1.0 |
 | Time synchronisation | NTP server on the edge server, clients on the devices | chrony, configured by provisioning |
 

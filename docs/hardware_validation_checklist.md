@@ -81,3 +81,13 @@ Everything in this repository is tested without hardware: with fake command runn
 - [ ] Access point (B-06): `iw dev <ap_interface> info` on the edge server shows the configured channel at 80 MHz; `iw dev wlan0 link` on a device shows the 5 GHz frequency and a VHT rate. Measure the single-device throughput with `src.network.throughput_measurement` (F-08 item above).
 
 (Items are added with every work package.)
+
+## Extensions of version 1.1 (HeadSplit through NNPM, generic adapters, catalogue)
+
+- [ ] Runtimes dialog, HeadSplit, **Check the devices** before provisioning HeadSplit: every device red on checkout and environment. After **Install or update HeadSplit** on all devices: checkout green with the pinned commit, environment green with the `torch` and `transformers` versions.
+- [ ] **Build the speculation profile** with `allow_upstream` on the edge server (internet reachable): the task completes, `artifacts/profile.json` appears on the controller and its check turns green; note the duration.
+- [ ] `python -m src.models.weights fetch tinyllama --allow-upstream`, then **Distribute a checkpoint**: the checksums verify on every device and the checkpoint check turns green.
+- [ ] A HeadSplit scenario created in the dialog (controller, four workers, mode `all`, 50 tokens) runs to completion; the summary page shows the three modes with totals of the order reported in Chapter 6, and the sweep table for an `added_rtt_ms` sweep created in the dialog.
+- [ ] `model: mobilenetv2` and `model: efficientnetb0` on one device (`train_and_run_benchmark.sh both` with `--model-args '{"input_size": 224}'`): the stages build on the Pi within its memory, the benchmark completes, and `python -m src.models.inference verify` reports `ok` for every partition point.
+- [ ] `model: hf_decoder` with `model_args: {checkpoint: <models dir>/Qwen__Qwen2.5-0.5B, seq_len: 32}` on one device: the stages run; note the per-layer times.
+- [ ] A scenario with `input: {source: image_folder, path: <folder with class sub-directories>}` and `checks: {partition_equivalence: true}` on the devices: the verification files are collected and report top-1 accuracy.

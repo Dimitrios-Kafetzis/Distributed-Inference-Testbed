@@ -6,17 +6,26 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- **Runtime plug-ins** (`src/orchestration/runtimes/`): an inference runtime exposes its scenario block as a JSON Schema, per-device readiness checks, maintenance actions and a results parser; runtimes register like models and algorithms. The built-in `testbed` runtime and HeadSplit are the two implementations; `docs/adding_a_runtime.md` explains the interface.
+- **HeadSplit through NNPM**: the Create scenario dialog has a runtime selector and renders the HeadSplit block (controller, workers, model, tokens, mode, speculation parameters); the Runtimes dialog checks every device (checkout and commit, environment, profile, checkpoint) and offers three actions (install or update from the mirror, build the speculation profile on the edge server and copy it to the controller, distribute a checkpoint with checksum verification), run as tasks that log to the terminal; the run summary page shows the per-mode results. A controller that accepts `--json` (HeadSplit v0.1.0 and later) is used in preference to the summary lines.
+- **Sweeps from NNPM**: a field path and values in the Create scenario dialog; the variants run one after the other, each carrying `sweep_origin`; the run summary page (`/runs/<id>`) groups them with their main figures.
+- **Model parameters** (`model_args`): adapters declare a `PARAMETERS` schema (classes, sequence length, configuration overrides, application, checkpoint); scenarios pass the values, validated when the run starts, to every device tool; the dialog renders the fields of the chosen model.
+- **Generic adapters**: any `tf.keras.applications` classifier with automatic single-tensor cut points thinned to stages of comparable work (MobileNetV2, EfficientNet-B0, DenseNet-121 and others by name); any Hugging Face decoder through a family table (GPT-2, Llama, Mistral, Qwen2, Gemma), with Llama 3.2 1B and Qwen2.5 0.5B registered. `docs/adding_a_model.md` explains the three ways to add a model.
+- **Model catalogue** (`bs_models_dir/models.yaml`, `python -m src.models.weights list|verify|checksums|fetch`, `build_mirror.sh models`): seeded weights, Keras ImageNet weights and Hugging Face checkpoints with `SHA256SUMS`.
+- **Input sources** (`input` block: `synthetic`, `numpy_file`, `image_file`, `image_folder` with class labels, `text_prompt`) recorded in every measurement, and the **partition-equivalence check** (`checks.partition_equivalence`, `python -m src.models.inference verify`: deviation per partition point, top-1 agreement, accuracy with a label).
 - Project documentation for contributors: `CONTRIBUTING.md`, `SECURITY.md`, this changelog, issue and pull-request templates.
 - A screenshot of the NNPM web application in local mode in the README.
 
 ### Changed
 
+- Transformers is pinned to 4.46.3 in the LLM locks (Qwen2 needs 4.37, Llama 3.2 needs 4.43, HeadSplit 4.40); the head-wise decomposition accepts both the 4.36 and the 4.38+ rotary interfaces. The HeadSplit wheels are mirrored for x86_64 as well, for the profile step on the edge server.
 - The README was rewritten: highlights, architecture diagram, supported models, getting started with and without hardware, running experiments, quality assurance, requirements and citation.
 - TensorFlow runtime messages are suppressed on the devices (`TF_CPP_MIN_LOG_LEVEL=3`): on machines without a GPU, TensorFlow 2.15 prints spurious error-level messages at import that filled the merged experiment log.
 - The continuous-integration workflow and the provisioning tests were made independent of the machine they run on (pre-created virtual environments, the test interpreter in the golden plans, the PyTorch CPU index for the edge-server lock).
 
 ### Fixed
 
+- HeadSplit's workers and controller were started from `<headsplit_dir>/venv/bin/python` while provisioning creates `<headsplit_dir>/.venv`; on the hardware every worker would have failed to start.
 - The Runs panel of NNPM listed the newest run twice, once under its own name and once through the `results/latest` link.
 
 ## [1.0.0] - 2026-10-25

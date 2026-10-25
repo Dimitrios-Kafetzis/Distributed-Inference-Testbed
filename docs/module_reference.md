@@ -73,13 +73,19 @@ Nominal frequency policy: `performance` governor, turbo off, maximum frequency a
 ## Models and profiling (`src/models/`)
 
 ### `registry.py`
-The adapter interface (a model as S stages with FLOPs, MACs and output size per stage) and the name registry; plug-ins through `TESTBED_MODEL_MODULES` or the `testbed.models` entry-point group.
+The adapter interface (a model as S stages with FLOPs, MACs and output size per stage) and the name registry; plug-ins through `TESTBED_MODEL_MODULES` or the `testbed.models` entry-point group. An adapter's `PARAMETERS` (a JSON Schema) describes its constructor arguments: `parameter_schema(name)`, `validate_model_args(name, args)` (the scenario's `model_args`), `parse_model_args(text)` (the tools' `--model-args`). See [adding_a_model.md](adding_a_model.md).
 
 ### `tf/` (TensorFlow, CPU)
-`alexnet.py` (the 11 stages of Chapter 4, 227 × 227 × 3 input), `vgg16.py` (eight stages), `resnet50.py` (six stages cut at the residual-stage boundaries), `gru_qoe.py` (the Chapter 4 QoE predictor: GRU, attention, output), on `keras_stages.py` (sequential and functional-cut adapters, analytical operation counts, `.npz` weights).
+`alexnet.py` (the 11 stages of Chapter 4, 227 × 227 × 3 input), `vgg16.py` (eight stages), `resnet50.py` (six stages cut at the residual-stage boundaries), `gru_qoe.py` (the Chapter 4 QoE predictor: GRU, attention, output), on `keras_stages.py` (sequential and functional-cut adapters, analytical operation counts, `.npz` weights; `select_cuts(model)` for adapters that compute their cuts). `keras_applications.py`: any `tf.keras.applications` classifier (`keras_app` with `application`, and the registered names `mobilenetv2`, `efficientnetb0`, `densenet121`, `resnet50v2`, `inceptionv3`, `nasnetmobile`, `xception`), cut where a single tensor crosses the graph (`find_single_tensor_cuts`) and thinned to `max_stages` stages of comparable work (`thin_cuts`).
 
 ### `torch/` (PyTorch, CPU)
-`decoder.py` (decoder-only LLMs as stages: embedding, layers, LM head; the cut is the hidden state), `gpt2.py`, `tinyllama.py`, `headwise.py` (per-head decomposition of a decoder layer: head units, projection, FFN, equal to the stock layer), `hooks.py` (`python -m src.models.torch.hooks --model gpt2|tinyllama --seq-len T --repetitions N --output FILE [--weights DIR] [--config JSON]`: per-block timing with forward hooks).
+`decoder.py` (decoder-only LLMs as stages: embedding, layers, LM head; the cut is the hidden state; the `FAMILIES` table gives the attribute names and structural facts of GPT-2, Llama, Mistral, Qwen2 and Gemma), `gpt2.py`, `tinyllama.py`, `hf_decoder.py` (`hf_decoder`: any checkpoint or configuration of a known family; `llama32_1b`, `qwen25_05b`), `headwise.py` (per-head decomposition of a decoder layer: head units, projection, FFN, equal to the stock layer; follows the family table), `hooks.py` (`python -m src.models.torch.hooks --model NAME --seq-len T --repetitions N --output FILE [--weights DIR] [--config JSON]`: per-block timing with forward hooks).
+
+### `inputs.py`
+Input sources (`synthetic`, `numpy_file`, `image_file`, `image_folder`, `text_prompt`): `load_sample(spec, adapter, seed, data_dir)` returns the array, a label when the source has one, and a description that the measurement record keeps. The tools take the spec as `--input-source JSON`.
+
+### `weights.py`
+The model catalogue `<bs_models_dir>/models.yaml` (example: `examples/models.yaml`): `python -m src.models.weights list|verify|checksums|fetch [--models-dir DIR] [NAME ...] [--all] [--allow-upstream]`. Kinds: `npz` (seeded weights), `keras_imagenet` (the ImageNet weights of a Keras application), `hf_checkpoint` (a Hugging Face snapshot). `SHA256SUMS` files make every copy verifiable; `fetch` is the only command that reaches the internet.
 
 ### `fake.py`
 A model with configurable stage costs for tests and local mode.
@@ -91,7 +97,7 @@ Analytical operation counts (FLOPs = 2 × MACs) from layer configuration and sha
 Stage-by-stage execution with `perf_counter_ns`, a sampler for peak CPU (from CPU-time deltas over windows of at least 20 ms, clipped to 100 % × cores) and peak resident memory, cumulative values per partition point.
 
 ### `inference.py` (device)
-`python -m src.models.inference {prepare,benchmark,partial,complete,capacity} ...`: prepare the weights and the test image with a seed; benchmark across all partition points into `BenchmarkResults` files; run stages 1..s (`partial`) or s+1..S (`complete`) on a tensor file; report FLOP/s. `scripts/end_device/train_and_run_benchmark.sh <train|benchmark|both> <model dir> <model> <output dir> [options]` wraps it.
+`python -m src.models.inference {prepare,benchmark,partial,complete,capacity,verify} ...`: prepare the weights and the test image with a seed; benchmark across all partition points into `BenchmarkResults` files; run stages 1..s (`partial`) or s+1..S (`complete`) on a tensor file; report FLOP/s; `verify` compares every partition point with the unpartitioned model (maximum deviation, top-1 agreement, accuracy when the input has a label) and exits with status 1 above `--tolerance`. Every mode takes `--model-args JSON` and `--input-source JSON`. `scripts/end_device/train_and_run_benchmark.sh <train|benchmark|both> <model dir> <model> <output dir> [options]` wraps it.
 
 ## Partitioned inference (`src/inference/`)
 
@@ -143,8 +149,8 @@ Schema validation with defaults, the versioned `ScenarioStore`, sweep expansion,
 ### `geo.py`
 `calculate_distance` (Haversine) and `calculate_latency` (5 ms + 1 ms/km, clipped to [5, 50] ms), re-exported by `gui/app.py`.
 
-### `headsplit_runtime.py`
-Starts HeadSplit's workers and controller as tagged processes and parses the controller's summaries. See [headsplit_integration.md](headsplit_integration.md).
+### `runtimes/`
+The runtime plug-in interface (`Runtime`: scenario block schema, `run`, `check_node`, `actions` and `perform`, `results`; `ActionSession`; the registry with `TESTBED_RUNTIME_MODULES` and the `testbed.runtimes` entry-point group), `testbed.py` (the built-in profile stage) and `headsplit.py` (HeadSplit: commands, readiness checks, the install, profile and checkpoint actions, the JSON and summary-line parsers). `headsplit_runtime.py` keeps the earlier import path. See [adding_a_runtime.md](adding_a_runtime.md) and [headsplit_integration.md](headsplit_integration.md).
 
 ## Provisioning support (`src/provisioning/`)
 
@@ -152,7 +158,7 @@ Starts HeadSplit's workers and controller as tagged processes and parses the con
 
 ## NNPM (`gui/`)
 
-`app.py` (`python -m gui.app [--host H] [--port P] [--config FILE] [--nodes-file FILE] [--local [ROOT]] [--devices N] [--allow-dirty]`; the `nnpm` console script), `state.py` (the prober, the run manager, the application state), `blueprints/` (topology, status, scenarios, runs, optimise, catalog). See [nnpm_user_guide.md](nnpm_user_guide.md).
+`app.py` (`python -m gui.app [--host H] [--port P] [--config FILE] [--nodes-file FILE] [--local [ROOT]] [--devices N] [--allow-dirty]`; the `nnpm` console script), `state.py` (the prober, the run manager with sweeps, the task manager, the application state), `blueprints/` (topology, status, scenarios, runs with the summary page, optimise, catalog, runtimes), `templates/run.html` (the run summary page). See [nnpm_user_guide.md](nnpm_user_guide.md).
 
 ## Shell scripts
 

@@ -8,7 +8,7 @@ Three roles, three lock files. Every dependency is pinned with a hash in `requir
 | Python | 3.11 | 3.11 |
 | TensorFlow (DNN, Chapter 4) | ≥ 2.8.0, CPU | 2.15.1 |
 | PyTorch (LLM, Chapters 5 and 6) | 2.1.2, CPU | 2.1.2 (+cpu on x86_64) |
-| Transformers | 4.36 | 4.36.2 |
+| Transformers | 4.36 | 4.46.3 (Qwen2 needs 4.37, Llama 3.2 needs 4.43, HeadSplit 4.40) |
 | scikit-learn | ≥ 1.0.0 | 1.9.1 |
 | Paramiko (SSH) | ≥ 2.11, edge server only | 5.1.0 |
 | Flask (web application) | ≥ 2.2.0, edge server only | 3.1.3 |

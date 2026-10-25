@@ -39,7 +39,11 @@ The map tiles come from `map_tiles_url`; on an isolated network set `map_offline
 
 The dialog captures every parameter of an experiment and saves it as a scenario version (`scenarios/<name>/v<N>.json`, see [scenario_reference.md](scenario_reference.md)).
 
-Top part: name, model, repetitions, warm-up passes, seed, the edge server's scheduling policy (SJF or RR), the settling time, and optionally partitioned inference at a list of partition points.
+Top part: name, **runtime**, model, repetitions, warm-up passes, seed, the edge server's scheduling policy (SJF or RR), the settling time, and optionally partitioned inference at a list of partition points.
+
+- **Runtime.** `testbed` is the per-layer profiling and partitioned-inference path. An external runtime such as `headsplit` adds its own block below the top part, rendered from the runtime's schema: for HeadSplit the controller (a device drop-down), the workers (check boxes), the Hugging Face model, tokens, prompt length, mode, the speculation parameters and the time-out. The per-node shaping, load and heterogeneity blocks stay available, since the Chapter 6 studies combine them with HeadSplit. See [headsplit_integration.md](headsplit_integration.md).
+- **Model parameters.** A model with parameters (the number of classes of a Keras model, the sequence length of a decoder, the application name of `keras_app`, the checkpoint of `hf_decoder`) shows them under the model drop-down; they are saved as `model_args`.
+- **Sweep.** A field path (for example `network.default.added_rtt_ms` or `edge_server.policy`) and comma-separated values make one run per value. NNPM runs them one after the other; the Runs panel shows every run with its value, and each run's summary page has the sweep table.
 
 Per node (one block per end device, each with a selection box):
 
@@ -52,6 +56,16 @@ Per node (one block per end device, each with a selection box):
 ## Run experiment
 
 Choose a saved scenario version and run it. The same scenario can be run again later, identically, which is what versioning is for.
+
+## Run summary page
+
+The run id in the Runs panel opens `/runs/<run id>`: the scenario (name and version, runtime, model, devices, sweep value), the outputs (edge-server capacity, optimised vector and objective, HeadSplit totals), the three output files of the thesis with download links and every other file, the runtime's results (for HeadSplit a table per mode: total, prefill, decode time per token, payload, speculation acceptance, re-placements, speed-up versus layer-based), the other runs of the same sweep (one row per value with the main figure), and the last lines of the merged log. `GET /api/runs/<run id>` returns the same as JSON.
+
+## Runtimes
+
+The Runtimes dialog shows, for a chosen runtime, whether the devices are ready for it and lets you prepare them. **Check the devices** runs the runtime's readiness checks on every node through the same connections as experiments and shows them as a table (green, amber, red; hover a cell for the detail). For HeadSplit: the checkout and its commit against `headsplit_commit`, the environment (`torch` and `transformers` import from `<headsplit_dir>/.venv`), the speculation profile on the controller, and the checkpoint under the devices' models directory (type a model name to look for another checkpoint).
+
+Below the table, one form per maintenance action. For HeadSplit: **Install or update HeadSplit** (clone or update from the mirror at the pinned commit and build the environment on the selected devices), **Build the speculation profile** (HeadSplit's `profile_offline.py` on the edge server, then a copy to the controller; the calibration data is downloaded, so `allow_upstream` must be ticked and the edge server must reach the internet), **Distribute a checkpoint** (from `bs_models_dir/<model directory>` to the selected devices, verified with `SHA256SUMS` there; the catalogue, `python -m src.models.weights`, fetches checkpoints into `bs_models_dir`). Actions run as tasks: one at a time, never while an experiment runs, with their log in the terminal tagged `[task]`; Stop ends a running task after its current step. See [adding_a_runtime.md](adding_a_runtime.md) for the interface behind the dialog.
 
 ## Benchmarking
 
@@ -67,7 +81,7 @@ Stop aborts the running experiment: the pipeline stops at the next stage boundar
 
 ## Local mode
 
-`python -m gui.app --local [ROOT] [--devices N]` creates a simulated testbed under `ROOT` (default `.local_testbed`): an edge server and N devices as working directories on this machine, with the fake model, dry-run shaping and a fake `/sys` tree. Every dialog works; the terminal shows the same log a real run produces. The page shows a "local mode" badge.
+`python -m gui.app --local [ROOT] [--devices N]` creates a simulated testbed under `ROOT` (default `.local_testbed`): an edge server and N devices as working directories on this machine, with the fake model, dry-run shaping and a fake `/sys` tree. Every dialog works; the terminal shows the same log a real run produces. The page shows a "local mode" badge. The Runtimes dialog works too: the HeadSplit checks run against `headsplit_dir` on this machine, the install action prints the plan it would run (`--dry-run`), the profile action runs the profile script found there, and a checkpoint is copied between local directories.
 
 ## Interface summary (for scripts)
 
@@ -79,5 +93,8 @@ Stop aborts the running experiment: the pipeline stops at the next stage boundar
 | `GET /api/scenarios`, `GET /api/scenarios/<name>[/<version>]`, `POST /api/scenarios`, `POST /api/scenarios/validate` | scenario versions |
 | `GET /api/runs`, `POST /api/runs`, `GET /api/runs/<id>`, `POST /api/runs/<id>/stop`, `GET /api/runs/<id>/files/<path>`, `GET /events/runs/<id>` | runs and their live log |
 | `POST /api/optimise` | the Optimise dialog's back end |
-| `GET /api/catalog` | registered models, algorithms, policies, regimes, example scenarios, the scenario schema |
+| `GET /api/catalog` | registered models with their parameter schemas, runtimes with their block schemas and actions, algorithms, policies, regimes, example scenarios, the scenario schema |
+| `GET /api/runtimes`, `GET /api/runtimes/<name>/status[?model=...]`, `POST /api/runtimes/<name>/actions/<action>` | the runtimes, their readiness checks per node, and their maintenance actions (started as tasks) |
+| `GET /api/tasks`, `GET /api/tasks/<id>`, `POST /api/tasks/<id>/stop`, `GET /events/tasks/<id>` | the tasks and their live log |
+| `GET /runs/<id>` | the run summary page |
 | `GET /healthz` | liveness |

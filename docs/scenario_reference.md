@@ -11,15 +11,18 @@ Only `name` and `model` are required. Example files are in [`../examples/scenari
 | `name` | string | scenario name (`[A-Za-z0-9][A-Za-z0-9_.-]*`) |
 | `description` | string | free text |
 | `pipeline` | `experiment` (default) or `benchmarking` | the seven-stage pipeline, or the four-stage benchmarking pipeline of Appendix B (no load, no shaping) |
-| `runtime` | `testbed` (default) or `headsplit` | `headsplit` runs the external HeadSplit runtime in the profile stage (see [headsplit_integration.md](headsplit_integration.md)) |
-| `model` | string | a registered model name: `alexnet`, `vgg16`, `resnet50`, `gru_qoe`, `gpt2`, `tinyllama`, `fake`, or a plug-in |
+| `runtime` | string, `testbed` | a registered runtime: `testbed` (per-layer profiling and partitioned inference), `headsplit` (the external HeadSplit runtime, see [headsplit_integration.md](headsplit_integration.md)) or a plug-in (see [adding_a_runtime.md](adding_a_runtime.md)); the runtime's settings go in the block of the same name |
+| `model` | string | a registered model name: `alexnet`, `vgg16`, `resnet50`, `gru_qoe`, `mobilenetv2`, `efficientnetb0`, `densenet121`, `keras_app`, `gpt2`, `tinyllama`, `llama32_1b`, `qwen25_05b`, `hf_decoder`, `fake`, or a plug-in (see [adding_a_model.md](adding_a_model.md)) |
+| `model_args` | object | the model's parameters (for example `num_classes`, `seq_len`, `application`, `checkpoint`), validated against the adapter's parameter schema and passed to every device tool |
 | `devices` | list of node ids, or `null` (default) | the end devices that take part; `null` means every `End Device` in `nodes.json` |
 | `repetitions` | integer, 1 | measured profiling repetitions per device |
 | `warmup` | integer, 1 | warm-up passes before the measured repetitions |
 | `seed` | integer, 0 | the random seed set on every device (`random`, NumPy, TensorFlow, PyTorch) |
 | `settle_s` | number, 5 | seconds between applying load and shaping and the start of profiling |
 | `start_lead_s` | number, 3 | how far in the future the start instant T0 is placed |
-| `sweep` | object | `path` (dotted field, for example `network.default.added_rtt_ms`) and `values`; expands into one run per value |
+| `input` | object | what the devices feed to the model: `source` (`synthetic`, default; `numpy_file`; `image_file`; `image_folder`; `text_prompt`), `path` (on the device, relative to its data directory), `index` (image_folder: which image of the sorted listing; class sub-directories give a label), `text` and `tokenizer` (text_prompt) |
+| `checks` | object | `partition_equivalence` (false): after profiling, every device compares each partition point with the unpartitioned model (`python -m src.models.inference verify`) and a relative deviation above `tolerance` (0.0001) aborts the run; the reports are collected under `verification/` |
+| `sweep` | object | `path` (dotted field, for example `network.default.added_rtt_ms`) and `values`; expands into one run per value, each carrying `sweep_origin` (name, path, value) so that NNPM groups them |
 
 ## `edge_server`
 
@@ -107,7 +110,7 @@ Every setting records the previous state and is restored at teardown.
 
 ## `headsplit`
 
-Used when `runtime` is `headsplit`. `controller` and `workers` name nodes of `nodes.json`; `model`, `tokens` (50), `prompt_length` (256), `mode` (`headsplit`, `head_only`, `layer_based`, `all`), `profile` (path of the speculation-accuracy profile, relative to the HeadSplit directory), `prompt`, `worker_memory_bytes`, `epsilon`, `alpha_min`, `memory_replace_threshold`, `rtt_margin`, `timeout_s`, `extra_args`. See [headsplit_integration.md](headsplit_integration.md).
+Used when `runtime` is `headsplit`; the Create scenario dialog renders it from the runtime's schema. `controller` and `workers` (required) name nodes of `nodes.json`; `model` (the Hugging Face model name, `TinyLlama/TinyLlama-1.1B-Chat-v1.0` by default), `tokens` (50), `prompt_length` (256), `mode` (`headsplit`, `head_only`, `layer_based`, `all`), `profile` (path of the speculation-accuracy profile, relative to the HeadSplit directory), `prompt`, `worker_memory_bytes`, `epsilon`, `alpha_min`, `memory_replace_threshold`, `rtt_margin`, `timeout_s`, `extra_args`. See [headsplit_integration.md](headsplit_integration.md). A plug-in runtime contributes its own block under its name.
 
 ## Examples
 

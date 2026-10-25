@@ -18,6 +18,7 @@ results/<run id>/
   power/<host>_power.json                 PowerTrace of each device (when monitoring.power is true)
   latency/<host>_latency.json             latency-and-system record of each device
   load/<host>_load.json                   the load generator's log of applied targets
+  verification/<host>_verification.json   the partition-equivalence report of each device (checks.partition_equivalence)
   merged/<node id>__<run id>.json         the device's records and traces aligned on a common origin
   edge_capacity.json                      the edge server's measured FLOP/s on the model
   edge_frequency_state.json               the edge server's previous cpufreq settings (restored at teardown)
@@ -25,7 +26,8 @@ results/<run id>/
   calculated_max_partition_points.json  (+ .details.json)
   final_latencies_averages.json
   optimisation/<timestamp>/optimized_partition_scheme.json, scenario.json, search_log.txt
-  headsplit/                              HeadSplit runs only: results.json and the controller and worker logs
+  headsplit/                              HeadSplit runs only: results.json, headsplit_config.yaml, the controller logs
+                                          and, with a controller that writes JSON, controller_rep<k>.json
 ```
 
 `<host>` is the device's hostname as `transfer_files.sh` prefixes it (the node id when hostnames collide, as in local mode).
