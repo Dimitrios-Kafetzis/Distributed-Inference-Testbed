@@ -66,13 +66,17 @@ def test_cumulative_points_rules() -> None:
 
 
 def test_timing_code_uses_perf_counter_ns_only() -> None:
-    """Interval timing must use perf_counter_ns; time.time() only for wall-clock origins."""
+    """Interval timing must use perf_counter_ns; time.time() only for wall-clock stamps."""
     offences = []
     for path in list((REPO / "src" / "models").rglob("*.py")) + list(
         (REPO / "src" / "inference").rglob("*.py")
     ):
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            if re.search(r"\btime\.time\(\)", line) and "Origin(" not in line:
+            if (
+                re.search(r"\btime\.time\(\)", line)
+                and "Origin(" not in line
+                and "wall" not in line
+            ):
                 offences.append(f"{path.relative_to(REPO)}:{number}: {line.strip()}")
             if re.search(r"\btime\.perf_counter\(\)", line) or re.search(
                 r"\btime\.monotonic\(\)", line

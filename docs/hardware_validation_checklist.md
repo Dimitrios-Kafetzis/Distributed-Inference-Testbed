@@ -38,4 +38,10 @@ Everything in this repository is tested without hardware: with fake command runn
 - [ ] Device with INA260: `pip install -r requirements/power.in`, then `python -m src.network.power_measurement --interval 0.2 --duration 30 --output /tmp/p.json --run-id t --node-id d`. Expected: about 150 samples, idle power 2.5-3.5 W, `energy_j` consistent with power x 30 s.
 - [ ] Device: `python -m src.network.throughput_measurement --server <edge server> --duration 10 --output /tmp/tp.json` with `iperf3 -s -1` on the edge server, once alone and once with all five devices at the same time. Record the figures (the thesis states 80-120 Mbit/s per device and, in Chapter 5, a measured 19.6 Mbit/s).
 
+## Partitioned inference and per-phase timing (B-05, D-05)
+
+- [ ] Edge server (data-plane address): `python -m src.inference.server --model alexnet --weights models/alexnet.npz --policy SJF --port 5300 --nodes device1,device2,device3,device4`. Device: `python -m src.inference.client --model alexnet --weights <ed_root>/models/alexnet.npz --server <edge server>:5300 --s 0 --s 4 --s 8 --s 11 --repetitions 10 --output /tmp/phases.json --run-id t --node-id device1`. Expected: `transmission_ms` grows with the transmitted size (s = 1 is the largest cut, s = 8 is 36 KB), `remote_ms` shrinks with s, s = 11 has no transmission.
+- [ ] Four devices at once with `--s 4` and `--policy SJF`, then `--policy RR`: the per-device `queue_ms` values follow the policy (SJF: ascending offloaded work; RR: interleaved), as in the loopback tests.
+- [ ] Compare the measured `transmission_ms` of the s = 1 cut (1.1 MB) with size / throughput from the iperf3 figure plus the ping RTT.
+
 (Items are added with every work package.)
