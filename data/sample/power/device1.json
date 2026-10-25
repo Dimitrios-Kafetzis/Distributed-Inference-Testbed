@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "power_trace",
+  "run_id": "20261001-120000-synth1",
+  "hostname": "device1-host",
+  "node_id": "device1",
+  "origin": {
+    "wall_time_s": 1760000000.0,
+    "perf_counter_ns": 1000000000000
+  },
+  "metadata": {
+    "synthetic": true
+  },
+  "interval_s": 1.0,
+  "samples": [
+    {
+      "perf_counter_ns": 1000000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1001000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1002000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1003000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1004000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1005000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1006000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1007000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1008000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1009000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1010000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    },
+    {
+      "perf_counter_ns": 1011000000000,
+      "current_ma": 760.0,
+      "voltage_v": 5.0,
+      "power_mw": 3800.0
+    }
+  ]
+}

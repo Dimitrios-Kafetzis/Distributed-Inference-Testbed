@@ -1,0 +1,66 @@
+{
+  "run_id": "20261001-120000-synth1",
+  "node_id": "device1",
+  "hostname": "device1-host",
+  "measured_at": "2026-10-01T12:00:00+00:00",
+  "pings": [
+    {
+      "target_id": "edge_server",
+      "target_ip": "192.0.2.1",
+      "sent": 5,
+      "received": 4,
+      "samples": [
+        {
+          "sequence": 1,
+          "rtt_ms": 5.1
+        },
+        {
+          "sequence": 2,
+          "rtt_ms": 5.3
+        },
+        {
+          "sequence": 3,
+          "rtt_ms": null
+        },
+        {
+          "sequence": 4,
+          "rtt_ms": 4.9
+        },
+        {
+          "sequence": 5,
+          "rtt_ms": 5.0
+        }
+      ]
+    },
+    {
+      "target_id": "device2",
+      "target_ip": "192.0.2.2",
+      "sent": 3,
+      "received": 3,
+      "samples": [
+        {
+          "sequence": 1,
+          "rtt_ms": 1.9
+        },
+        {
+          "sequence": 2,
+          "rtt_ms": 2.2
+        },
+        {
+          "sequence": 3,
+          "rtt_ms": 2.0
+        }
+      ]
+    }
+  ],
+  "system": {
+    "total_memory_mb": 3800.0,
+    "available_memory_mb": 3100.0,
+    "available_memory_percent": 81.57894736842105,
+    "cpu_usage_percent": 3.5
+  },
+  "schema_version": 1,
+  "metadata": {
+    "synthetic": true
+  }
+}

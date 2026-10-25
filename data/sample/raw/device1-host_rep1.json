@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "kind": "benchmark",
+  "run_id": "20261001-120000-synth1",
+  "hostname": "device1-host",
+  "node_id": "device1",
+  "origin": {
+    "wall_time_s": 1760000000.0,
+    "perf_counter_ns": 1000000000000
+  },
+  "metadata": {
+    "synthetic": true
+  },
+  "model": "alexnet",
+  "repetition": 1,
+  "warmup_runs": 2,
+  "stages": [
+    {
+      "index": 1,
+      "name": "conv1",
+      "latency_ns": 42373207,
+      "cpu_peak_percent": 24.4,
+      "memory_peak_mb": 93.6,
+      "flops": 200000000,
+      "macs": 100000000,
+      "output_bytes": 1161600
+    },
+    {
+      "index": 2,
+      "name": "pool1",
+      "latency_ns": 3217622,
+      "cpu_peak_percent": 26.8,
+      "memory_peak_mb": 109.3,
+      "flops": 100000000,
+      "macs": 50000000,
+      "output_bytes": 279936
+    },
+    {
+      "index": 3,
+      "name": "conv2",
+      "latency_ns": 42287168,
+      "cpu_peak_percent": 50.5,
+      "memory_peak_mb": 51.2,
+      "flops": 66666666,
+      "macs": 33333333,
+      "output_bytes": 746496
+    },
+    {
+      "index": 4,
+      "name": "pool2",
+      "latency_ns": 3089415,
+      "cpu_peak_percent": 50.1,
+      "memory_peak_mb": 72.9,
+      "flops": 50000000,
+      "macs": 25000000,
+      "output_bytes": 173056
+    },
+    {
+      "index": 5,
+      "name": "conv3",
+      "latency_ns": 40862344,
+      "cpu_peak_percent": 23.8,
+      "memory_peak_mb": 91.1,
+      "flops": 40000000,
+      "macs": 20000000,
+      "output_bytes": 259584
+    },
+    {
+      "index": 6,
+      "name": "conv4",
+      "latency_ns": 41667891,
+      "cpu_peak_percent": 89.2,
+      "memory_peak_mb": 88.6,
+      "flops": 33333333,
+      "macs": 16666666,
+      "output_bytes": 259584
+    },
+    {
+      "index": 7,
+      "name": "conv5",
+      "latency_ns": 41246179,
+      "cpu_peak_percent": 75.3,
+      "memory_peak_mb": 30.6,
+      "flops": 28571428,
+      "macs": 14285714,
+      "output_bytes": 173056
+    },
+    {
+      "index": 8,
+      "name": "pool3",
+      "latency_ns": 3001186,
+      "cpu_peak_percent": 87.1,
+      "memory_peak_mb": 111.9,
+      "flops": 25000000,
+      "macs": 12500000,
+      "output_bytes": 36864
+    },
+    {
+      "index": 9,
+      "name": "fc1",
+      "latency_ns": 10845579,
+      "cpu_peak_percent": 85.8,
+      "memory_peak_mb": 80.0,
+      "flops": 22222222,
+      "macs": 11111111,
+      "output_bytes": 16384
+    },
+    {
+      "index": 10,
+      "name": "fc2",
+      "latency_ns": 11775923,
+      "cpu_peak_percent": 29.7,
+      "memory_peak_mb": 104.9,
+      "flops": 20000000,
+      "macs": 10000000,
+      "output_bytes": 16384
+    },
+    {
+      "index": 11,
+      "name": "fc3",
+      "latency_ns": 11409111,
+      "cpu_peak_percent": 64.5,
+      "memory_peak_mb": 18.3,
+      "flops": 18181818,
+      "macs": 9090909,
+      "output_bytes": 4000
+    }
+  ],
+  "partition_points": [
+    {
+      "s": 0,
+      "cumulative_latency_ns": 0,
+      "cumulative_cpu_percent": 0.0,
+      "cumulative_memory_mb": 0.0,
+      "transmitted_bytes": 618348
+    },
+    {
+      "s": 1,
+      "cumulative_latency_ns": 42373207,
+      "cumulative_cpu_percent": 24.4,
+      "cumulative_memory_mb": 93.6,
+      "transmitted_bytes": 1161600
+    },
+    {
+      "s": 2,
+      "cumulative_latency_ns": 45590829,
+      "cumulative_cpu_percent": 51.2,
+      "cumulative_memory_mb": 202.89999999999998,
+      "transmitted_bytes": 279936
+    },
+    {
+      "s": 3,
+      "cumulative_latency_ns": 87877997,
+      "cumulative_cpu_percent": 101.7,
+      "cumulative_memory_mb": 254.09999999999997,
+      "transmitted_bytes": 746496
+    },
+    {
+      "s": 4,
+      "cumulative_latency_ns": 90967412,
+      "cumulative_cpu_percent": 151.8,
+      "cumulative_memory_mb": 327.0,
+      "transmitted_bytes": 173056
+    },
+    {
+      "s": 5,
+      "cumulative_latency_ns": 131829756,
+      "cumulative_cpu_percent": 175.60000000000002,
+      "cumulative_memory_mb": 418.1,
+      "transmitted_bytes": 259584
+    },
+    {
+      "s": 6,
+      "cumulative_latency_ns": 173497647,
+      "cumulative_cpu_percent": 264.8,
+      "cumulative_memory_mb": 506.70000000000005,
+      "transmitted_bytes": 259584
+    },
+    {
+      "s": 7,
+      "cumulative_latency_ns": 214743826,
+      "cumulative_cpu_percent": 340.1,
+      "cumulative_memory_mb": 537.3000000000001,
+      "transmitted_bytes": 173056
+    },
+    {
+      "s": 8,
+      "cumulative_latency_ns": 217745012,
+      "cumulative_cpu_percent": 427.20000000000005,
+      "cumulative_memory_mb": 649.2,
+      "transmitted_bytes": 36864
+    },
+    {
+      "s": 9,
+      "cumulative_latency_ns": 228590591,
+      "cumulative_cpu_percent": 513.0,
+      "cumulative_memory_mb": 729.2,
+      "transmitted_bytes": 16384
+    },
+    {
+      "s": 10,
+      "cumulative_latency_ns": 240366514,
+      "cumulative_cpu_percent": 542.7,
+      "cumulative_memory_mb": 834.1,
+      "transmitted_bytes": 16384
+    },
+    {
+      "s": 11,
+      "cumulative_latency_ns": 251775625,
+      "cumulative_cpu_percent": 607.2,
+      "cumulative_memory_mb": 852.4,
+      "transmitted_bytes": 4000
+    }
+  ],
+  "phases": [
+    {
+      "s": 0,
+      "local_ns": 0,
+      "transmission_ns": 24476989,
+      "remote_ns": 37440961,
+      "queue_wait_ns": 9198359,
+      "server_arrival_wall_s": null,
+      "server_service_start_wall_s": null,
+      "server_service_end_wall_s": null
+    },
+    {
+      "s": 4,
+      "local_ns": 90967412,
+      "transmission_ns": 10815038,
+      "remote_ns": 12483744,
+      "queue_wait_ns": 26202243,
+      "server_arrival_wall_s": null,
+      "server_service_start_wall_s": null,
+      "server_service_end_wall_s": null
+    },
+    {
+      "s": 8,
+      "local_ns": 217745012,
+      "transmission_ns": 26272768,
+      "remote_ns": 10396363,
+      "queue_wait_ns": 17381254,
+      "server_arrival_wall_s": null,
+      "server_service_start_wall_s": null,
+      "server_service_end_wall_s": null
+    },
+    {
+      "s": 11,
+      "local_ns": 251775625,
+      "transmission_ns": 31827455,
+      "remote_ns": 24040853,
+      "queue_wait_ns": 27879677,
+      "server_arrival_wall_s": null,
+      "server_service_start_wall_s": null,
+      "server_service_end_wall_s": null
+    }
+  ]
+}

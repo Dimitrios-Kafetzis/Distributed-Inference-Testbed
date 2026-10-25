@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "kind": "benchmark",
+  "run_id": "20261001-120000-synth1",
+  "hostname": "device2-host",
+  "node_id": "device2",
+  "origin": {
+    "wall_time_s": 1760000000.0,
+    "perf_counter_ns": 2000000000000
+  },
+  "metadata": {
+    "synthetic": true
+  },
+  "model": "alexnet",
+  "repetition": 0,
+  "warmup_runs": 2,
+  "stages": [
+    {
+      "index": 1,
+      "name": "conv1",
+      "latency_ns": 55422718,
+      "cpu_peak_percent": 91.0,
+      "memory_peak_mb": 62.2,
+      "flops": 200000000,
+      "macs": 100000000,
+      "output_bytes": 1161600
+    },
+    {
+      "index": 2,
+      "name": "pool1",
+      "latency_ns": 4425315,
+      "cpu_peak_percent": 79.3,
+      "memory_peak_mb": 112.8,
+      "flops": 100000000,
+      "macs": 50000000,
+      "output_bytes": 279936
+    },
+    {
+      "index": 3,
+      "name": "conv2",
+      "latency_ns": 53245446,
+      "cpu_peak_percent": 79.7,
+      "memory_peak_mb": 73.2,
+      "flops": 66666666,
+      "macs": 33333333,
+      "output_bytes": 746496
+    },
+    {
+      "index": 4,
+      "name": "pool2",
+      "latency_ns": 3896740,
+      "cpu_peak_percent": 76.7,
+      "memory_peak_mb": 30.7,
+      "flops": 50000000,
+      "macs": 25000000,
+      "output_bytes": 173056
+    },
+    {
+      "index": 5,
+      "name": "conv3",
+      "latency_ns": 59582253,
+      "cpu_peak_percent": 31.0,
+      "memory_peak_mb": 82.4,
+      "flops": 40000000,
+      "macs": 20000000,
+      "output_bytes": 259584
+    },
+    {
+      "index": 6,
+      "name": "conv4",
+      "latency_ns": 58392050,
+      "cpu_peak_percent": 45.8,
+      "memory_peak_mb": 56.6,
+      "flops": 33333333,
+      "macs": 16666666,
+      "output_bytes": 259584
+    },
+    {
+      "index": 7,
+      "name": "conv5",
+      "latency_ns": 61212871,
+      "cpu_peak_percent": 35.5,
+      "memory_peak_mb": 97.5,
+      "flops": 28571428,
+      "macs": 14285714,
+      "output_bytes": 173056
+    },
+    {
+      "index": 8,
+      "name": "pool3",
+      "latency_ns": 4494293,
+      "cpu_peak_percent": 65.3,
+      "memory_peak_mb": 75.3,
+      "flops": 25000000,
+      "macs": 12500000,
+      "output_bytes": 36864
+    },
+    {
+      "index": 9,
+      "name": "fc1",
+      "latency_ns": 16607688,
+      "cpu_peak_percent": 91.8,
+      "memory_peak_mb": 87.5,
+      "flops": 22222222,
+      "macs": 11111111,
+      "output_bytes": 16384
+    },
+    {
+      "index": 10,
+      "name": "fc2",
+      "latency_ns": 18305799,
+      "cpu_peak_percent": 74.8,
+      "memory_peak_mb": 110.3,
+      "flops": 20000000,
+      "macs": 10000000,
+      "output_bytes": 16384
+    },
+    {
+      "index": 11,
+      "name": "fc3",
+      "latency_ns": 16740326,
+      "cpu_peak_percent": 86.1,
+      "memory_peak_mb": 74.1,
+      "flops": 18181818,
+      "macs": 9090909,
+      "output_bytes": 4000
+    }
+  ],
+  "partition_points": [
+    {
+      "s": 0,
+      "cumulative_latency_ns": 0,
+      "cumulative_cpu_percent": 0.0,
+      "cumulative_memory_mb": 0.0,
+      "transmitted_bytes": 618348
+    },
+    {
+      "s": 1,
+      "cumulative_latency_ns": 55422718,
+      "cumulative_cpu_percent": 91.0,
+      "cumulative_memory_mb": 62.2,
+      "transmitted_bytes": 1161600
+    },
+    {
+      "s": 2,
+      "cumulative_latency_ns": 59848033,
+      "cumulative_cpu_percent": 170.3,
+      "cumulative_memory_mb": 175.0,
+      "transmitted_bytes": 279936
+    },
+    {
+      "s": 3,
+      "cumulative_latency_ns": 113093479,
+      "cumulative_cpu_percent": 250.0,
+      "cumulative_memory_mb": 248.2,
+      "transmitted_bytes": 746496
+    },
+    {
+      "s": 4,
+      "cumulative_latency_ns": 116990219,
+      "cumulative_cpu_percent": 326.7,
+      "cumulative_memory_mb": 278.9,
+      "transmitted_bytes": 173056
+    },
+    {
+      "s": 5,
+      "cumulative_latency_ns": 176572472,
+      "cumulative_cpu_percent": 357.7,
+      "cumulative_memory_mb": 361.29999999999995,
+      "transmitted_bytes": 259584
+    },
+    {
+      "s": 6,
+      "cumulative_latency_ns": 234964522,
+      "cumulative_cpu_percent": 403.5,
+      "cumulative_memory_mb": 417.9,
+      "transmitted_bytes": 259584
+    },
+    {
+      "s": 7,
+      "cumulative_latency_ns": 296177393,
+      "cumulative_cpu_percent": 439.0,
+      "cumulative_memory_mb": 515.4,
+      "transmitted_bytes": 173056
+    },
+    {
+      "s": 8,
+      "cumulative_latency_ns": 300671686,
+      "cumulative_cpu_percent": 504.3,
+      "cumulative_memory_mb": 590.6999999999999,
+      "transmitted_bytes": 36864
+    },
+    {
+      "s": 9,
+      "cumulative_latency_ns": 317279374,
+      "cumulative_cpu_percent": 596.1,
+      "cumulative_memory_mb": 678.1999999999999,
+      "transmitted_bytes": 16384
+    },
+    {
+      "s": 10,
+      "cumulative_latency_ns": 335585173,
+      "cumulative_cpu_percent": 670.9,
+      "cumulative_memory_mb": 788.4999999999999,
+      "transmitted_bytes": 16384
+    },
+    {
+      "s": 11,
+      "cumulative_latency_ns": 352325499,
+      "cumulative_cpu_percent": 757.0,
+      "cumulative_memory_mb": 862.5999999999999,
+      "transmitted_bytes": 4000
+    }
+  ],
+  "phases": []
+}

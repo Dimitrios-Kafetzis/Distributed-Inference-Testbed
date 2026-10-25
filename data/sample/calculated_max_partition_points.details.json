@@ -1,0 +1,20 @@
+[
+  {
+    "node_id": "device1",
+    "available_memory_mb": 3100.0,
+    "baseline_cpu_percent": 3.5,
+    "memory_limited_s": 11,
+    "cpu_limited_s": 11,
+    "max_partition_point": 11,
+    "binding": "none"
+  },
+  {
+    "node_id": "device2",
+    "available_memory_mb": 420.0,
+    "baseline_cpu_percent": 35.0,
+    "memory_limited_s": 6,
+    "cpu_limited_s": 0,
+    "max_partition_point": 0,
+    "binding": "cpu"
+  }
+]

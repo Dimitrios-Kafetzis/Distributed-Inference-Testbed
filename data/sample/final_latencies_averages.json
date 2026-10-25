@@ -1,0 +1,47 @@
+{
+  "device1": {
+    "hostname": "device1-host",
+    "samples": 1,
+    "measured_at": "2026-10-01T12:00:00+00:00",
+    "average_latency_ms": 5.074999999999999,
+    "latency_std_ms": 0.17078251276599307,
+    "latency_p95_ms": 5.27,
+    "loss_percent": 20.0,
+    "total_memory_mb": 3800.0,
+    "available_memory_mb": 3100.0,
+    "available_memory_percent": 81.57894736842105,
+    "cpu_usage_percent": 3.5,
+    "targets": {
+      "device2": {
+        "average_latency_ms": 2.033333333333333,
+        "latency_std_ms": 0.1527525231651948,
+        "loss_percent": 0.0
+      },
+      "edge_server": {
+        "average_latency_ms": 5.074999999999999,
+        "latency_std_ms": 0.17078251276599307,
+        "loss_percent": 20.0
+      }
+    }
+  },
+  "device2": {
+    "hostname": "device2-host",
+    "samples": 1,
+    "measured_at": "2026-10-01T12:00:00+00:00",
+    "average_latency_ms": 8.1,
+    "latency_std_ms": 0.21602468994692872,
+    "latency_p95_ms": 8.355,
+    "loss_percent": 20.0,
+    "total_memory_mb": 3800.0,
+    "available_memory_mb": 420.0,
+    "available_memory_percent": 11.052631578947368,
+    "cpu_usage_percent": 35.0,
+    "targets": {
+      "edge_server": {
+        "average_latency_ms": 8.1,
+        "latency_std_ms": 0.21602468994692872,
+        "loss_percent": 20.0
+      }
+    }
+  }
+}

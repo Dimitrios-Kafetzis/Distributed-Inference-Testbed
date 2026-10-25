@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "kind": "resource_trace",
+  "run_id": "20261001-120000-synth1",
+  "hostname": "device1-host",
+  "node_id": "device1",
+  "origin": {
+    "wall_time_s": 1760000000.0,
+    "perf_counter_ns": 1000000000000
+  },
+  "metadata": {
+    "synthetic": true
+  },
+  "interval_s": 1.0,
+  "nominal_frequency_khz": 1800000,
+  "samples": [
+    {
+      "perf_counter_ns": 1000000000000,
+      "cpu_percent": 51.4,
+      "memory_used_mb": 827.4,
+      "memory_available_mb": 2968.2,
+      "temperature_c": 51.5,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1001000000000,
+      "cpu_percent": 33.1,
+      "memory_used_mb": 721.5,
+      "memory_available_mb": 3113.5,
+      "temperature_c": 52.6,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1002000000000,
+      "cpu_percent": 31.2,
+      "memory_used_mb": 775.0,
+      "memory_available_mb": 3163.2,
+      "temperature_c": 57.6,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1003000000000,
+      "cpu_percent": 20.5,
+      "memory_used_mb": 826.7,
+      "memory_available_mb": 3047.3,
+      "temperature_c": 51.3,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1004000000000,
+      "cpu_percent": 55.0,
+      "memory_used_mb": 894.8,
+      "memory_available_mb": 3124.1,
+      "temperature_c": 67.6,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1005000000000,
+      "cpu_percent": 22.1,
+      "memory_used_mb": 818.9,
+      "memory_available_mb": 3159.5,
+      "temperature_c": 62.1,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1006000000000,
+      "cpu_percent": 31.0,
+      "memory_used_mb": 630.2,
+      "memory_available_mb": 2973.7,
+      "temperature_c": 60.3,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1007000000000,
+      "cpu_percent": 55.2,
+      "memory_used_mb": 890.0,
+      "memory_available_mb": 2990.8,
+      "temperature_c": 66.6,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1008000000000,
+      "cpu_percent": 19.3,
+      "memory_used_mb": 841.5,
+      "memory_available_mb": 3019.5,
+      "temperature_c": 45.4,
+      "frequencies_khz": [
+        1800000,
+        1800000,
+        1800000,
+        1800000
+      ],
+      "throttled": "0x0"
+    },
+    {
+      "perf_counter_ns": 1009000000000,
+      "cpu_percent": 44.6,
+      "memory_used_mb": 719.6,
+      "memory_available_mb": 3129.9,
+      "temperature_c": 61.7,
+      "frequencies_khz": [
+        1500000,
+        1500000,
+        1500000,
+        1500000
+      ],
+      "throttled": "0x20000"
+    },
+    {
+      "perf_counter_ns": 1010000000000,
+      "cpu_percent": 5.1,
+      "memory_used_mb": 748.1,
+      "memory_available_mb": 3147.0,
+      "temperature_c": 51.1,
+      "frequencies_khz": [
+        1500000,
+        1500000,
+        1500000,
+        1500000
+      ],
+      "throttled": "0x20000"
+    },
+    {
+      "perf_counter_ns": 1011000000000,
+      "cpu_percent": 22.9,
+      "memory_used_mb": 861.1,
+      "memory_available_mb": 2876.4,
+      "temperature_c": 59.2,
+      "frequencies_khz": [
+        1500000,
+        1500000,
+        1500000,
+        1500000
+      ],
+      "throttled": "0x20000"
+    }
+  ]
+}
