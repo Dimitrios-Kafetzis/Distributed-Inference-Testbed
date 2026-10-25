@@ -13,6 +13,7 @@ import os
 import re
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -175,7 +176,7 @@ def test_render_cli_exports_and_writes(example: tuple, tmp_path: Path) -> None:
     out = tmp_path / "out"
     result = subprocess.run(
         [
-            os.environ.get("TESTBED_PYTHON", "python3"),
+            sys.executable,
             "-m",
             "src.provisioning.render",
             "--nodes",
@@ -261,7 +262,7 @@ def run_script(
         TESTBED_AP_PASSPHRASE=PASSPHRASE,
         TESTBED_SSH_PUBLIC_KEY_PATH=str(tmp_path / "id.pub"),
         TESTBED_SSH_KNOWN_HOSTS_PATH=str(tmp_path / "known_hosts"),
-        TESTBED_PYTHON=os.environ.get("TESTBED_PYTHON", "python3"),
+        TESTBED_PYTHON=sys.executable,  # the same interpreter on every machine
         DRY_RUN="1",
     )
     env.pop("TESTBED_DEVICE_PASSWORD", None)
@@ -281,7 +282,7 @@ def run_script(
 def normalise(plan: str, tmp_path: Path) -> str:
     plan = plan.replace(str(tmp_path), "<TMP>").replace(str(REPO), "<REPO>")
     plan = re.sub(r"/tmp/tmp\.[A-Za-z0-9]+", "<RENDERED>", plan)
-    return plan.replace(os.environ.get("TESTBED_PYTHON", "python3"), "<PYTHON>")
+    return plan.replace(sys.executable, "<PYTHON>")
 
 
 @pytest.fixture
