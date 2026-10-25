@@ -105,7 +105,7 @@ packages = ["src", "gui"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = ["tensorflow.*", "torch.*", "transformers.*", "sklearn.*", "board", "adafruit_ina260", "flask.*"]
+module = ["tensorflow.*", "torch.*", "transformers.*", "huggingface_hub", "sklearn.*", "board", "adafruit_ina260", "flask.*"]
 ignore_missing_imports = true
 
 # Without PyTorch installed (the development lock leaves the frameworks out), torch
