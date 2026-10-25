@@ -1,0 +1,90 @@
+# Distributed Inference Testbed: system configuration.
+#
+# Copy this file to config.yaml at the repository root and edit it. The file is
+# loaded by src/config.py and validated against docs/schemas/config.schema.json.
+# Every key can be overridden at runtime by an environment variable named
+# TESTBED_<KEY IN UPPER CASE>, for example TESTBED_SSH_USERNAME or
+# TESTBED_BASE_IP_PREFIX. Keys left out take the defaults shown here.
+#
+# No secret belongs in this file. The SSH password, when password
+# authentication is used at all, is read from the environment variable named
+# by ssh_password_env (default TESTBED_SSH_PASSWORD).
+
+# --- SSH access to the edge devices -----------------------------------------
+ssh_username: pi
+# Private key used for the devices. null means: the SSH agent or the default key.
+ssh_key_path: null
+# Name of the environment variable that holds the SSH password (optional).
+ssh_password_env: TESTBED_SSH_PASSWORD
+ssh_connect_timeout_s: 10
+# known_hosts file written by the provisioning scripts. null means ~/.ssh/known_hosts.
+ssh_known_hosts_path: null
+# Accept unknown host keys. Keep false; provisioning records every host key.
+ssh_trust_new_hosts: false
+
+# --- Networks ----------------------------------------------------------------
+# Common prefix of the wireless data-plane addresses (nodes.json gives the rest).
+base_ip_prefix: "192.168.0."
+# Prefix of the Ethernet management addresses. null means: same network as the
+# data plane (single-network set-up).
+management_ip_prefix: null
+# Interface on the devices that carries the data plane (latency measurement,
+# traffic shaping, inference traffic).
+network_interface: wlan0
+# Interface on the devices that carries SSH and result collection.
+management_interface: eth0
+
+# --- Paths on the edge server -------------------------------------------------
+# Root of this repository on the edge server. "." means the directory that
+# holds config.yaml.
+bs_root: "."
+bs_scripts_dir: "./scripts"
+bs_results_dir: "./results"
+bs_models_dir: "./models"
+
+# --- Paths on the edge devices ----------------------------------------------
+# One root; the other directories are derived from it when left null:
+#   code     <ed_root>/code      (copy of this repository)
+#   venv     <ed_root>/venv
+#   scripts  <ed_root>/code/scripts/end_device
+#   models   <ed_root>/models
+#   data     <ed_root>/data
+#   results  <ed_root>/results
+ed_root: "/home/pi/testbed"
+ed_scripts_dir: null
+ed_models_dir: null
+ed_data_dir: null
+ed_results_dir: null
+
+# --- Delay model ----------------------------------------------------------------
+# Estimated computation capacity of the edge server in floating-point operations
+# per second. Used by the partition optimiser until a profile of the edge server
+# exists; the profiled value then takes precedence.
+bs_computation_capacity: 2.0e+10
+
+# --- Experiment control -------------------------------------------------------
+# Largest NTP offset (milliseconds) a device may show before a run starts.
+ntp_offset_threshold_ms: 1.0
+# Period of the reachability probes in the NNPM map (seconds).
+probe_period_s: 2.0
+
+# --- NNPM web application -------------------------------------------------------
+# Address and port the web application listens on. Use the management address
+# of the edge server to keep NNPM off the data plane.
+nnpm_host: "0.0.0.0"
+nnpm_port: 8001
+# Environment variable holding "user:password" for HTTP basic authentication.
+# null disables authentication (isolated lab network).
+nnpm_basic_auth_env: null
+# Map tiles. Set map_offline to true on an isolated network; the map then
+# renders a plain grid instead of fetching tiles.
+map_tiles_url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+map_offline: false
+
+# --- HeadSplit, optional external LLM runtime -----------------------------------
+headsplit_repo_url: "https://github.com/Dimitrios-Kafetzis/headsplit.git"
+# Commit that provisioning installs on the devices. null disables HeadSplit.
+headsplit_commit: null
+# Directory on the devices; null means <ed_root>/headsplit.
+headsplit_dir: null
+headsplit_master_port: 29500

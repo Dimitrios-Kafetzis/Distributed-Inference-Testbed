@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/docs/schemas/nodes.schema.json",
+  "title": "Node topology (nodes.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "nodes"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "_comment": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/node" }
+    }
+  },
+  "$defs": {
+    "ipv4": {
+      "type": "string",
+      "pattern": "^(25[0-5]|2[0-4]\\d|1?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}$"
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "ip", "lat", "lon"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+        "role": { "enum": ["Base Station", "End Device"] },
+        "ip": { "$ref": "#/$defs/ipv4", "description": "Wireless data-plane address" },
+        "management_ip": {
+          "anyOf": [{ "$ref": "#/$defs/ipv4" }, { "type": "null" }],
+          "description": "Ethernet management address; null means the data-plane address is used"
+        },
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lon": { "type": "number", "minimum": -180, "maximum": 180 },
+        "transport": { "enum": ["ssh", "local"], "default": "ssh" },
+        "workdir": { "type": ["string", "null"], "description": "Local-mode working directory" },
+        "statistics": {
+          "anyOf": [{ "$ref": "#/$defs/statistics" }, { "type": "null" }]
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["average_latency_ms", "available_memory_mb", "cpu_usage_percent", "measured_at", "run_id"],
+      "properties": {
+        "average_latency_ms": { "type": ["number", "null"] },
+        "available_memory_mb": { "type": "number", "minimum": 0 },
+        "cpu_usage_percent": { "type": "number", "minimum": 0 },
+        "measured_at": { "type": "string", "format": "date-time" },
+        "run_id": { "type": "string" }
+      }
+    }
+  }
+}

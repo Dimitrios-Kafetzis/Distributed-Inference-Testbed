@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "_comment": "Synthetic example topology. Addresses, coordinates and statistics are invented. Copy to nodes.json and edit, or manage the file through NNPM.",
+  "nodes": [
+    {
+      "id": "edge-server",
+      "role": "Base Station",
+      "ip": "192.168.0.1",
+      "management_ip": "10.0.0.1",
+      "lat": 37.9838,
+      "lon": 23.7275,
+      "statistics": null
+    },
+    {
+      "id": "device1",
+      "role": "End Device",
+      "ip": "192.168.0.11",
+      "management_ip": "10.0.0.11",
+      "lat": 37.9850,
+      "lon": 23.7300,
+      "statistics": {
+        "average_latency_ms": 5.1,
+        "available_memory_mb": 7012.0,
+        "cpu_usage_percent": 1.5,
+        "measured_at": "2026-01-01T12:00:00+00:00",
+        "run_id": "20260101-120000-synth1"
+      }
+    },
+    {
+      "id": "device2",
+      "role": "End Device",
+      "ip": "192.168.0.12",
+      "management_ip": "10.0.0.12",
+      "lat": 37.9826,
+      "lon": 23.7310,
+      "statistics": null
+    },
+    {
+      "id": "device3",
+      "role": "End Device",
+      "ip": "192.168.0.13",
+      "management_ip": "10.0.0.13",
+      "lat": 37.9815,
+      "lon": 23.7250,
+      "statistics": null
+    },
+    {
+      "id": "device4",
+      "role": "End Device",
+      "ip": "192.168.0.14",
+      "management_ip": "10.0.0.14",
+      "lat": 37.9860,
+      "lon": 23.7240,
+      "statistics": null
+    },
+    {
+      "id": "device5",
+      "role": "End Device",
+      "ip": "192.168.0.15",
+      "management_ip": "10.0.0.15",
+      "lat": 37.9870,
+      "lon": 23.7290,
+      "statistics": null
+    }
+  ]
+}
