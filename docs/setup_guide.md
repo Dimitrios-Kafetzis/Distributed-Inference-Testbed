@@ -6,12 +6,12 @@ How to assemble the testbed described in Chapter 3 of the thesis and bring it to
 
 | Node | Hardware |
 |---|---|
-| Edge devices (five) | Raspberry Pi 4 Model B: Broadcom BCM2711, four Cortex-A72 cores at 1.8 GHz, LPDDR4-3200 memory (the thesis topology figure shows two boards with 8 GB and three with 4 GB), 32 GB microSD card, on-board Cypress CYW43455 wireless chipset (one antenna chain, IEEE 802.11ac, 433 Mbit/s physical rate), Gigabit Ethernet. No accelerator. |
+| Edge devices (five) | Raspberry Pi 4 Model B: Broadcom BCM2711, four Cortex-A72 cores at 1.8 GHz, LPDDR4-3200 memory (two boards with 8 GB, three with 4 GB), 32 GB microSD card, on-board Cypress CYW43455 wireless chipset (one antenna chain, IEEE 802.11ac, 433 Mbit/s physical rate), Gigabit Ethernet. No accelerator. |
 | Edge server (one) | Intel Core i7-9700K (8 cores, 3.6 GHz base, 4.9 GHz turbo), 32 GB DDR4-3200, 512 GB NVMe SSD, Gigabit Ethernet, a USB IEEE 802.11ac adapter that hosts the access point. No accelerator. |
 | Power sensors (optional) | one INA260 current-and-power sensor per device on the I2C bus. |
 | Network | a small Ethernet switch for the management network; Ethernet cables. |
 
-The RAM split between the devices (which boards have 8 GB) is to be confirmed by the author; `nodes.example.json` carries five devices and the run metadata records each node's real CPU model, core count, maximum frequency and memory on every run, so the facts are checked automatically.
+Two devices (`device1`, `device2` in `nodes.example.json`) have 8 GB and three have 4 GB, as in the thesis topology figure; in the Chapter 6 experiments the 8 GB board is the HeadSplit controller and four 4 GB boards are the workers. The run metadata records each node's real CPU model, core count, maximum frequency and memory on every run, so these facts are checked automatically.
 
 Storage: the microSD card is the default; its read throughput (about 80 to 100 MB/s) can bottleneck model loading, which is why profiling records the model-load time separately from the inference time. A USB 3.0 SSD is an optional replacement.
 
