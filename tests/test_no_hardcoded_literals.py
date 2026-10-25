@@ -20,6 +20,8 @@ ALLOWED = {
 IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
 HOME_DIR = re.compile(r"/home/[A-Za-z0-9_-]+")
 ALLOWED_IPS = {"0.0.0.0", "127.0.0.1"}
+# RFC 5737 documentation address blocks, used in docstrings and examples.
+DOCUMENTATION_PREFIXES = ("192.0.2.", "198.51.100.", "203.0.113.")
 
 
 def scanned_files() -> list[Path]:
@@ -43,7 +45,11 @@ def test_no_ip_or_home_literals_in_code() -> None:
         for number, line in enumerate(
             path.read_text(encoding="utf-8", errors="replace").splitlines(), 1
         ):
-            ips = [ip for ip in IPV4.findall(line) if ip not in ALLOWED_IPS]
+            ips = [
+                ip
+                for ip in IPV4.findall(line)
+                if ip not in ALLOWED_IPS and not ip.startswith(DOCUMENTATION_PREFIXES)
+            ]
             if ips or HOME_DIR.search(line):
                 offences.append(f"{rel}:{number}: {line.strip()}")
     assert not offences, "hard-coded addresses or home directories:\n" + "\n".join(offences)
