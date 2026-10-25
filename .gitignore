@@ -32,5 +32,8 @@ htmlcov/
 /scenarios/
 *.log
 
+# Simulated testbed of local mode
+/.local_testbed/
+
 # Local mirror build output
 /mirror/

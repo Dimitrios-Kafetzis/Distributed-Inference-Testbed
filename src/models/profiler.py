@@ -37,19 +37,47 @@ class PeakSample:
 
 
 class PeakSampler:
-    """Samples the current process at ``interval_s`` and keeps the peaks."""
+    """Samples the current process at ``interval_s`` and keeps the peaks.
 
-    def __init__(self, interval_s: float = 0.005, process: psutil.Process | None = None) -> None:
+    CPU utilisation is computed from the process's CPU time (user plus system,
+    ``cpu_times``) over the wall-clock window since the previous accepted sample,
+    and a sample is accepted only when its window is at least ``min_window_s``:
+    the kernel accounts CPU time in 10 ms ticks, so a shorter window gives
+    meaningless values. The result is clipped to 100 % times the number of
+    cores. A stage shorter than the window gets one value over its whole
+    duration at the end.
+    """
+
+    def __init__(
+        self,
+        interval_s: float = 0.005,
+        process: psutil.Process | None = None,
+        min_window_s: float = 0.02,
+    ) -> None:
         self.interval_s = interval_s
+        self.min_window_s = min_window_s
         self.process = process or psutil.Process()
+        self.max_percent = 100.0 * (psutil.cpu_count() or 1)
         self.peak = PeakSample(0.0, 0.0)
+        self._anchor_ns = 0
+        self._anchor_cpu = 0.0
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
 
-    def _sample_once(self) -> PeakSample:
+    def _busy_seconds(self) -> float:
+        times = self.process.cpu_times()
+        return float(times.user + times.system)
+
+    def _sample_once(self, force: bool = False) -> PeakSample:
         rss = self.process.memory_info().rss / 2**20
-        cpu = self.process.cpu_percent(interval=None)
-        return PeakSample(float(cpu), float(rss))
+        now_ns = time.perf_counter_ns()
+        window = (now_ns - self._anchor_ns) / 1e9
+        cpu = 0.0
+        if window >= self.min_window_s or (force and window > 0):
+            busy = self._busy_seconds()
+            cpu = min(self.max_percent, 100.0 * (busy - self._anchor_cpu) / window)
+            self._anchor_ns, self._anchor_cpu = now_ns, busy
+        return PeakSample(max(0.0, cpu), float(rss))
 
     def _run(self) -> None:
         while not self._stop.is_set():
@@ -60,7 +88,8 @@ class PeakSampler:
             self._stop.wait(self.interval_s)
 
     def __enter__(self) -> PeakSampler:
-        self.process.cpu_percent(interval=None)  # prime the counter
+        self._anchor_ns = time.perf_counter_ns()
+        self._anchor_cpu = self._busy_seconds()
         self.peak = PeakSample(0.0, self.process.memory_info().rss / 2**20)
         self._stop.clear()
         self._thread = threading.Thread(target=self._run, daemon=True)
@@ -71,7 +100,7 @@ class PeakSampler:
         self._stop.set()
         if self._thread is not None:
             self._thread.join()
-        final = self._sample_once()
+        final = self._sample_once(force=True)
         self.peak = PeakSample(
             max(self.peak.cpu_percent, final.cpu_percent), max(self.peak.rss_mb, final.rss_mb)
         )

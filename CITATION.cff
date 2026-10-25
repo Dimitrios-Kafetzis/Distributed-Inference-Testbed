@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "If you use this testbed, please cite the thesis and the software."
+title: "Distributed Inference Testbed"
+type: software
+authors:
+  - family-names: Kafetzis
+    given-names: Dimitrios
+    affiliation: "Athens University of Economics and Business"
+repository-code: "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed"
+license: MIT
+abstract: >-
+  An experimental testbed for partitioned inference of deep neural networks and
+  large language models across resource-constrained edge devices: five Raspberry
+  Pi 4 boards on a dedicated wireless network and an edge server that hosts the
+  access point and the Neural Network Architecture Partitioning (NNPM) manager.
+keywords:
+  - edge computing
+  - distributed inference
+  - model partitioning
+  - Raspberry Pi
+  - testbed
+references:
+  - type: thesis
+    title: "Dynamic Partitioning and Resource Orchestration for AI Model Deployment in Resource-Constrained Wireless Edge Networks"
+    authors:
+      - family-names: Kafetzis
+        given-names: Dimitrios
+    institution:
+      name: "Athens University of Economics and Business"
+    year: 2026
+    notes: "PhD thesis; Chapter 3 and Appendix B describe the testbed."
+  - type: conference-paper
+    title: "Demo: An Experimental Platform for AI Model Partitioning on Resource-constrained Devices"
+    authors:
+      - family-names: Kafetzis
+        given-names: Dimitrios
+      - family-names: Koutsopoulos
+        given-names: Iordanis
+    collection-title: "Proceedings of ACM MobiHoc 2024"
+    year: 2024
+    start: 375
+    end: 376
+  - type: software
+    title: "DNN Partitioning and Offloading Testbed"
+    authors:
+      - family-names: Kafetzis
+        given-names: Dimitrios
+    year: 2024
+    repository-code: "https://github.com/Dimitrios-Kafetzis/DNN-Partitioning-and-Offloading-Testbed"
+    notes: "The earlier repository this testbed continues."

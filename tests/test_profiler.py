@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -40,6 +41,8 @@ def test_profile_once_times_stages_in_isolation_and_records_peaks() -> None:
     assert points[3].cumulative_latency_ns == sum(s.latency_ns for s in record.stages)
     assert points[3].cumulative_memory_mb == max(s.memory_peak_mb for s in record.stages)
     assert record.metadata["framework"] == "fake"
+    # CPU peaks are utilisations, never the artefacts of a too-short sampling window.
+    assert all(0.0 <= s.cpu_peak_percent <= 100.0 * (os.cpu_count() or 1) for s in record.stages)
     assert profiler.capacity_flops_per_second(record) > 0
 
 

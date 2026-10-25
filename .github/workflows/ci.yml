@@ -28,6 +28,16 @@ jobs:
           if [ -n "$files" ]; then .venv/bin/shellcheck -x $files; fi
       - name: Tests (fast)
         run: .venv/bin/pytest -m "not slow and not browser and not hardware" --cov --cov-report=term-missing
+      - name: Quick start in local mode (as in the README)
+        run: |
+          .venv/bin/python -m src.orchestration.experiment run --scenario examples/scenarios/local_demo.yaml --local
+          test -f .local_testbed/results/latest/total_averages_of_benchmark_results.json
+          test -f .local_testbed/results/latest/calculated_max_partition_points.json
+          test -f .local_testbed/results/latest/final_latencies_averages.json
+      - name: Provisioning scripts in dry-run mode
+        run: |
+          TESTBED_CONFIG=config.example.yaml TESTBED_NODES=nodes.example.json TESTBED_AP_PASSPHRASE=ci \
+            scripts/provision/provision_edge_server.sh --dry-run --allow-upstream > /dev/null
 
   models:
     name: Real-model tests (slow)
