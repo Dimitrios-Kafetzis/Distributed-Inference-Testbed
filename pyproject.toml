@@ -85,6 +85,13 @@ warn_unreachable = true
 module = ["tensorflow.*", "torch.*", "transformers.*", "sklearn.*", "board", "adafruit_ina260", "flask.*"]
 ignore_missing_imports = true
 
+# Without PyTorch installed (the development lock leaves the frameworks out), torch
+# resolves to Any and these two checks fire on the nn.Module subclasses and the
+# no_grad decorator; with PyTorch installed they pass. Same result either way.
+[[tool.mypy.overrides]]
+module = ["src.models.torch.*"]
+disable_error_code = ["misc", "untyped-decorator"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
