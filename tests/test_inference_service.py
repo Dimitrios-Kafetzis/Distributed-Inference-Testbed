@@ -151,16 +151,28 @@ def test_server_and_client_phases_over_loopback(server_factory: type[InferenceSe
 
 
 def run_concurrent(
-    server: InferenceServer, x: object, jobs: list[tuple[str, int]]
+    server: InferenceServer,
+    x: object,
+    jobs: list[tuple[str, int]],
+    *,
+    in_order: bool = False,
 ) -> dict[str, client.PartitionedResult]:
     """Start one zero-cost client per job, hold the server until every request is
-    queued (so the policy, not the arrival order, decides), then release it."""
+    queued (so the policy, not the arrival order, decides), then release it.
+
+    With ``in_order`` the requests arrive in the order of ``jobs`` (each client waits
+    until the previous request is queued), which matters for round robin.
+    """
     results: dict[str, client.PartitionedResult] = {}
     barrier = threading.Barrier(len(jobs))
 
     def run(node: str, s: int) -> None:
         local = make_adapter(time_scale=0.0)
-        barrier.wait()
+        if in_order:
+            position = [j[0] for j in jobs].index(node)
+            wait_until(lambda: server.pending_count() >= position)
+        else:
+            barrier.wait()
         results[node] = client.run_partitioned(
             local,
             x,
@@ -206,9 +218,10 @@ def test_round_robin_server_shares_stages(server_factory: type[InferenceServer])
     server = server_factory(adapter, "RR", "127.0.0.1", 0, ["d1", "d2"])
     server.release.clear()
     server.start()
-    results = run_concurrent(server, adapter.make_input(1), [("d1", 1), ("d2", 4)])
-    # Under RR the one-stage request finishes within two rounds; the four-stage request has
-    # the other one interleaved, so its remote time exceeds its own 80 ms of work.
+    results = run_concurrent(server, adapter.make_input(1), [("d1", 1), ("d2", 4)], in_order=True)
+    # d1 (four stages) arrives first. Under RR the one-stage request of d2 runs in the second
+    # turn and finishes within two rounds; d1 has that stage interleaved, so its remote time
+    # exceeds its own 80 ms of work.
     short, long = results["d2"], results["d1"]
     assert short.phase.server_service_end_wall_s < long.phase.server_service_end_wall_s
     assert long.phase.remote_ns >= 95_000_000
