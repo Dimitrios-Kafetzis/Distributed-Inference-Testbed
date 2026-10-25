@@ -154,7 +154,19 @@ class ExperimentContext:
         )
 
     def sudo(self, node: Node, command: str) -> str:
-        return command if local_mode.is_local(node) else f"sudo -n {command}"
+        """Run ``command`` as root on a real device; local mode runs it unprivileged.
+
+        Module commands start with ``cd <code dir> && ``; the ``sudo -n`` goes in front
+        of the interpreter, not in front of ``cd`` (a shell builtin sudo cannot run).
+        The sudoers rule installed by provisioning allows exactly this interpreter
+        with the heterogeneity module, and tc.
+        """
+        if local_mode.is_local(node):
+            return command
+        head, sep, tail = command.partition(" && ")
+        if sep and head.startswith("cd "):
+            return f"{head} && sudo -n {tail}"
+        return f"sudo -n {command}"
 
     # --- settings per node -----------------------------------------------------------------------
 
