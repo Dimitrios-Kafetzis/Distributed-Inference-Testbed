@@ -13,7 +13,7 @@ This repository is under construction; the sections below are filled in as the c
 | Configuration (`config.yaml`, `nodes.json`, `src/config.py`) | done |
 | Measurement records and post-processing (`src/benchmarking/`, `src/network/node_statistics.py`) | done |
 | Device-side tools: load generator, tc-netem shaping, heterogeneity, resource monitor, power, latency and throughput (`src/testbed/`, `src/network/`) | done |
-| SSH dispatch and collection (`src/network/ssh_executor.py`) | planned |
+| SSH dispatch, result collection and run metadata (`src/network/ssh_executor.py`, `transfer_files.sh`, `src/common/metadata.py`) | done |
 | Models and profiling (`src/models/`) | planned |
 | Partitioned inference service (`src/inference/`) | planned |
 | Partition optimisation (`src/partitioning/`) | planned |

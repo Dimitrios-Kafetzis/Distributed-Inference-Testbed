@@ -23,7 +23,7 @@ FILES = [
     pytest.param("config.example.yaml", id="config.yaml (example)"),
     pytest.param("nodes.example.json", id="nodes.json (example)"),
     pytest.param("src/config.py", id="src/config.py"),
-    pytest.param("src/network/ssh_executor.py", marks=wp(3)),
+    pytest.param("src/network/ssh_executor.py"),
     pytest.param("src/network/latency_measurement.py"),
     pytest.param("src/network/node_statistics.py"),
     pytest.param("src/network/power_measurement.py"),
@@ -37,7 +37,7 @@ FILES = [
     pytest.param("gui/app.py", marks=wp(9)),
     pytest.param("scripts/end_device/apply_latency.sh"),
     pytest.param("scripts/end_device/train_and_run_benchmark.sh", marks=wp(4)),
-    pytest.param("scripts/end_device/transfer_files.sh", marks=wp(3)),
+    pytest.param("scripts/end_device/transfer_files.sh"),
     pytest.param("scripts/base_station/run_full_benchmarking.sh", marks=wp(7)),
 ]
 

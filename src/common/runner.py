@@ -132,6 +132,15 @@ def contains(*words: str) -> Matcher:
     return match
 
 
+def substring(text: str) -> Matcher:
+    """Matcher: ``text`` appears inside any argument (for example inside a ``-c`` script)."""
+
+    def match(argv: Sequence[str]) -> bool:
+        return any(text in word for word in argv)
+
+    return match
+
+
 def ok(stdout: str = "") -> Callable[[Sequence[str]], CommandResult]:
     return lambda argv: CommandResult(tuple(argv), 0, stdout)
 
