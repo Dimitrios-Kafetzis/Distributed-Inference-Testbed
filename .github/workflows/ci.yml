@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11"
       - name: Install development dependencies (locked)
         run: |
-          uv venv .venv --python 3.11
+          uv venv .venv --python 3.11 --clear
           uv pip install --python .venv/bin/python --require-hashes -r requirements/dev.lock
       - name: Ruff
         run: .venv/bin/ruff check . && .venv/bin/ruff format --check .
@@ -50,7 +50,7 @@ jobs:
           python-version: "3.11"
       - name: Install edge-server dependencies (locked)
         run: |
-          uv venv .venv --python 3.11
+          uv venv .venv --python 3.11 --clear
           uv pip install --python .venv/bin/python --require-hashes -r requirements/edge_server.lock
           uv pip install --python .venv/bin/python --require-hashes -r requirements/dev.lock
       - name: Tests (slow)
