@@ -1,0 +1,15 @@
+# Development and continuous integration (x86_64).
+-r base.in
+flask>=2.2.0
+paramiko>=2.11
+scikit-learn>=1.0.0
+pillow>=9.0
+pytest>=7.4
+pytest-cov>=4.1
+ruff>=0.4
+mypy>=1.8
+shellcheck-py>=0.9
+types-PyYAML
+types-psutil
+types-paramiko
+types-jsonschema

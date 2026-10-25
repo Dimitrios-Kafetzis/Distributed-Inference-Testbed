@@ -1,0 +1,3 @@
+# Optional INA260 power monitor (Raspberry Pi only; no lock file, see README.md).
+adafruit-circuitpython-ina260>=1.3
+adafruit-blinka>=8.0

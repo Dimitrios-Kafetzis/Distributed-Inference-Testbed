@@ -1,0 +1,5 @@
+# Shared by every role.
+pyyaml>=6.0
+jsonschema>=4.17
+psutil>=5.9
+numpy>=1.24,<2

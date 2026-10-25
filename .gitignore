@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+/build/
+/dist/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+/.venv/
+/venv/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Local configuration and topology (copy the *.example files)
+/config.yaml
+/nodes.json
+
+# Model weights and generated data (anchored: src/models/ is source code)
+/models/
+/data/test_image.*
+
+# Results, logs and scenario versions
+/results/
+/scenarios/
+*.log
+
+# Local mirror build output
+/mirror/

@@ -1,0 +1,4 @@
+# Edge device, DNN experiments (aarch64).
+-r base.in
+pillow>=9.0
+tensorflow==2.15.1

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    name: Lint, types, shell scripts, unit and local-mode tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - name: Install development dependencies (locked)
+        run: |
+          uv venv .venv --python 3.11
+          uv pip install --python .venv/bin/python --require-hashes -r requirements/dev.lock
+      - name: Ruff
+        run: .venv/bin/ruff check . && .venv/bin/ruff format --check .
+      - name: Mypy
+        run: .venv/bin/mypy
+      - name: Shellcheck
+        run: |
+          files=$(git ls-files '*.sh')
+          if [ -n "$files" ]; then .venv/bin/shellcheck -x $files; fi
+      - name: Tests (fast)
+        run: .venv/bin/pytest -m "not slow and not browser and not hardware" --cov --cov-report=term-missing
+
+  models:
+    name: Real-model tests (slow)
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - name: Install edge-server dependencies (locked)
+        run: |
+          uv venv .venv --python 3.11
+          uv pip install --python .venv/bin/python --require-hashes -r requirements/edge_server.lock
+          uv pip install --python .venv/bin/python --require-hashes -r requirements/dev.lock
+      - name: Tests (slow)
+        run: .venv/bin/pytest -m "slow" -x

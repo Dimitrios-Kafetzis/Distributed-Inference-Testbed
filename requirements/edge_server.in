@@ -1,0 +1,11 @@
+# Edge server: NNPM, SSH dispatch, aggregation, optimiser, model profiling (x86_64).
+-r base.in
+flask>=2.2.0
+paramiko>=2.11
+scikit-learn>=1.0.0
+pillow>=9.0
+# TensorFlow 2.15 is the last release with Keras 2 and supports Python 3.11.
+tensorflow==2.15.1
+# CPU-only PyTorch and Transformers at the versions of the thesis software table.
+torch==2.1.2
+transformers==4.36.2

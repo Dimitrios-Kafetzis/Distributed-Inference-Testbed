@@ -1,0 +1,99 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distributed-inference-testbed"
+version = "1.0.0.dev0"
+description = "Experimental testbed for partitioned AI inference across Raspberry Pi edge devices and an edge server, orchestrated by the NNPM web application."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Dimitrios Kafetzis", email = "dimitrioskafetzis@gmail.com" }]
+requires-python = ">=3.11"
+# Minimum versions, as documented in the thesis software table (Appendix B).
+# Exact versions are pinned in requirements/*.lock.
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.17",
+    "psutil>=5.9",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+edge-server = [
+    "flask>=2.2.0",
+    "paramiko>=2.11",
+    "scikit-learn>=1.0.0",
+    "tensorflow>=2.8.0",
+    "torch>=2.1",
+    "transformers>=4.36",
+]
+edge-device = [
+    "tensorflow>=2.8.0",
+    "pillow>=9.0",
+]
+edge-device-llm = [
+    "torch>=2.1",
+    "transformers>=4.36",
+]
+power = [
+    "adafruit-circuitpython-ina260>=1.3",
+    "adafruit-blinka>=8.0",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "shellcheck-py>=0.9",
+    "types-PyYAML",
+    "types-psutil",
+    "types-paramiko",
+    "types-jsonschema",
+]
+
+[project.scripts]
+nnpm = "gui.app:main"
+testbed-run = "src.orchestration.experiment:main"
+testbed-optimise = "src.partitioning.delay_optimizer:main"
+
+[project.urls]
+Repository = "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed"
+
+[tool.setuptools]
+packages = { find = { include = ["src*", "gui*"] } }
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["gui/static/vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF"]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["src"]  # gui is added when it lands (WP9)
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["tensorflow.*", "torch.*", "transformers.*", "sklearn.*", "board", "adafruit_ina260", "flask.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests that train or run real models, or wait on real time",
+    "browser: tests that drive a headless browser (need Playwright)",
+    "hardware: tests that need the physical testbed (never run in CI)",
+]
+
+[tool.coverage.run]
+source = ["src", "gui"]
+omit = ["gui/static/*"]
