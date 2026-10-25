@@ -19,7 +19,7 @@ sudo nmcli connection reload
 sudo systemctl enable --now testbed-ap-address hostapd dnsmasq chrony
 mkdir -p /opt/testbed/mirror/wheels/x86_64 /opt/testbed/mirror/wheels/aarch64 /opt/testbed/mirror/apt /opt/testbed/mirror/src
 sudo systemctl enable --now testbed-mirror
-python3.11 -m venv <REPO>/.venv
-<REPO>/.venv/bin/pip install --require-hashes -r <REPO>/requirements/edge_server.lock
+python3.11 -m venv <TMP>/venv
+<TMP>/venv/bin/pip install --require-hashes -r <REPO>/requirements/edge_server.lock
 mkdir -p /opt/testbed/results /opt/testbed/models
 sudo systemctl enable --now nnpm

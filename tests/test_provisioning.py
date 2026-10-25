@@ -263,6 +263,7 @@ def run_script(
         TESTBED_SSH_PUBLIC_KEY_PATH=str(tmp_path / "id.pub"),
         TESTBED_SSH_KNOWN_HOSTS_PATH=str(tmp_path / "known_hosts"),
         TESTBED_PYTHON=sys.executable,  # the same interpreter on every machine
+        TESTBED_EDGE_VENV=str(tmp_path / "venv"),  # absent, so the plan creates it
         DRY_RUN="1",
     )
     env.pop("TESTBED_DEVICE_PASSWORD", None)

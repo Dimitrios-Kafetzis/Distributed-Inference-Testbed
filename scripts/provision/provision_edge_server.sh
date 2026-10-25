@@ -70,7 +70,8 @@ run sudo systemctl enable --now testbed-ap-address hostapd dnsmasq chrony
 run mkdir -p "$MIRROR_DIR/wheels/x86_64" "$MIRROR_DIR/wheels/aarch64" "$MIRROR_DIR/apt" "$MIRROR_DIR/src"
 run sudo systemctl enable --now testbed-mirror
 
-VENV="$CODE_DIR/.venv"
+# TESTBED_EDGE_VENV places the environment elsewhere (tests use a temporary path).
+VENV="${TESTBED_EDGE_VENV:-$CODE_DIR/.venv}"
 [ -x "$VENV/bin/python" ] || run python3.11 -m venv "$VENV"
 if [ "$ALLOW_UPSTREAM" = 1 ]; then
     run "$VENV/bin/pip" install --require-hashes -r "$CODE_DIR/requirements/edge_server.lock"
