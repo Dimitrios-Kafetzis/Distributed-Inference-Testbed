@@ -4,8 +4,9 @@ After benchmarking has run on all nodes, this module collects the per-node
 result files, groups them by device, averages the repeated runs into
 per-layer and per-partition-point statistics, and writes
 ``total_averages_of_benchmark_results.json``. It also merges each device's
-timing records with its resource-monitoring and power traces by matching on
-hostname and on the NTP wall-clock origin, producing one unified record per
+timing records with its resource-monitoring and power traces: the records are
+grouped by node and run, and every sample is converted to wall-clock time
+through the time origin of its own record, producing one unified record per
 device and run.
 
 Usage::

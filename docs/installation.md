@@ -2,14 +2,14 @@
 
 Three roles, three lock files. Every dependency is pinned with a hash in `requirements/*.lock` (generated with `scripts/lock_requirements.sh`); installing with `--require-hashes` guarantees the same stack on every machine. The direct dependencies and their minimum versions are in the `.in` files and follow the software table of Appendix B.
 
-| Component | Appendix B minimum | Pinned in the lock files |
+| Component | Minimum supported | Pinned in the lock files (thesis, Appendix B, Table B.1) |
 |---|---|---|
 | Operating system | Raspberry Pi OS 64-bit (devices), Ubuntu 22.04 LTS (edge server) | Bookworm 64-bit on the devices (Python 3.11), Ubuntu 22.04 LTS |
 | Python | 3.11 | 3.11 |
 | TensorFlow (DNN, Chapter 4) | ≥ 2.8.0, CPU | 2.15.1 |
 | PyTorch (LLM, Chapters 5 and 6) | 2.1.2, CPU | 2.1.2 (+cpu on x86_64) |
 | Transformers | 4.36 | 4.46.3 (Qwen2 needs 4.37, Llama 3.2 needs 4.43, HeadSplit 4.40) |
-| scikit-learn | ≥ 1.0.0 | 1.9.1 |
+| scikit-learn | ≥ 1.0.0, edge server only | 1.9.1 |
 | Paramiko (SSH) | ≥ 2.11, edge server only | 5.1.0 |
 | Flask (web application) | ≥ 2.2.0, edge server only | 3.1.3 |
 | NTP | client (devices), server (edge server) | chrony, configured by provisioning |

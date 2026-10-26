@@ -7,7 +7,7 @@ pillow>=9.0
 # TensorFlow 2.15 is the last release with Keras 2 and supports Python 3.11.
 tensorflow==2.15.1
 # CPU-only PyTorch at the version of the thesis software table; Transformers 4.46 for the
-# Llama 3.2 and Qwen2.5 adapters (Appendix B gives 4.36 as the minimum).
+# Llama 3.2 and Qwen2.5 adapters (the thesis's Chapter 6 experiments used 4.36).
 # Shared with HeadSplit, which needs 4.40 or later.
 torch==2.1.2
 transformers==4.46.3

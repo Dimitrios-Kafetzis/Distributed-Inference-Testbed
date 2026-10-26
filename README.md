@@ -211,7 +211,7 @@ The [continuous-integration workflow](.github/workflows/ci.yml) runs all of the 
 
 ## Requirements
 
-| Component | Minimum (thesis, Appendix B) | Pinned in the lock files |
+| Component | Minimum supported | Pinned in the lock files (thesis, Appendix B, Table B.1) |
 |---|---|---|
 | Edge devices | Raspberry Pi 4 Model B, Raspberry Pi OS 64-bit | Bookworm 64-bit, Python 3.11 |
 | Edge server | Ubuntu 22.04 LTS, x86_64 | Ubuntu 22.04 LTS, Python 3.11 |

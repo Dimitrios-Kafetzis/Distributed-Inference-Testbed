@@ -30,8 +30,8 @@ classifiers = [
     "Topic :: System :: Distributed Computing",
     "Topic :: System :: Networking",
 ]
-# Minimum versions, as documented in the thesis software table (Appendix B).
-# Exact versions are pinned in requirements/*.lock.
+# Minimum supported versions. The exact versions, which the thesis software table
+# lists (Appendix B, Table B.1), are pinned in requirements/*.lock.
 dependencies = [
     "pyyaml>=6.0",
     "jsonschema>=4.17",

@@ -7,7 +7,7 @@ How to assemble the testbed described in Chapter 3 of the thesis and bring it to
 | Node | Hardware |
 |---|---|
 | Edge devices (five) | Raspberry Pi 4 Model B: Broadcom BCM2711, four Cortex-A72 cores at 1.8 GHz, LPDDR4-3200 memory (two boards with 8 GB, three with 4 GB), 32 GB microSD card, on-board Cypress CYW43455 wireless chipset (one antenna chain, IEEE 802.11ac, 433 Mbit/s physical rate), Gigabit Ethernet. No accelerator. |
-| Edge server (one) | Intel Core i7-9700K (8 cores, 3.6 GHz base, 4.9 GHz turbo), 32 GB DDR4-3200, 512 GB NVMe SSD, Gigabit Ethernet, a USB IEEE 802.11ac adapter that hosts the access point. No accelerator. |
+| Edge server (one) | Intel Core i7-5820K (6 cores, 3.3 GHz base, 3.6 GHz turbo), 32 GB DDR4, 512 GB NVMe SSD, Gigabit Ethernet, a USB IEEE 802.11ac adapter that hosts the access point. No accelerator. |
 | Power sensors (optional) | one INA260 current-and-power sensor per device on the I2C bus. |
 | Network | a small Ethernet switch for the management network; Ethernet cables. |
 
@@ -48,7 +48,7 @@ The example files use `192.168.0.0/24` for the data plane (edge server `.1`, dev
 
 ## Operating systems
 
-- Devices: Raspberry Pi OS **64-bit** (Bookworm), which ships Python 3.11. The 64-bit variant is required: the LLM experiments exceed the 3 GB per-process limit of 32-bit address spaces, and `provision_device.sh` refuses a device whose kernel is not `aarch64` (`prepare_image.sh` refuses a 32-bit image). The thesis table names Bullseye; the release targets Bookworm because of Python 3.11.
+- Devices: Raspberry Pi OS **64-bit** (Bookworm), which ships Python 3.11. The 64-bit variant is required: the LLM experiments exceed the 3 GB per-process limit of 32-bit address spaces, and `provision_device.sh` refuses a device whose kernel is not `aarch64` (`prepare_image.sh` refuses a 32-bit image). Bookworm is the release named in the thesis software table (Appendix B, Table B.1); it ships Python 3.11.
 - Edge server: Ubuntu 22.04 LTS with Python 3.11 (`python3.11`, `python3.11-venv`) and NetworkManager (the Desktop default; on Ubuntu Server the management address is configured with netplan instead of the rendered NetworkManager profile).
 
 ## Access point

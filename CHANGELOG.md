@@ -14,6 +14,7 @@ All notable changes to this project are documented in this file. The format foll
 - The runtime drop-down of the Create scenario dialog listed HeadSplit first and selected it by default; `testbed` is now first and selected.
 - Form fields rendered from a schema appeared in alphabetical order because Flask 3 sorts JSON keys; the schema's order is kept.
 - The run summary page printed the scenario version as a raw mapping.
+- Documentation: the edge server is an Intel Core i7-5820K (setup guide); the version tables name the thesis software table as the list of pinned versions; the hardware checklist expects Transformers 4.46.3; the collection and aggregation docstrings describe the pull collection and the per-record time origins.
 
 ## [1.1.0] - 2026-10-25
 

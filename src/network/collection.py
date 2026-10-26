@@ -2,11 +2,12 @@
 
 Two modes:
 
-* ``push`` (the thesis procedure): ``transfer_files.sh`` runs on each device
-  and copies its result JSON files to the edge server with scp, prepending
-  the device hostname to each filename;
-* ``pull``: the edge server fetches the files through the transport (SFTP, or
-  a file copy in local mode) and prefixes them with the hostname itself.
+* ``push``: ``transfer_files.sh`` runs on each device and copies its result
+  JSON files to the edge server with scp, prepending the device hostname to
+  each filename;
+* ``pull`` (the mode of the experiment pipeline, as Appendix B describes): the
+  edge server fetches the files over SSH through the transport (SFTP, or a
+  file copy in local mode) and prefixes them with the hostname itself.
 
 Both leave ``<hostname>_<file>`` in the target directory.
 """
