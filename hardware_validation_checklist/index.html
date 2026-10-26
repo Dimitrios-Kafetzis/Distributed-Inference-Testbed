@@ -1,0 +1,1782 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Experimental testbed for partitioned inference of deep neural networks and large language models across Raspberry Pi edge devices and an edge server, orchestrated by the NNPM web application.">
+      
+      
+      
+        <link rel="canonical" href="https://dimitrios-kafetzis.github.io/Distributed-Inference-Testbed/hardware_validation_checklist/">
+      
+      
+        <link rel="prev" href="../headsplit_integration/">
+      
+      
+        <link rel="next" href="../changelog/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Hardware validation checklist - Distributed Inference Testbed</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hardware-validation-checklist" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Distributed Inference Testbed" class="md-header__button md-logo" aria-label="Distributed Inference Testbed" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Distributed Inference Testbed
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hardware validation checklist
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Dimitrios-Kafetzis/Distributed-Inference-Testbed
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Distributed Inference Testbed" class="md-nav__button md-logo" aria-label="Distributed Inference Testbed" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Distributed Inference Testbed
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Dimitrios-Kafetzis/Distributed-Inference-Testbed
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provisioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provisioning scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pinned dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the testbed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Using the testbed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nnpm_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NNPM tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nnpm_user_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NNPM user guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scenario_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenario reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../results_format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sample_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sample data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../module_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Extending
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../headsplit_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HeadSplit integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware validation checklist
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware validation checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#software-stack-a-07-j-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software stack (A-07, J-19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-control-c-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process control (C-02)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compute-load-g-01-j-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compute load (G-01, J-03)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-shaping-g-02-g-03-c-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network shaping (G-02, G-03, C-07)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heterogeneity-and-frequency-g-04-b-04-f-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heterogeneity and frequency (G-04, B-04, F-01)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-and-throughput-f-04-f-08-j-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power and throughput (F-04, F-08, J-07)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partitioned-inference-and-per-phase-timing-b-05-d-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partitioned inference and per-phase timing (B-05, D-05)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whole-pipeline-on-the-testbed-c-01-c-04-c-13-d-10-d-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whole pipeline on the testbed (C-01, C-04, C-13, D-10, D-13)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-profiling-and-headsplit-a-02-d-04-i-03-i-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM profiling and HeadSplit (A-02, D-04, I-03, I-04)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnpm-web-application-c-05-to-c-10-j-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NNPM web application (C-05 to C-10, J-14)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-access-point-time-synchronisation-h-01-h-02-b-06-f-06-a-08-j-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioning, access point, time synchronisation (H-01, H-02, B-06, F-06, A-08, J-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensions-of-version-11-headsplit-through-nnpm-generic-adapters-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensions of version 1.1 (HeadSplit through NNPM, generic adapters, catalogue)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../third_party_notices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Third-party notices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#software-stack-a-07-j-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software stack (A-07, J-19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-control-c-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process control (C-02)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compute-load-g-01-j-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compute load (G-01, J-03)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-shaping-g-02-g-03-c-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network shaping (G-02, G-03, C-07)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heterogeneity-and-frequency-g-04-b-04-f-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Heterogeneity and frequency (G-04, B-04, F-01)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-and-throughput-f-04-f-08-j-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power and throughput (F-04, F-08, J-07)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partitioned-inference-and-per-phase-timing-b-05-d-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partitioned inference and per-phase timing (B-05, D-05)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whole-pipeline-on-the-testbed-c-01-c-04-c-13-d-10-d-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whole pipeline on the testbed (C-01, C-04, C-13, D-10, D-13)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-profiling-and-headsplit-a-02-d-04-i-03-i-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM profiling and HeadSplit (A-02, D-04, I-03, I-04)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnpm-web-application-c-05-to-c-10-j-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NNPM web application (C-05 to C-10, J-14)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-access-point-time-synchronisation-h-01-h-02-b-06-f-06-a-08-j-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioning, access point, time synchronisation (H-01, H-02, B-06, F-06, A-08, J-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extensions-of-version-11-headsplit-through-nnpm-generic-adapters-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensions of version 1.1 (HeadSplit through NNPM, generic adapters, catalogue)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/edit/main/docs/hardware_validation_checklist.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="hardware-validation-checklist">Hardware validation checklist<a class="headerlink" href="#hardware-validation-checklist" title="Permanent link">&para;</a></h1>
+<p>Everything in this repository is tested without hardware: with fake command runners, fake clocks, a fake sysfs tree and a local mode that simulates all nodes on one machine. The items below are the physical checks that only the real testbed can answer. Each item names the requirement it closes (IDs from the thesis requirement catalogue), the steps, and the expected outcome. Record the outcome and the date next to each item.</p>
+<h2 id="software-stack-a-07-j-19">Software stack (A-07, J-19)<a class="headerlink" href="#software-stack-a-07-j-19" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] On one Raspberry Pi 4 (Raspberry Pi OS Bookworm 64-bit, Python 3.11): create a virtual environment and install <code>requirements/edge_device.lock</code> with <code>pip install --require-hashes -r requirements/edge_device.lock</code>. Expected: every wheel is found for <code>aarch64</code> and <code>cp311</code>; <code>python -c "import tensorflow; print(tensorflow.__version__)"</code> prints <code>2.15.1</code>.</li>
+<li>[ ] Same device: install <code>requirements/edge_device_llm.lock</code>. Expected: <code>torch</code> 2.1.2 and <code>transformers</code> 4.46.3 import; <code>torch.get_num_threads()</code> returns 4.</li>
+<li>[ ] Note the wall-clock time of each installation (J-15; the thesis states about 25 minutes per device for the whole deployment).</li>
+</ul>
+<h2 id="process-control-c-02">Process control (C-02)<a class="headerlink" href="#process-control-c-02" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] On a device, run <code>python -m src.config --env</code> through SSH and confirm the printed <code>TESTBED_*</code> values match <code>config.yaml</code>.</li>
+<li>[ ] Start a tagged process over SSH with the start command of <code>src/common/process_tags.py</code> (for example a <code>sleep 60</code>), close the SSH session, reconnect and run the check command. Expected: <code>running</code>. Run the stop command. Expected: <code>stopped</code>, no process with the tag in <code>ps</code>, PID file removed.</li>
+</ul>
+<h2 id="compute-load-g-01-j-03">Compute load (G-01, J-03)<a class="headerlink" href="#compute-load-g-01-j-03" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] On a device, run <code>python -m src.testbed.load_generator --cpu 50 --duration 60</code> and watch <code>top</code> or <code>mpstat -P ALL 1</code>. Expected: one core at about 50 % (within 5 points), the others idle.</li>
+<li>[ ] Run <code>--regime heavy --duration 120 --log /tmp/load.json</code>. Expected: total CPU use between 60 and 80 % of one core, memory in use between 50 and 60 % (<code>free -m</code>), both changing every 10 s; <code>/tmp/load.json</code> lists the drawn targets.</li>
+<li>[ ] Run <code>--processes 2 --duration 30</code>. Expected: two cores fully busy.</li>
+</ul>
+<h2 id="network-shaping-g-02-g-03-c-07">Network shaping (G-02, G-03, C-07)<a class="headerlink" href="#network-shaping-g-02-g-03-c-07" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] On a device, <code>scripts/end_device/apply_latency.sh wlan0 20 20 --once</code>, then <code>ping -c 10 &lt;edge server&gt;</code> from the device. Expected: RTT about 20 ms above the baseline. <code>apply_latency.sh wlan0 --clear</code> restores the baseline.</li>
+<li>[ ] <code>python -m src.testbed.latency_injector wlan0 --delay 10 --jitter 5 --loss 1 --rate 10</code>, then <code>iperf3 -c &lt;edge server&gt; -t 10</code> and <code>ping -c 50</code>. Expected: about 10 Mbit/s, RTT 10 ms +- 5 ms, about 1 % loss.</li>
+<li>[ ] Per destination: <code>--dst &lt;edge server IP&gt; --delay 15 --dst &lt;another device IP&gt; --delay 30</code>. Expected: the two pings differ by about 15 ms.</li>
+<li>[ ] Note any driver that rejects the HTB tree on <code>wlan0</code>; the single-root fallback (<code>apply_all</code>) is the alternative.</li>
+</ul>
+<h2 id="heterogeneity-and-frequency-g-04-b-04-f-01">Heterogeneity and frequency (G-04, B-04, F-01)<a class="headerlink" href="#heterogeneity-and-frequency-g-04-b-04-f-01" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Device: <code>sudo python -m src.testbed.heterogeneity freq --max-mhz 600 --state /tmp/f.json</code>, then <code>python -m src.testbed.resource_monitor --output /tmp/m.json --run-id t --node-id d --duration 10</code>. Expected: <code>frequencies_khz</code> at or below 600000 in every sample; <code>freq --restore /tmp/f.json</code> brings them back to 1800000.</li>
+<li>[ ] Device: <code>sudo python -m src.testbed.heterogeneity cgroup create --name testbed-check --memory-mb 512</code>, then run <code>sh -c "$(python -c 'from src.testbed.heterogeneity import MemoryLimit; print(MemoryLimit().attach_command("testbed-check", "python3 -c \"x=bytearray(700*2**20)\""))')"</code>. Expected: the allocation is killed by the OOM killer of the group; <code>cgroup remove</code> cleans up.</li>
+<li>[ ] Edge server: <code>sudo python -m src.testbed.cpu_frequency apply --state /tmp/s.json</code>, then <code>verify</code>. Expected: governor <code>performance</code>, turbo disabled, every core near the base frequency; <code>restore</code> returns the previous settings.</li>
+<li>[ ] Device under a long heavy load: the monitor trace shows the temperature and whether <code>throttled</code> ever leaves <code>0x0</code>; the monitor's own CPU use (<code>top -p &lt;pid&gt;</code>) stays below 2 %.</li>
+</ul>
+<h2 id="power-and-throughput-f-04-f-08-j-07">Power and throughput (F-04, F-08, J-07)<a class="headerlink" href="#power-and-throughput-f-04-f-08-j-07" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Device with INA260: <code>pip install -r requirements/power.in</code>, then <code>python -m src.network.power_measurement --interval 0.2 --duration 30 --output /tmp/p.json --run-id t --node-id d</code>. Expected: about 150 samples, idle power 2.5-3.5 W, <code>energy_j</code> consistent with power x 30 s.</li>
+<li>[ ] Device: <code>python -m src.network.throughput_measurement --server &lt;edge server&gt; --duration 10 --output /tmp/tp.json</code> with <code>iperf3 -s -1</code> on the edge server, once alone and once with all five devices at the same time. Record the figures (the thesis states 80-120 Mbit/s per device and, in Chapter 5, a measured 19.6 Mbit/s).</li>
+</ul>
+<h2 id="partitioned-inference-and-per-phase-timing-b-05-d-05">Partitioned inference and per-phase timing (B-05, D-05)<a class="headerlink" href="#partitioned-inference-and-per-phase-timing-b-05-d-05" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Edge server (data-plane address): <code>python -m src.inference.server --model alexnet --weights models/alexnet.npz --policy SJF --port 5300 --nodes device1,device2,device3,device4</code>. Device: <code>python -m src.inference.client --model alexnet --weights &lt;ed_root&gt;/models/alexnet.npz --server &lt;edge server&gt;:5300 --s 0 --s 4 --s 8 --s 11 --repetitions 10 --output /tmp/phases.json --run-id t --node-id device1</code>. Expected: <code>transmission_ms</code> grows with the transmitted size (s = 1 is the largest cut, s = 8 is 36 KB), <code>remote_ms</code> shrinks with s, s = 11 has no transmission.</li>
+<li>[ ] Four devices at once with <code>--s 4</code> and <code>--policy SJF</code>, then <code>--policy RR</code>: the per-device <code>queue_ms</code> values follow the policy (SJF: ascending offloaded work; RR: interleaved), as in the loopback tests.</li>
+<li>[ ] Compare the measured <code>transmission_ms</code> of the s = 1 cut (1.1 MB) with size / throughput from the iperf3 figure plus the ping RTT.</li>
+</ul>
+<h2 id="whole-pipeline-on-the-testbed-c-01-c-04-c-13-d-10-d-13">Whole pipeline on the testbed (C-01, C-04, C-13, D-10, D-13)<a class="headerlink" href="#whole-pipeline-on-the-testbed-c-01-c-04-c-13-d-10-d-13" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Edge server: <code>scripts/base_station/run_full_benchmarking.sh examples/scenarios/baseline.yaml</code>. Expected: every device runs <code>train_and_run_benchmark.sh both</code>, the three output files appear in <code>results/&lt;run id&gt;/</code>, <code>nodes.json</code> gains statistics, and <code>journal.json</code> shows every entry undone.</li>
+<li>[ ] Edge server: <code>scripts/base_station/run_experiment.sh examples/scenarios/heavy_load.yaml</code>. During the run, on a device: <code>tc qdisc show dev wlan0</code> lists the netem (and tbf) queue, <code>top</code> shows the load generator and the monitor; after the run both are gone and <code>tc qdisc show</code> is back to the default. The monitor trace in <code>results/&lt;run id&gt;/monitor/</code> shows the heavy regime's CPU and memory levels.</li>
+<li>[ ] Start skew (C-04): in <code>results/&lt;run id&gt;/raw/</code>, compare the <code>origin.wall_time_s</code> of the devices' records. Expected: within the NTP offset (sub-millisecond on the wired management network).</li>
+<li>[ ] Interrupt a run with Ctrl-C during profiling, then run <code>scripts/base_station/clean_devices.sh</code>. Expected: no <code>testbed-</code> process, no netem queue and no <code>testbed-</code> cgroup remains on any device.</li>
+<li>[ ] NTP guard: stop chrony on one device and start a run. Expected: the preflight refuses the run with the offending node named.</li>
+</ul>
+<h2 id="llm-profiling-and-headsplit-a-02-d-04-i-03-i-04">LLM profiling and HeadSplit (A-02, D-04, I-03, I-04)<a class="headerlink" href="#llm-profiling-and-headsplit-a-02-d-04-i-03-i-04" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Device with the LLM environment and a TinyLlama checkpoint in the mirror: <code>python -m src.models.torch.hooks --model tinyllama --weights &lt;checkpoint dir&gt; --seq-len 256 --repetitions 3 --output /tmp/blocks.json</code>. Expected: per layer, FFN time about nine times the projection and the attention heads a few milliseconds each (Chapter 5, Table small-real-blocks gives 2.4-6.7 ms per head, 27-64 ms projection, 0.23-0.62 s FFN at 1.8 GHz and four threads); <code>TESTBED_THREADS=1</code> roughly doubles them.</li>
+<li>[ ] Device: <code>scripts/end_device/train_and_run_benchmark.sh both &lt;models dir&gt; gpt2 /tmp/r --repetitions 2</code> with <code>TESTBED_MODEL_WEIGHTS</code> pointing at a GPT-2 checkpoint directory (or random weights): per-layer stage times and the logits stage are recorded; <code>python -m src.inference.client --model gpt2 ...</code> against the edge-server service moves the hidden-state cut (T x 768 floats) over the wireless link.</li>
+<li>[ ] HeadSplit: provision the devices with <code>headsplit_commit</code> set; on the controller device run <code>scripts/profile_offline.py</code> once (needs the calibration data) to produce <code>artifacts/profile.json</code>; then <code>scripts/base_station/run_experiment.sh examples/scenarios/ch6_rtt_sweep.yaml</code>. Expected: one run per added RTT value, <code>results/&lt;run id&gt;/headsplit/results.json</code> with the layer_based, head_only and headsplit totals, and the monitor and power traces of every worker. Compare the slopes with Chapter 6 (0.15 s and 1.1 s per millisecond of added RTT).</li>
+</ul>
+<h2 id="nnpm-web-application-c-05-to-c-10-j-14">NNPM web application (C-05 to C-10, J-14)<a class="headerlink" href="#nnpm-web-application-c-05-to-c-10-j-14" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Edge server: <code>nnpm</code> (or <code>python -m gui.app</code>), then open <code>http://&lt;management address&gt;:&lt;nnpm_port&gt;/</code> from a laptop on the management network. Expected: the page title reads "Neural Network Architecture Partitioning (NNPM) manager", every node of <code>nodes.json</code> has a marker, the edge server included, and the map tiles load from the configured source (or the grid appears with <code>map_offline: true</code>).</li>
+<li>[ ] Power off one device. Expected: its marker turns red within two probe rounds (about 4 s) while the others stay green; power it on again and it turns green once three of three pings succeed.</li>
+<li>[ ] Enable "Add node by clicking the map", click a position, type an id and the device's addresses, save. Expected: <code>nodes.json</code> contains the clicked coordinates; the marker appears at the clicked position; dragging it updates the coordinates in the file.</li>
+<li>[ ] Click a device marker after a benchmarking run. Expected: the panel shows the last-measured latency, available memory and CPU usage with the time of the measurement.</li>
+<li>[ ] Create Scenario, "Derive latencies from the map", "Save and run". During the run, on the device: <code>tc qdisc show dev &lt;interface&gt;</code> shows <code>netem delay &lt;derived value&gt;ms</code>; the panel's ping value is close to the injected one. After the run the queue is gone.</li>
+<li>[ ] Benchmarking dialog with the default values. Expected: the terminal shows the <code>[node][stream]</code> lines of every device as they are produced; the three output files appear under <code>results/&lt;run id&gt;/</code>.</li>
+<li>[ ] Optimise dialog on that run: greedy, SJF, <code>50%</code>. Expected: the table and the JSON file under <code>results/&lt;run id&gt;/optimisation/</code>.</li>
+<li>[ ] Press Stop during a run. Expected: the run is reported as aborted, and on every device no <code>testbed-</code> process, no netem queue and no <code>testbed-</code> cgroup remains.</li>
+</ul>
+<h2 id="provisioning-access-point-time-synchronisation-h-01-h-02-b-06-f-06-a-08-j-15">Provisioning, access point, time synchronisation (H-01, H-02, B-06, F-06, A-08, J-15)<a class="headerlink" href="#provisioning-access-point-time-synchronisation-h-01-h-02-b-06-f-06-a-08-j-15" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Edge server (Ubuntu 22.04, USB 802.11ac adapter as <code>ap_interface</code>): <code>scripts/provision/provision_edge_server.sh --allow-upstream</code>, then <code>scripts/provision/build_mirror.sh wheels</code> and <code>build_mirror.sh headsplit</code> (with <code>headsplit_commit</code> set). Expected: <code>hostapd</code>, <code>dnsmasq</code>, <code>chrony</code>, <code>testbed-mirror</code> and <code>nnpm</code> are active; a laptop sees the SSID and, when joined, gets an address from the data-plane pool and no default route; <code>curl http://&lt;management address&gt;:&lt;mirror_port&gt;/wheels/aarch64/</code> lists the wheels. Record the elapsed time from <code>results/provisioning/timing.log</code>.</li>
+<li>[ ] Flash the 64-bit Raspberry Pi OS Bookworm image, mount its boot partition and run <code>scripts/provision/prepare_image.sh device1 /media/.../bootfs</code>. Boot the device on the management switch. Expected: within a minute <code>journalctl -u dnsmasq</code> on the edge server shows a lease for <code>device1</code> at its <code>nodes.json</code> management address, and <code>ssh pi@device1</code> works with the edge server's key only.</li>
+<li>[ ] <code>scripts/provision/build_mirror.sh apt device1</code> once (the reference device downloads the Debian packages), then <code>build_mirror.sh manifest</code>. Expected: <code>mirror/apt/Packages.gz</code> exists; <code>python -m src.provisioning.mirror verify</code> prints "mirror matches its manifest".</li>
+<li>[ ] <code>scripts/provision/provision_device.sh device1 --llm</code> with the edge server's internet access disabled. Expected: the device ends with both static addresses, <code>apt-get update</code> on it contacts only the mirror, <code>pip</code> shows <code>no-index</code>, <code>sudo -n tc qdisc show</code> works for the device user and <code>sudo -n ls</code> does not; <code>chronyc tracking</code> shows the edge server as the reference. Record the elapsed time (the thesis quotes about 25 minutes per device; the measured figure replaces the "from source" wording, J-15). Run the script a second time: expected "unchanged" for every file and no reinstallation.</li>
+<li>[ ] Flash a 32-bit image on a spare card and run <code>prepare_image.sh</code>. Expected: refused with "32-bit image". Boot a device from a 32-bit card and run <code>provision_device.sh</code>. Expected: refused with the kernel architecture named.</li>
+<li>[ ] Repeat the device steps for the remaining four devices; record the total time from the blank cards to the five provisioned devices (the thesis quotes two hours for the whole testbed).</li>
+<li>[ ] NTP offset (F-06): after ten minutes, on every device <code>chronyc tracking</code> and <code>chronyc sources -v</code>. Expected: the only source is the edge server and the system-time offset is below 1 ms (sub-millisecond, Chapter 3); record the values. Start a run: the preflight accepts all devices with <code>ntp_offset_threshold_ms: 1.0</code>.</li>
+<li>[ ] Access point (B-06): <code>iw dev &lt;ap_interface&gt; info</code> on the edge server shows the configured channel at 80 MHz; <code>iw dev wlan0 link</code> on a device shows the 5 GHz frequency and a VHT rate. Measure the single-device throughput with <code>src.network.throughput_measurement</code> (F-08 item above).</li>
+</ul>
+<p>(Items are added with every work package.)</p>
+<h2 id="extensions-of-version-11-headsplit-through-nnpm-generic-adapters-catalogue">Extensions of version 1.1 (HeadSplit through NNPM, generic adapters, catalogue)<a class="headerlink" href="#extensions-of-version-11-headsplit-through-nnpm-generic-adapters-catalogue" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Runtimes dialog, HeadSplit, <strong>Check the devices</strong> before provisioning HeadSplit: every device red on checkout and environment. After <strong>Install or update HeadSplit</strong> on all devices: checkout green with the pinned commit, environment green with the <code>torch</code> and <code>transformers</code> versions.</li>
+<li>[ ] <strong>Build the speculation profile</strong> with <code>allow_upstream</code> on the edge server (internet reachable): the task completes, <code>artifacts/profile.json</code> appears on the controller and its check turns green; note the duration.</li>
+<li>[ ] <code>python -m src.models.weights fetch tinyllama --allow-upstream</code>, then <strong>Distribute a checkpoint</strong>: the checksums verify on every device and the checkpoint check turns green.</li>
+<li>[ ] A HeadSplit scenario created in the dialog (controller, four workers, mode <code>all</code>, 50 tokens) runs to completion; the summary page shows the three modes with totals of the order reported in Chapter 6, and the sweep table for an <code>added_rtt_ms</code> sweep created in the dialog.</li>
+<li>[ ] <code>model: mobilenetv2</code> and <code>model: efficientnetb0</code> on one device (<code>train_and_run_benchmark.sh both</code> with <code>--model-args '{"input_size": 224}'</code>): the stages build on the Pi within its memory, the benchmark completes, and <code>python -m src.models.inference verify</code> reports <code>ok</code> for every partition point.</li>
+<li>[ ] <code>model: hf_decoder</code> with <code>model_args: {checkpoint: &lt;models dir&gt;/Qwen__Qwen2.5-0.5B, seq_len: 32}</code> on one device: the stages run; note the per-layer times.</li>
+<li>[ ] A scenario with <code>input: {source: image_folder, path: &lt;folder with class sub-directories&gt;}</code> and <code>checks: {partition_equivalence: true}</code> on the devices: the verification files are collected and report top-1 accuracy.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../headsplit_integration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: HeadSplit integration">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                HeadSplit integration
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Changelog
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024-2026 Dimitrios Kafetzis. MIT Licence.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

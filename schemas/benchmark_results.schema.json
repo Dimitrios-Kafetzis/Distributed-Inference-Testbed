@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/docs/schemas/benchmark_results.schema.json",
+  "title": "Measurement record (BenchmarkResults, ResourceTrace, PowerTrace)",
+  "type": "object",
+  "required": ["schema_version", "kind", "run_id", "hostname", "node_id", "origin"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "enum": ["benchmark", "resource_trace", "power_trace"] },
+    "run_id": { "type": "string", "minLength": 1 },
+    "hostname": { "type": "string" },
+    "node_id": { "type": "string", "minLength": 1 },
+    "origin": { "$ref": "#/$defs/origin" },
+    "metadata": { "type": "object" }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/benchmark" },
+    { "$ref": "#/$defs/resource_trace" },
+    { "$ref": "#/$defs/power_trace" }
+  ],
+  "$defs": {
+    "origin": {
+      "type": "object",
+      "required": ["wall_time_s", "perf_counter_ns"],
+      "additionalProperties": false,
+      "properties": {
+        "wall_time_s": { "type": "number" },
+        "perf_counter_ns": { "type": "integer" }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "required": ["index", "name", "latency_ns", "cpu_peak_percent", "memory_peak_mb", "flops", "macs", "output_bytes"],
+      "additionalProperties": false,
+      "properties": {
+        "index": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" },
+        "latency_ns": { "type": "integer", "minimum": 0 },
+        "cpu_peak_percent": { "type": "number", "minimum": 0 },
+        "memory_peak_mb": { "type": "number" },
+        "flops": { "type": "integer", "minimum": 0 },
+        "macs": { "type": "integer", "minimum": 0 },
+        "output_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "partition_point": {
+      "type": "object",
+      "required": ["s", "cumulative_latency_ns", "cumulative_cpu_percent", "cumulative_memory_mb", "transmitted_bytes"],
+      "additionalProperties": false,
+      "properties": {
+        "s": { "type": "integer", "minimum": 0 },
+        "cumulative_latency_ns": { "type": "integer", "minimum": 0 },
+        "cumulative_cpu_percent": { "type": "number", "minimum": 0 },
+        "cumulative_memory_mb": { "type": "number" },
+        "transmitted_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "required": ["s", "local_ns", "transmission_ns", "remote_ns", "queue_wait_ns"],
+      "additionalProperties": false,
+      "properties": {
+        "s": { "type": "integer", "minimum": 0 },
+        "local_ns": { "type": "integer", "minimum": 0 },
+        "transmission_ns": { "type": "integer", "minimum": 0 },
+        "remote_ns": { "type": "integer", "minimum": 0 },
+        "queue_wait_ns": { "type": "integer", "minimum": 0 },
+        "server_arrival_wall_s": { "type": ["number", "null"] },
+        "server_service_start_wall_s": { "type": ["number", "null"] },
+        "server_service_end_wall_s": { "type": ["number", "null"] }
+      }
+    },
+    "benchmark": {
+      "properties": {
+        "kind": { "const": "benchmark" },
+        "model": { "type": "string", "minLength": 1 },
+        "repetition": { "type": "integer", "minimum": 0 },
+        "warmup_runs": { "type": "integer", "minimum": 0 },
+        "stages": { "type": "array", "items": { "$ref": "#/$defs/stage" } },
+        "partition_points": { "type": "array", "items": { "$ref": "#/$defs/partition_point" } },
+        "phases": { "type": "array", "items": { "$ref": "#/$defs/phase" } }
+      },
+      "required": ["kind", "model", "repetition", "stages", "partition_points"]
+    },
+    "resource_sample": {
+      "type": "object",
+      "required": ["perf_counter_ns", "cpu_percent", "memory_used_mb", "memory_available_mb", "temperature_c", "frequencies_khz", "throttled"],
+      "additionalProperties": false,
+      "properties": {
+        "perf_counter_ns": { "type": "integer" },
+        "cpu_percent": { "type": "number", "minimum": 0 },
+        "memory_used_mb": { "type": "number", "minimum": 0 },
+        "memory_available_mb": { "type": "number", "minimum": 0 },
+        "temperature_c": { "type": ["number", "null"] },
+        "frequencies_khz": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+        "throttled": { "type": ["string", "null"] }
+      }
+    },
+    "resource_trace": {
+      "properties": {
+        "kind": { "const": "resource_trace" },
+        "interval_s": { "type": "number", "exclusiveMinimum": 0 },
+        "nominal_frequency_khz": { "type": ["integer", "null"] },
+        "samples": { "type": "array", "items": { "$ref": "#/$defs/resource_sample" } }
+      },
+      "required": ["kind", "interval_s", "samples"]
+    },
+    "power_sample": {
+      "type": "object",
+      "required": ["perf_counter_ns", "current_ma", "voltage_v", "power_mw"],
+      "additionalProperties": false,
+      "properties": {
+        "perf_counter_ns": { "type": "integer" },
+        "current_ma": { "type": "number" },
+        "voltage_v": { "type": "number" },
+        "power_mw": { "type": "number" }
+      }
+    },
+    "power_trace": {
+      "properties": {
+        "kind": { "const": "power_trace" },
+        "interval_s": { "type": "number", "exclusiveMinimum": 0 },
+        "samples": { "type": "array", "items": { "$ref": "#/$defs/power_sample" } }
+      },
+      "required": ["kind", "interval_s", "samples"]
+    }
+  }
+}

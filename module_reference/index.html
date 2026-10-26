@@ -1,0 +1,2860 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Experimental testbed for partitioned inference of deep neural networks and large language models across Raspberry Pi edge devices and an edge server, orchestrated by the NNPM web application.">
+      
+      
+      
+        <link rel="canonical" href="https://dimitrios-kafetzis.github.io/Distributed-Inference-Testbed/module_reference/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../adding_a_model/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Module reference - Distributed Inference Testbed</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Distributed Inference Testbed" class="md-header__button md-logo" aria-label="Distributed Inference Testbed" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Distributed Inference Testbed
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Module reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Dimitrios-Kafetzis/Distributed-Inference-Testbed
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Distributed Inference Testbed" class="md-nav__button md-logo" aria-label="Distributed Inference Testbed" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Distributed Inference Testbed
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Dimitrios-Kafetzis/Distributed-Inference-Testbed
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provisioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provisioning scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../requirements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pinned dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the testbed
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Using the testbed
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nnpm_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NNPM tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nnpm_user_guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NNPM user guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scenario_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scenario reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../results_format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sample_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sample data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#srcconfigpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/config.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srccommonnodespy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/common/nodes.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-infrastructure-srccommon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common infrastructure (src/common/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-layer-srcnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network layer (src/network/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network layer (src/network/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transportpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transport.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh_executorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ssh_executor.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collectionpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        collection.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        latency_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node_statisticspy-edge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        node_statistics.py (edge server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        power_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#throughput_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        throughput_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recordspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        records.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-side-control-srctestbed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device-side control (src/testbed/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device-side control (src/testbed/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_generatorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_generator.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency_injectorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        latency_injector.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background_trafficpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        background_traffic.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#heterogeneitypy-device-sudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        heterogeneity.py (device, sudo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource_monitorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resource_monitor.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu_frequencypy-edge-server-sudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpu_frequency.py (edge server, sudo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-and-profiling-srcmodels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models and profiling (src/models/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Models and profiling (src/models/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registrypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registry.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tf-tensorflow-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tf/ (TensorFlow, CPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#torch-pytorch-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        torch/ (PyTorch, CPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inputspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inputs.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weightspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        weights.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fakepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fake.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flopspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        flops.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profilerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        profiler.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inferencepy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inference.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partitioned-inference-srcinference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partitioned inference (src/inference/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Partitioned inference (src/inference/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serverpy-edge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server.py (edge server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clientpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        client.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schedulerpy-protocolpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scheduler.py, protocol.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurement-records-and-aggregation-srcbenchmarking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measurement records and aggregation (src/benchmarking/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Measurement records and aggregation (src/benchmarking/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benchmark_resultspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark_results.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_aggregationpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_aggregation.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partition_calculatorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        partition_calculator.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stats.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partition-optimisation-srcpartitioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partition optimisation (src/partitioning/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Partition optimisation (src/partitioning/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delay_modelpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delay_model.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        algorithms/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delay_optimizerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delay_optimizer.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orchestration-srcorchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestration (src/orchestration/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Orchestration (src/orchestration/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experimentpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        experiment.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenariopy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scenario.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local_modepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        local_mode.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geopy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        geo.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runtimes/
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-support-srcprovisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioning support (src/provisioning/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnpm-gui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NNPM (gui/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell scripts
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Extending
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../headsplit_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HeadSplit integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Validation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware_validation_checklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware validation checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../third_party_notices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Third-party notices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#srcconfigpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/config.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srccommonnodespy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/common/nodes.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-infrastructure-srccommon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common infrastructure (src/common/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-layer-srcnetwork" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network layer (src/network/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network layer (src/network/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transportpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        transport.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh_executorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ssh_executor.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collectionpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        collection.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        latency_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node_statisticspy-edge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        node_statistics.py (edge server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        power_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#throughput_measurementpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        throughput_measurement.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recordspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        records.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-side-control-srctestbed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device-side control (src/testbed/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device-side control (src/testbed/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_generatorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_generator.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency_injectorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        latency_injector.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#background_trafficpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        background_traffic.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#heterogeneitypy-device-sudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        heterogeneity.py (device, sudo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource_monitorpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resource_monitor.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu_frequencypy-edge-server-sudo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cpu_frequency.py (edge server, sudo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-and-profiling-srcmodels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models and profiling (src/models/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Models and profiling (src/models/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registrypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        registry.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tf-tensorflow-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tf/ (TensorFlow, CPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#torch-pytorch-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        torch/ (PyTorch, CPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inputspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inputs.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weightspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        weights.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fakepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fake.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flopspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        flops.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profilerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        profiler.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inferencepy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inference.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partitioned-inference-srcinference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partitioned inference (src/inference/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Partitioned inference (src/inference/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serverpy-edge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        server.py (edge server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clientpy-device" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        client.py (device)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#schedulerpy-protocolpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scheduler.py, protocol.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurement-records-and-aggregation-srcbenchmarking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measurement records and aggregation (src/benchmarking/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Measurement records and aggregation (src/benchmarking/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benchmark_resultspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark_results.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result_aggregationpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result_aggregation.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partition_calculatorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        partition_calculator.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        stats.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#partition-optimisation-srcpartitioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Partition optimisation (src/partitioning/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Partition optimisation (src/partitioning/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delay_modelpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delay_model.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        algorithms/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delay_optimizerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delay_optimizer.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orchestration-srcorchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestration (src/orchestration/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Orchestration (src/orchestration/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experimentpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        experiment.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenariopy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scenario.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local_modepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        local_mode.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geopy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        geo.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runtimes/
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-support-srcprovisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioning support (src/provisioning/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnpm-gui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NNPM (gui/)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell scripts
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed/edit/main/docs/module_reference.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="module-reference">Module reference<a class="headerlink" href="#module-reference" title="Permanent link">&para;</a></h1>
+<p>One entry per module: purpose, command line where the module has one, inputs and outputs. Every command line prints its full help with <code>--help</code>. Device-side tools accept <code>--tag</code> (the process tag that <code>clean_devices.sh</code> uses to find survivors) and, where they produce records, <code>--run-id</code>, <code>--node-id</code>, <code>--origin-wall</code> and <code>--origin-perf</code> (the time origin from the start signal).</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="srcconfigpy"><code>src/config.py</code><a class="headerlink" href="#srcconfigpy" title="Permanent link">&para;</a></h3>
+<p><code>config.yaml</code> with environment-variable overrides (<code>TESTBED_&lt;KEY&gt;</code>), validated against <code>docs/schemas/config.schema.json</code>; secrets only from the environment. <code>python -m src.config [--config FILE] [--env]</code> prints the effective configuration as JSON, or as <code>TESTBED_*</code> assignments for scripts.</p>
+<h3 id="srccommonnodespy"><code>src/common/nodes.py</code><a class="headerlink" href="#srccommonnodespy" title="Permanent link">&para;</a></h3>
+<p><code>nodes.json</code>: <code>Node</code> (id, role <code>Base Station</code> or <code>End Device</code>, data-plane and management addresses, coordinates, statistics), <code>Topology</code> (at most one edge server), load, validate and save atomically; <code>TESTBED_NODES</code> selects another file. Imports the earlier release's format.</p>
+<h2 id="common-infrastructure-srccommon">Common infrastructure (<code>src/common/</code>)<a class="headerlink" href="#common-infrastructure-srccommon" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runner.py</code></td>
+<td><code>CommandRunner</code> protocol with <code>SubprocessRunner</code>, <code>FakeRunner</code> (scripted replies, records calls) and <code>DryRunRunner</code> (prints the commands)</td>
+</tr>
+<tr>
+<td><code>clock.py</code></td>
+<td>injectable clocks; <code>perf_counter_ns</code> for intervals, the wall clock only for the start-signal origin</td>
+</tr>
+<tr>
+<td><code>sysfs.py</code></td>
+<td>rooted access to <code>/sys</code>, <code>/proc</code> and cgroupfs (a temporary tree in tests)</td>
+</tr>
+<tr>
+<td><code>process_tags.py</code></td>
+<td>detached tagged processes: <code>setsid</code> process groups, PID files, <code>TESTBED_TAG</code>, stop by group and by tag</td>
+</tr>
+<tr>
+<td><code>runs.py</code></td>
+<td>run ids, the results layout (<code>RunPaths</code>), atomic JSON writes, the run journal (<code>RunJournal</code>: record, undo in reverse order, pending entries after a restart)</td>
+</tr>
+<tr>
+<td><code>seeds.py</code></td>
+<td><code>seed_everything(seed)</code> for <code>random</code>, NumPy, TensorFlow, PyTorch and <code>PYTHONHASHSEED</code></td>
+</tr>
+<tr>
+<td><code>start_signal.py</code></td>
+<td><code>wait_until(T0)</code> and the captured origin; <code>python -m src.common.start_signal --start-at T0</code></td>
+</tr>
+<tr>
+<td><code>metadata.py</code></td>
+<td><code>metadata.json</code>: scenario, Git commit, framework versions, per-node facts, before any device command</td>
+</tr>
+<tr>
+<td><code>probe.py</code></td>
+<td><code>python -m src.common.probe [--no-frameworks]</code>: the node's hostname, kernel, OS, Python, framework versions, CPU model, cores, maximum frequency, memory, NTP status, as JSON</td>
+</tr>
+</tbody>
+</table>
+<h2 id="network-layer-srcnetwork">Network layer (<code>src/network/</code>)<a class="headerlink" href="#network-layer-srcnetwork" title="Permanent link">&para;</a></h2>
+<h3 id="transportpy"><code>transport.py</code><a class="headerlink" href="#transportpy" title="Permanent link">&para;</a></h3>
+<p><code>ParamikoTransport</code> (SSH), <code>LocalTransport</code> (local subprocesses in per-node directories), <code>FakeTransport</code> (tests). Line streaming, exit status, failure classes (authentication, unreachable, command), file fetch.</p>
+<h3 id="ssh_executorpy"><code>ssh_executor.py</code><a class="headerlink" href="#ssh_executorpy" title="Permanent link">&para;</a></h3>
+<p>Concurrent remote commands with a merged <code>[node][stream]</code> log streamed to subscribers; aborts the experiment on the first failure unless told otherwise. <code>python -m src.network.ssh_executor "&lt;command&gt;" &lt;node id or last octet&gt;... [--log FILE] [--no-abort] [--timeout S] [--nodes-file FILE] [--local]</code>.</p>
+<h3 id="collectionpy"><code>collection.py</code><a class="headerlink" href="#collectionpy" title="Permanent link">&para;</a></h3>
+<p>Result files from the devices into the run directory: <code>push</code> through <code>scripts/end_device/transfer_files.sh</code> (scp with the hostname prefixed), or <code>pull</code> through the transport.</p>
+<h3 id="latency_measurementpy-device"><code>latency_measurement.py</code> (device)<a class="headerlink" href="#latency_measurementpy-device" title="Permanent link">&para;</a></h3>
+<p>Ping latency to the edge server and other nodes plus a psutil snapshot of memory and CPU, written as a latency record. <code>python -m src.network.latency_measurement --target ID=IP ... --count N --output FILE --run-id R --node-id D [--interface wlan0] [--interval S] [--timeout S]</code>.</p>
+<h3 id="node_statisticspy-edge-server"><code>node_statistics.py</code> (edge server)<a class="headerlink" href="#node_statisticspy-edge-server" title="Permanent link">&para;</a></h3>
+<p>Per-node averages of the latency records into <code>final_latencies_averages.json</code>, and the statistics in <code>nodes.json</code>. <code>python -m src.network.node_statistics &lt;latency dir&gt; &lt;output&gt; [--nodes nodes.json] [--run-id ID]</code>.</p>
+<h3 id="power_measurementpy-device"><code>power_measurement.py</code> (device)<a class="headerlink" href="#power_measurementpy-device" title="Permanent link">&para;</a></h3>
+<p>INA260 current, voltage and power at an interval into a <code>PowerTrace</code>; energy functions (total energy, energy per inference or per token, energy-delay product). <code>python -m src.network.power_measurement --interval S --duration S --output FILE --run-id R --node-id D [--address 0x40] [--fake]</code>.</p>
+<h3 id="throughput_measurementpy-device"><code>throughput_measurement.py</code> (device)<a class="headerlink" href="#throughput_measurementpy-device" title="Permanent link">&para;</a></h3>
+<p>iperf3 throughput to the edge server, as a <code>ThroughputResult</code>. <code>python -m src.network.throughput_measurement --server IP --duration S --output FILE [--parallel N] [--reverse] [--udp --bitrate 50M] [--port P] [--bind IP]</code>.</p>
+<h3 id="recordspy"><code>records.py</code><a class="headerlink" href="#recordspy" title="Permanent link">&para;</a></h3>
+<p>The latency-and-system record type.</p>
+<h2 id="device-side-control-srctestbed">Device-side control (<code>src/testbed/</code>)<a class="headerlink" href="#device-side-control-srctestbed" title="Permanent link">&para;</a></h2>
+<h3 id="load_generatorpy-device"><code>load_generator.py</code> (device)<a class="headerlink" href="#load_generatorpy-device" title="Permanent link">&para;</a></h3>
+<p>Deterministic CPU and memory contention: a duty-cycle loop per worker for a CPU percentage, 1 KB blocks held for a memory percentage; modes <code>fixed</code>, <code>continuous</code> (seeded redraw every cycle), <code>--regime light|moderate|heavy</code> (the Chapter 3 ranges) and <code>--processes N</code> (the Chapter 4 model). <code>python -m src.testbed.load_generator [--cpu % --memory %] [--cores N] [--mode fixed|continuous --cpu-range MIN MAX --memory-range MIN MAX] [--regime R] [--processes N] [--period-ms MS] [--cycle-s S] [--duration S] [--seed N] [--log FILE]</code>. Releases everything on SIGTERM.</p>
+<h3 id="latency_injectorpy-device"><code>latency_injector.py</code> (device)<a class="headerlink" href="#latency_injectorpy-device" title="Permanent link">&para;</a></h3>
+<p>tc-netem shaping on an interface: delay with variation modes <code>constant</code>, <code>uniform</code>, <code>square</code>, jitter, loss, a token-bucket rate cap, per-destination leaves under an HTB root. <code>python -m src.testbed.latency_injector &lt;iface&gt; [--delay MS | --delay MIN MAX --mode M --period S] [--jitter MS] [--loss %] [--rate MBPS] [--dst IP ...] [--duration S] [--seed N] [--clear] [--no-sudo] [--dry-run]</code>. <code>scripts/end_device/apply_latency.sh</code> keeps the historical command line.</p>
+<h3 id="background_trafficpy"><code>background_traffic.py</code><a class="headerlink" href="#background_trafficpy" title="Permanent link">&para;</a></h3>
+<p>Builds the iperf3 stream command for a device (UDP or TCP at a target rate); the orchestrator starts it.</p>
+<h3 id="heterogeneitypy-device-sudo"><code>heterogeneity.py</code> (device, sudo)<a class="headerlink" href="#heterogeneitypy-device-sudo" title="Permanent link">&para;</a></h3>
+<p><code>freq --max-mhz N</code> (cpufreq cap, with <code>--state FILE</code> to record and <code>--restore STATE</code> to revert), <code>cgroup create --name N --memory-mb M</code> and <code>cgroup remove --name N</code> (cgroups v2), <code>threads --count N</code> (environment for the inference runtime). <code>--sysfs-root</code> for tests.</p>
+<h3 id="resource_monitorpy-device"><code>resource_monitor.py</code> (device)<a class="headerlink" href="#resource_monitorpy-device" title="Permanent link">&para;</a></h3>
+<p>The 1 Hz monitoring agent: CPU, memory, temperature, per-core frequency, throttling flags, as a <code>ResourceTrace</code>. <code>python -m src.testbed.resource_monitor --output FILE --run-id R --node-id D [--interval S] [--duration S] [--nominal-khz K]</code>.</p>
+<h3 id="cpu_frequencypy-edge-server-sudo"><code>cpu_frequency.py</code> (edge server, sudo)<a class="headerlink" href="#cpu_frequencypy-edge-server-sudo" title="Permanent link">&para;</a></h3>
+<p>Nominal frequency policy: <code>performance</code> governor, turbo off, maximum frequency at the base frequency; <code>apply --state FILE</code>, <code>verify</code>, <code>restore --state FILE</code>.</p>
+<h2 id="models-and-profiling-srcmodels">Models and profiling (<code>src/models/</code>)<a class="headerlink" href="#models-and-profiling-srcmodels" title="Permanent link">&para;</a></h2>
+<h3 id="registrypy"><code>registry.py</code><a class="headerlink" href="#registrypy" title="Permanent link">&para;</a></h3>
+<p>The adapter interface (a model as S stages with FLOPs, MACs and output size per stage) and the name registry; plug-ins through <code>TESTBED_MODEL_MODULES</code> or the <code>testbed.models</code> entry-point group. An adapter's <code>PARAMETERS</code> (a JSON Schema) describes its constructor arguments: <code>parameter_schema(name)</code>, <code>validate_model_args(name, args)</code> (the scenario's <code>model_args</code>), <code>parse_model_args(text)</code> (the tools' <code>--model-args</code>). See <a href="../adding_a_model/">adding_a_model.md</a>.</p>
+<h3 id="tf-tensorflow-cpu"><code>tf/</code> (TensorFlow, CPU)<a class="headerlink" href="#tf-tensorflow-cpu" title="Permanent link">&para;</a></h3>
+<p><code>alexnet.py</code> (the 11 stages of Chapter 4, 227 × 227 × 3 input), <code>vgg16.py</code> (eight stages), <code>resnet50.py</code> (six stages cut at the residual-stage boundaries), <code>gru_qoe.py</code> (the Chapter 4 QoE predictor: GRU, attention, output), on <code>keras_stages.py</code> (sequential and functional-cut adapters, analytical operation counts, <code>.npz</code> weights; <code>select_cuts(model)</code> for adapters that compute their cuts). <code>keras_applications.py</code>: any <code>tf.keras.applications</code> classifier (<code>keras_app</code> with <code>application</code>, and the registered names <code>mobilenetv2</code>, <code>efficientnetb0</code>, <code>densenet121</code>, <code>resnet50v2</code>, <code>inceptionv3</code>, <code>nasnetmobile</code>, <code>xception</code>), cut where a single tensor crosses the graph (<code>find_single_tensor_cuts</code>) and thinned to <code>max_stages</code> stages of comparable work (<code>thin_cuts</code>).</p>
+<h3 id="torch-pytorch-cpu"><code>torch/</code> (PyTorch, CPU)<a class="headerlink" href="#torch-pytorch-cpu" title="Permanent link">&para;</a></h3>
+<p><code>decoder.py</code> (decoder-only LLMs as stages: embedding, layers, LM head; the cut is the hidden state; the <code>FAMILIES</code> table gives the attribute names and structural facts of GPT-2, Llama, Mistral, Qwen2 and Gemma), <code>gpt2.py</code>, <code>tinyllama.py</code>, <code>hf_decoder.py</code> (<code>hf_decoder</code>: any checkpoint or configuration of a known family; <code>llama32_1b</code>, <code>qwen25_05b</code>), <code>headwise.py</code> (per-head decomposition of a decoder layer: head units, projection, FFN, equal to the stock layer; follows the family table), <code>hooks.py</code> (<code>python -m src.models.torch.hooks --model NAME --seq-len T --repetitions N --output FILE [--weights DIR] [--config JSON]</code>: per-block timing with forward hooks).</p>
+<h3 id="inputspy"><code>inputs.py</code><a class="headerlink" href="#inputspy" title="Permanent link">&para;</a></h3>
+<p>Input sources (<code>synthetic</code>, <code>numpy_file</code>, <code>image_file</code>, <code>image_folder</code>, <code>text_prompt</code>): <code>load_sample(spec, adapter, seed, data_dir)</code> returns the array, a label when the source has one, and a description that the measurement record keeps. The tools take the spec as <code>--input-source JSON</code>.</p>
+<h3 id="weightspy"><code>weights.py</code><a class="headerlink" href="#weightspy" title="Permanent link">&para;</a></h3>
+<p>The model catalogue <code>&lt;bs_models_dir&gt;/models.yaml</code> (example: <code>examples/models.yaml</code>): <code>python -m src.models.weights list|verify|checksums|fetch [--models-dir DIR] [NAME ...] [--all] [--allow-upstream]</code>. Kinds: <code>npz</code> (seeded weights), <code>keras_imagenet</code> (the ImageNet weights of a Keras application), <code>hf_checkpoint</code> (a Hugging Face snapshot). <code>SHA256SUMS</code> files make every copy verifiable; <code>fetch</code> is the only command that reaches the internet.</p>
+<h3 id="fakepy"><code>fake.py</code><a class="headerlink" href="#fakepy" title="Permanent link">&para;</a></h3>
+<p>A model with configurable stage costs for tests and local mode.</p>
+<h3 id="flopspy"><code>flops.py</code><a class="headerlink" href="#flopspy" title="Permanent link">&para;</a></h3>
+<p>Analytical operation counts (FLOPs = 2 × MACs) from layer configuration and shapes.</p>
+<h3 id="profilerpy"><code>profiler.py</code><a class="headerlink" href="#profilerpy" title="Permanent link">&para;</a></h3>
+<p>Stage-by-stage execution with <code>perf_counter_ns</code>, a sampler for peak CPU (from CPU-time deltas over windows of at least 20 ms, clipped to 100 % × cores) and peak resident memory, cumulative values per partition point.</p>
+<h3 id="inferencepy-device"><code>inference.py</code> (device)<a class="headerlink" href="#inferencepy-device" title="Permanent link">&para;</a></h3>
+<p><code>python -m src.models.inference {prepare,benchmark,partial,complete,capacity,verify} ...</code>: prepare the weights and the test image with a seed; benchmark across all partition points into <code>BenchmarkResults</code> files; run stages 1..s (<code>partial</code>) or s+1..S (<code>complete</code>) on a tensor file; report FLOP/s; <code>verify</code> compares every partition point with the unpartitioned model (maximum deviation, top-1 agreement, accuracy when the input has a label) and exits with status 1 above <code>--tolerance</code>. Every mode takes <code>--model-args JSON</code> and <code>--input-source JSON</code>. <code>scripts/end_device/train_and_run_benchmark.sh &lt;train|benchmark|both&gt; &lt;model dir&gt; &lt;model&gt; &lt;output dir&gt; [options]</code> wraps it.</p>
+<h2 id="partitioned-inference-srcinference">Partitioned inference (<code>src/inference/</code>)<a class="headerlink" href="#partitioned-inference-srcinference" title="Permanent link">&para;</a></h2>
+<h3 id="serverpy-edge-server"><code>server.py</code> (edge server)<a class="headerlink" href="#serverpy-edge-server" title="Permanent link">&para;</a></h3>
+<p>The inference service: receives offloaded requests, orders them under RR or SJF, runs stages s+1..S, acknowledges every request when its last byte arrives, returns the output with the server-side timestamps. <code>python -m src.inference.server --model M [--weights W] --policy RR|SJF --port P [--host H] [--nodes d1,d2,...] [--max-requests N]</code>.</p>
+<h3 id="clientpy-device"><code>client.py</code> (device)<a class="headerlink" href="#clientpy-device" title="Permanent link">&para;</a></h3>
+<p>Partitioned inference with per-phase timing (local, transmission, remote, queue wait) into a phases record. <code>python -m src.inference.client --model M [--weights W] --server HOST:PORT --s S [--s S ...] --repetitions N --output FILE --run-id R --node-id D</code>.</p>
+<h3 id="schedulerpy-protocolpy"><code>scheduler.py</code>, <code>protocol.py</code><a class="headerlink" href="#schedulerpy-protocolpy" title="Permanent link">&para;</a></h3>
+<p>The pure RR and SJF schedulers; the length-prefixed JSON-plus-payload wire protocol (<code>request</code>, <code>ack</code>, <code>result</code>, <code>error</code>).</p>
+<h2 id="measurement-records-and-aggregation-srcbenchmarking">Measurement records and aggregation (<code>src/benchmarking/</code>)<a class="headerlink" href="#measurement-records-and-aggregation-srcbenchmarking" title="Permanent link">&para;</a></h2>
+<h3 id="benchmark_resultspy"><code>benchmark_results.py</code><a class="headerlink" href="#benchmark_resultspy" title="Permanent link">&para;</a></h3>
+<p><code>BenchmarkResults</code>, <code>ResourceTrace</code>, <code>PowerTrace</code> and their JSON Schema; <code>python -m src.benchmarking.benchmark_results FILE</code> validates a record.</p>
+<h3 id="result_aggregationpy"><code>result_aggregation.py</code><a class="headerlink" href="#result_aggregationpy" title="Permanent link">&para;</a></h3>
+<p>Per-device averages over repetitions and trace merging. <code>python -m src.benchmarking.result_aggregation &lt;raw dir&gt; &lt;output&gt; [--monitor-dir D] [--power-dir D] [--merged-dir D]</code>.</p>
+<h3 id="partition_calculatorpy"><code>partition_calculator.py</code><a class="headerlink" href="#partition_calculatorpy" title="Permanent link">&para;</a></h3>
+<p>Maximum feasible partition point per device (memory and CPU constraints). <code>python -m src.benchmarking.partition_calculator &lt;final_latencies_averages.json&gt; &lt;total_averages_of_benchmark_results.json&gt; &lt;output&gt;</code>.</p>
+<h3 id="statspy"><code>stats.py</code><a class="headerlink" href="#statspy" title="Permanent link">&para;</a></h3>
+<p>Mean, standard deviation, minimum, maximum, 95th percentile, count.</p>
+<h2 id="partition-optimisation-srcpartitioning">Partition optimisation (<code>src/partitioning/</code>)<a class="headerlink" href="#partition-optimisation-srcpartitioning" title="Permanent link">&para;</a></h2>
+<h3 id="delay_modelpy"><code>delay_model.py</code><a class="headerlink" href="#delay_modelpy" title="Permanent link">&para;</a></h3>
+<p>Local (measured or analytical), transmission (<code>size_over_rate</code> or <code>rtt_only</code>) and remote (RR or SJF) delay per device; total delay and variance of a vector.</p>
+<h3 id="algorithms"><code>algorithms/</code><a class="headerlink" href="#algorithms" title="Permanent link">&para;</a></h3>
+<p><code>greedy.py</code> (single-step moves, Chapter 4), <code>exhaustive.py</code> (enumeration with the optimality gap), <code>trend_based.py</code> (linear trends over <code>num_solutions</code> neighbours); a registry with plug-ins.</p>
+<h3 id="delay_optimizerpy"><code>delay_optimizer.py</code><a class="headerlink" href="#delay_optimizerpy" title="Permanent link">&para;</a></h3>
+<p><code>python -m src.partitioning.delay_optimizer &lt;max points&gt; &lt;total averages&gt; &lt;latencies&gt; --scheduling_algorithm SJF|RR --mode default|optimize|exhaustive_search|trend_based_optimize [--algorithm NAME] --objective total_delay|variance [--partition_scheme '[3,5,8,1]'|'{"device1": 3}'|50% --partition_scheme_mode explicit|percentage] [--max_total_delays '[150,150]'] [--output-dir DIR] [--log_file FILE] [--edge-capacity FLOPS] [--rr-quantum-ms MS] [--transmission-mode M] [--throughput-file FILE] [--nodes d1,d2] [--scenario FILE]</code>. Writes <code>optimized_partition_scheme.json</code> and <code>search_log.txt</code>.</p>
+<h2 id="orchestration-srcorchestration">Orchestration (<code>src/orchestration/</code>)<a class="headerlink" href="#orchestration-srcorchestration" title="Permanent link">&para;</a></h2>
+<h3 id="experimentpy"><code>experiment.py</code><a class="headerlink" href="#experimentpy" title="Permanent link">&para;</a></h3>
+<p>The pipeline (preflight, apply, profile, collect, aggregate, optimise, teardown) and the benchmarking subset. <code>python -m src.orchestration.experiment run|benchmark|plan --scenario FILE | --name NAME [--version N] [--local [ROOT] --devices N] [--results-dir DIR] [--run-id ID] [--allow-dirty]</code>; <code>teardown [--local [ROOT]]</code> undoes the pending entries of unfinished runs. <code>plan</code> prints the command plan without running anything. The scripts <code>scripts/base_station/run_experiment.sh</code>, <code>run_full_benchmarking.sh</code> and <code>clean_devices.sh</code> wrap these.</p>
+<h3 id="scenariopy"><code>scenario.py</code><a class="headerlink" href="#scenariopy" title="Permanent link">&para;</a></h3>
+<p>Schema validation with defaults, the versioned <code>ScenarioStore</code>, sweep expansion, per-node overlays, content hashes.</p>
+<h3 id="local_modepy"><code>local_mode.py</code><a class="headerlink" href="#local_modepy" title="Permanent link">&para;</a></h3>
+<p><code>create_local_testbed(root, devices)</code>: the simulated testbed on one machine.</p>
+<h3 id="geopy"><code>geo.py</code><a class="headerlink" href="#geopy" title="Permanent link">&para;</a></h3>
+<p><code>calculate_distance</code> (Haversine) and <code>calculate_latency</code> (5 ms + 1 ms/km, clipped to [5, 50] ms), re-exported by <code>gui/app.py</code>.</p>
+<h3 id="runtimes"><code>runtimes/</code><a class="headerlink" href="#runtimes" title="Permanent link">&para;</a></h3>
+<p>The runtime plug-in interface (<code>Runtime</code>: scenario block schema, <code>run</code>, <code>check_node</code>, <code>actions</code> and <code>perform</code>, <code>results</code>; <code>ActionSession</code>; the registry with <code>TESTBED_RUNTIME_MODULES</code> and the <code>testbed.runtimes</code> entry-point group), <code>testbed.py</code> (the built-in profile stage) and <code>headsplit.py</code> (HeadSplit: commands, readiness checks, the install, profile and checkpoint actions, the JSON and summary-line parsers). <code>headsplit_runtime.py</code> keeps the earlier import path. See <a href="../adding_a_runtime/">adding_a_runtime.md</a> and <a href="../headsplit_integration/">headsplit_integration.md</a>.</p>
+<h2 id="provisioning-support-srcprovisioning">Provisioning support (<code>src/provisioning/</code>)<a class="headerlink" href="#provisioning-support-srcprovisioning" title="Permanent link">&para;</a></h2>
+<p><code>render.py</code> (<code>python -m src.provisioning.render --role edge-server|device [--node ID] [--out DIR] [--vars] [--var K=V]</code>), <code>networks.py</code> (prefix to network, DHCP pool, 802.11ac channel helpers), <code>mirror.py</code> (<code>python -m src.provisioning.mirror manifest|verify [--mirror DIR]</code>). The scripts are described in <a href="../provisioning/"><code>../scripts/provision/README.md</code></a>.</p>
+<h2 id="nnpm-gui">NNPM (<code>gui/</code>)<a class="headerlink" href="#nnpm-gui" title="Permanent link">&para;</a></h2>
+<p><code>app.py</code> (<code>python -m gui.app [--host H] [--port P] [--config FILE] [--nodes-file FILE] [--local [ROOT]] [--devices N] [--allow-dirty]</code>; the <code>nnpm</code> console script), <code>state.py</code> (the prober, the run manager with sweeps, the task manager, the application state), <code>blueprints/</code> (topology, status, scenarios, runs with the summary page, optimise, catalog, runtimes), <code>templates/run.html</code> (the run summary page). See <a href="../nnpm_user_guide/">nnpm_user_guide.md</a>.</p>
+<h2 id="shell-scripts">Shell scripts<a class="headerlink" href="#shell-scripts" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Where</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scripts/base_station/run_full_benchmarking.sh [scenario] [--local [ROOT]]</code></td>
+<td>edge server</td>
+<td>the four-stage benchmarking pipeline (default scenario <code>examples/scenarios/baseline.yaml</code>)</td>
+</tr>
+<tr>
+<td><code>scripts/base_station/run_experiment.sh &lt;scenario.yaml \| --name NAME [--version N]&gt; [--local [ROOT]]</code></td>
+<td>edge server</td>
+<td>a full experiment</td>
+</tr>
+<tr>
+<td><code>scripts/base_station/clean_devices.sh [--local [ROOT]]</code></td>
+<td>edge server</td>
+<td>stop every tagged process, clear shaping and cgroups, undo pending journals</td>
+</tr>
+<tr>
+<td><code>scripts/end_device/train_and_run_benchmark.sh &lt;train\|benchmark\|both&gt; &lt;model dir&gt; &lt;model&gt; &lt;output dir&gt; [options]</code></td>
+<td>device</td>
+<td>prepare the weights and the test input, run the benchmark, or both</td>
+</tr>
+<tr>
+<td><code>scripts/end_device/transfer_files.sh &lt;user&gt; &lt;edge server&gt; &lt;directory&gt; &lt;files...&gt;</code></td>
+<td>device</td>
+<td>scp the result files with the hostname prefixed</td>
+</tr>
+<tr>
+<td><code>scripts/end_device/apply_latency.sh &lt;iface&gt; &lt;min&gt; &lt;max&gt; [--once\|--continuous\|--periodic] ... \| --clear</code></td>
+<td>device</td>
+<td>the historical tc-netem wrapper</td>
+</tr>
+<tr>
+<td><code>scripts/provision/*.sh</code></td>
+<td>edge server, device</td>
+<td>provisioning (see its README)</td>
+</tr>
+<tr>
+<td><code>scripts/lock_requirements.sh [--upgrade]</code></td>
+<td>development</td>
+<td>regenerate the lock files</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Architecture
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../adding_a_model/" class="md-footer__link md-footer__link--next" aria-label="Next: Adding a model">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Adding a model
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024-2026 Dimitrios Kafetzis. MIT Licence.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.footer", "navigation.indexes", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>
